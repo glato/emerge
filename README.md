@@ -4,6 +4,7 @@ emerge
 emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It's mainly written in Python 3.
 
 ![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/02-emerge-github.png)
+![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/03-emerge-github.png)
 
 ## Goals of this project
 ---------------------
