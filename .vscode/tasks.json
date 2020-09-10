@@ -1,0 +1,29 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {     
+                "label": "pylint project",
+                "type": "shell",
+                "command": "venv/bin/pylint --msg-template \"{path}:{line}:{column}:{category}:{symbol} - {msg}\" --disable=all --enable=F,E,unneeded-not,invalid-name,unidiomatic-typecheck,too-many-lines,multiple-imports,comparison-with-itself,cyclic-import,too-many-ancestors,too-many-branches,too-many-statements,too-many-nested-blocks,consider-using-join,bad-classmethod-argument,unused-argument,protected-access,abstract-method,unreachable,duplicate-key,unnecessary-semicolon,global-variable-not-assigned,unused-variable,binary-op-exception,bad-format-string,anomalous-backslash-in-string,bad-open-mode emerge",
+                "presentation": {
+                    "reveal": "never",
+                    "panel": "shared"
+                },
+                "problemMatcher": {
+                    "owner": "python",
+                    "fileLocation": ["relative", "${workspaceFolder}"],
+                    "pattern": {
+                        "regexp": "^(.+):(\\d+):(\\d+):(\\w+):(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "severity": 4,
+                        "message": 5
+                    }
+                }
+
+        }
+    ]
+}

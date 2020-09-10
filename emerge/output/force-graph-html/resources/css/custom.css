@@ -1,0 +1,78 @@
+.links line {
+    stroke: #999;
+    stroke-opacity: 0.6;
+}
+
+.table-condensed {
+    font-size: 10px;
+}
+
+.btn {
+    font-size: 12px
+}
+
+.btn-group-vertical {
+    min-width: 180px;
+    max-width: 180px;
+}
+
+.btn-with-spacing {
+    margin-bottom: 4px;
+    border-radius: 4px !important;
+}
+
+.btn-with-spacing-right {
+    margin-right: 4px;
+}
+
+.btn-with-spacing-left {
+    margin-left: 4px;
+}
+
+.jumbotron {
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    padding: 25px;
+    padding-bottom: 40rem;
+}
+
+.node circle {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+
+.node text {
+    fill: #666;
+    font-family: Helvetica
+}
+
+.truncate {
+    width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.tooltip {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 2px;
+    background: #e7e7e7;
+    border: solid 2px #333;
+    border-radius: 5px;
+}
+
+.table-condensed>thead>tr>th,
+.table-condensed>tbody>tr>th,
+.table-condensed>tfoot>tr>th,
+.table-condensed>thead>tr>td,
+.table-condensed>tbody>tr>td,
+.table-condensed>tfoot>tr>td {
+    padding: 2px;
+}
+
+.card-header {
+    padding: 8px;
+}

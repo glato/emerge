@@ -1,0 +1,30 @@
+---
+project_name: kotlin_example_project
+loglevel: info
+analyses:
+- analysis_name: check_kotlin_files_and_classes
+  source_directory: /Users/user1/emerge/project/source
+  only_permit_languages:
+  - kotlin
+  only_permit_file_extensions:
+  - .kt
+  file_scan:
+  - number_of_methods
+  - source_lines_of_code
+  - dependency_graph
+  - fan_in_out
+  - louvain_modularity
+  entity_scan:
+  - dependency_graph
+  - source_lines_of_code
+  - number_of_methods
+  - fan_in_out
+  - louvain_modularity
+  export:
+  - directory: /Users/user1/emerge/project/export
+  - graphml
+  - dot
+  - json
+  - tabular_file
+  - tabular_console_overall
+  - d3
