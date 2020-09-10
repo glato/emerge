@@ -4,13 +4,12 @@ Credits
 Everyone that contributes to emerge can be named here with a short contribution role 🥂.
 
 ## Contributors
----------------
 
 - Grzegorz Lato, first public release.
 
 
 ## emerge contains third party code from the following people 
--------------------------------------------------------------
+
 emerge contains third party code from the following people/projects
 
 - Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
@@ -23,7 +22,7 @@ If I missed someone or gave wrong credit, please contact me and I'll update this
 
 
 ## emerge uses the following third party libraries/frameworks/tools
-----------------------------------------------------------------
+
 - Bootstrap (https://getbootstrap.com)
 - D3.js (https://d3js.org)
 - Font Awesome (https://fontawesome.com)
