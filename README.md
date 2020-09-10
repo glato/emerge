@@ -39,8 +39,6 @@ The goal of this project is to create a free/open source tool, that can be easil
 - Basic Visual Studio Code config (.vscode directory in the project root)
 - Standalone python file `emerge.py` that can perform all the described functionality
 
-## Further 
-
 ## How to install and use emerge
 -----------------------------
 
