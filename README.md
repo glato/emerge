@@ -7,7 +7,6 @@ emerge is a code analysis tool that can be used to gather insights about source 
 ![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/03-emerge-github.png)
 
 ## Goals of this project
----------------------
 
 *emerge* (/ɪˈməːdʒ/)
 
@@ -17,7 +16,6 @@ emerge is a code analysis tool that can be used to gather insights about source 
 The goal of this project is to create a free/open source tool, that can be easily used by anyone with interest in software development, software architecture and software metrics to gather more insights about those topics.
 
 ## The following features are currently supported by emerge
------------------------------------------------------------
 
 - File scan support for 8 languages (C, Groovy, Java, JavaScript, Kotlin, ObjC, Ruby, Swift)
 - Basic entity scan/extraction (e.g. classes) for 4 languages (Groovy, Java, Kotlin, Swift)
@@ -40,10 +38,8 @@ The goal of this project is to create a free/open source tool, that can be easil
 - Standalone python file `emerge.py` that can perform all the described functionality
 
 ## How to install and use emerge
------------------------------
 
 At this time there is no simple installation by using pip (tbd), so the following steps should guide you how to install this tool and get it running.
-
 
 1. Clone this repository
 
@@ -234,6 +230,7 @@ analyses:
 The YAML configuration is basically defined at the following levels:
 
 ## project level
+
 | key              | value/ description |
 |------------------|--------------------|
 | project_name     | a project name for all analyses, scans and exports |
@@ -242,6 +239,7 @@ The YAML configuration is basically defined at the following levels:
 |                  | |
 
 ## analysis level
+
 | key                         | value/ description |
 |-----------------------------|--------------------|
 | analysis_name               | a specific analysis name |
@@ -255,6 +253,7 @@ The YAML configuration is basically defined at the following levels:
 |                             | |
 
 ## file_scan metrics
+
 | key                  | value/ description |
 |----------------------|--------------------|
 | dependency_graph     | create a dependency graph structure based on source files, additional metrics will be added to the graph nodes |
@@ -265,6 +264,7 @@ The YAML configuration is basically defined at the following levels:
 |                      | |
 
 ## entity_scan metrics
+
 | key              | value/ description |
 |------------------|--------------------|
 | dependency_graph     | create a dependency graph structure based on extracted entities from files, additional metrics will be added to the graph nodes |
@@ -277,6 +277,7 @@ The YAML configuration is basically defined at the following levels:
 |                      | |
 
 ## export configuration
+
 | key              | value/ description |
 |------------------|--------------------|
 | directory               | the output directory for all specified export formats |
@@ -290,7 +291,6 @@ The YAML configuration is basically defined at the following levels:
 |                         | |
 
 ## The current version (0.7.0) supports the following scan types/ parsing keywords
--------------------------------------------------------------------------------
 
 | Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | Ruby    |
 |------------------|--------|-------|--------|-------------------------|---------|------------|---------|---------|
