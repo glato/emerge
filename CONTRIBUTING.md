@@ -4,7 +4,6 @@ Contributing to emerge
 Everyone is invited to contribute to this project, wether the contribution is related with development, testing, bug reporting or any other support.
 
 ## Getting started
----------------
 
 Clone the repository,
 ```
@@ -14,7 +13,6 @@ git clone https://github.com/glato/emerge.git
 and get it running as a standalone tool or for development in your favorite IDE, then feel free to start contributing. I'd appreciate any contributions/support and help 👍.
 
 ## The following code style/convention/tooling details currently exist for this project.
----
 
 - This project uses `pylint` with the following rule modification
 ```
