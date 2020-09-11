@@ -1,10 +1,11 @@
 emerge
 ======
 
-emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It's mainly written in Python 3.
+emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It can scan the source code of a project, calculate metric results and statistics, map the source code to graph stuctures (e.g. a dependency graph) and further export the results in some file formats or even create an interactive graph web application for further exploration. emerge is mainly written in Python 3.
 
 ![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/02-emerge-github.png)
 ![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/03-emerge-github.png)
+![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/05-emerge-github.png)
 
 ## Goals of this project
 
@@ -17,25 +18,21 @@ The goal of this project is to create a free/open source tool, that can be easil
 
 ## The following features are currently supported by emerge
 
-- File scan support for 8 languages (C, Groovy, Java, JavaScript, Kotlin, ObjC, Ruby, Swift)
-- Basic entity scan/extraction (e.g. classes) for 4 languages (Groovy, Java, Kotlin, Swift)
-- Basic implementation for 4 software metrics (SLOC, Number of Methods, Fan-In/Fan-Out, Modularity)
-- Basic logging support with configurable log levels
+- File scan support for the following languages: C, Groovy, Java, JavaScript, Kotlin, ObjC, Ruby, Swift
+- Basic entity scan/extraction (e.g. classes) for the following languages: Groovy, Java, Kotlin, Swift
+- Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity
+- Logging support with configurable log levels
 - Configuration support based on YAML syntax to configure multiple/specific analyses
-- Basic export of results/metrics for the following formats/outout
+- Export of results/ metrics/ statistics for the following formats/ outputs
   - Code dependency, inheritance and complete graph (enriched with scan results/metrics)
-    - GraphML (http://graphml.graphdrawing.org)
-    - Graphviz DOT format (https://graphviz.org/doc/info/lang.html)
-    - JavaScript format suited for a D3 force graph simulation (https://d3js.org)
-    - Basic HTML/ web application based on Bootstrap (https://getbootstrap.com) and D3 (https://d3js.org) for interactive, exploratory analysis and data visualization of graphs/ results/ metrics with PDF export support (the UI is basically oriented on Gephi (https://gephi.org))
+  - GraphML (http://graphml.graphdrawing.org)
+  - Graphviz DOT format (https://graphviz.org/doc/info/lang.html)
+  - JavaScript format suited for a D3 force graph simulation (https://d3js.org)
+  - Basic HTML/ web application based on Bootstrap (https://getbootstrap.com) and D3 (https://d3js.org) for interactive, exploratory analysis and data visualization of graphs/ results/ metrics with PDF export support (the UI is basically oriented on Gephi (https://gephi.org))
   - Export of scan results/metric and statistics as
-    - Tabular console output
-    - Tabular file output
-    - JSON file output
-- Basic unit test cases (tests directory in the project root) that covers some code of the language parsers, metrics and config, can be either included in the IDE as test cases or run directly from `run_tests.py`
-- Example configuration templates for the currently supported languages
-- Basic Visual Studio Code config (.vscode directory in the project root)
-- Standalone python file `emerge.py` that can perform all the described functionality
+  - Tabular console output
+  - Tabular file output
+  - JSON file output
 
 ## How to install and use emerge
 
