@@ -23,13 +23,12 @@ The main goal of this project is to create a free/ open source tool, that can ea
 - Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity
 - Logging support with configurable log levels
 - Configuration support based on YAML syntax to configure multiple/specific analyses
-- Export of results/ metrics/ statistics for the following formats/ outputs
+- Export of scan results/ metrics/ statistics for the following formats/ outputs
   - Code dependency, inheritance and complete graph (enriched with scan results/metrics)
   - GraphML (http://graphml.graphdrawing.org)
   - Graphviz DOT format (https://graphviz.org/doc/info/lang.html)
   - JavaScript format suited for a D3 force graph simulation (https://d3js.org)
   - Basic HTML/ web application based on Bootstrap (https://getbootstrap.com) and D3 (https://d3js.org) for interactive, exploratory analysis and data visualization of graphs/ results/ metrics with PDF export support (the UI is basically oriented on Gephi (https://gephi.org))
-  - Export of scan results/metric and statistics as
   - Tabular console output
   - Tabular file output
   - JSON file output
