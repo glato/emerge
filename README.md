@@ -14,7 +14,7 @@ emerge is a code analysis tool that can be used to gather insights about source 
 > - to appear by coming out of something or out from behind something
 > - to become known, especially as a result of examining something or asking questions about it
 
-The goal of this project is to create a free/open source tool, that can be easily used by anyone with interest in software development, software architecture and software metrics to gather more insights about those topics.
+The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, software architecture and software metrics to gather more insights about those topics. Further is should facilitate/ support getting a better understanding of a software project and its architecture.
 
 ## The following features are currently supported by emerge
 
