@@ -299,5 +299,5 @@ The YAML configuration is basically defined at the following levels:
 ## Further development
 
 - *Disclaimer*: The current version (0.7.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
-- Everyone is invited to contribute to this project, wether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](Contributing.md) and [Credits](Credits.md) for further details.
+- Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](Contributing.md) and [Credits](Credits.md) for further details.
 
