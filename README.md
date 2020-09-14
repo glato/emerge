@@ -291,7 +291,7 @@ The YAML configuration is basically defined at the following levels:
 | Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | Ruby    |
 |------------------|--------|-------|--------|-------------------------|---------|------------|---------|---------|
 | Files            | yes    | yes   | yes    | yes                     | yes     | yes        | yes     | yes     |
-| Entity type      | class  | class | class  | class (wth. extensions) | no      | no         | no      | no      |
+| Entity type      | class  | class | class  | class, struct           | no      | no         | no      | no      |
 |                  |        |       |        |                         |         |            |         |         |
 
 - Parsing of further entity types (e.g. structs, ...) is planned for further development.
