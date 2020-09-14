@@ -67,14 +67,14 @@ source venv/bin/activate
 **4.** (*macOS*) Install all required dependencies for the project with pip
 
 ```
-pip install -r freeze.lst
+pip install -r requirements.txt
 ```
 
 **4.** (*ubuntu*) Install the wheel package, after that install all required dependencies for the project with pip
 
 ```
 pip install wheel
-pip install -r freeze.lst
+pip install -r requirements.txt
 ```
 
 **5.** Running unit tests from the command line

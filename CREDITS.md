@@ -30,7 +30,7 @@ If I missed someone or gave wrong credit, please contact me and I'll update this
 - jquery (https://jquery.com)
 - popper.js https://popper.js.org
 
-Further, the project uses the following libraries/ packages that needs to be installed with pip (containt in the freeze.lst):
+Further, the project uses the following libraries/ packages that needs to be installed with pip (containt in the requirements.txt):
 
 ```
 astroid==2.3.3

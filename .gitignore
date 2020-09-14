@@ -7,6 +7,8 @@ venv/*
 **.swp
 **.swp
 
+configs/my
+
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml

@@ -10,7 +10,7 @@ Clone the repository,
 git clone https://github.com/glato/emerge.git
 ```
 
-and get it running as a standalone tool or for development in your favorite IDE, then feel free to start contributing. I'd appreciate any contributions/support and help 👍.
+and get it running as a standalone tool (see [README](README.md) for a step by step howto) or for development in your favorite IDE, then feel free to start contributing. I'd appreciate any contributions/support and help 👍.
 
 ## The following code style/convention/tooling details currently exist for this project.
 
