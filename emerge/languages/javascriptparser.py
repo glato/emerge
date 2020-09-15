@@ -70,7 +70,7 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
         file_result = FileResult.create_file_result(analysis, file_name, "", self.parser_name(), LanguageType.JAVASCRIPT, scanned_tokens)
         self._add_package_name_to_result(file_result)
-        self._add_imports_to_result(file_result)
+        self._add_imports_to_result(file_result, analysis)
         self._results[file_result.unique_name] = file_result
 
     def after_generated_file_results(self, analysis) -> None:
@@ -82,7 +82,7 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
     def generate_entity_results_from_analysis(self, analysis):
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
-    def _add_imports_to_result(self, result: AbstractResult):
+    def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from base result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
         source_string_no_comments = self._filter_source_tokens_without_comments(
@@ -107,10 +107,15 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
                     LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
-                result.scanned_import_dependencies.append(getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value))
+                analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
-                result.analysis.statistics.increment(Statistics.Key.PARSING_HITS)
-                LOGGER.debug(f'import found: {getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)} and added to result')
+                # ignore any dependency substring from the config ignore list
+                dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+                if self._is_dependency_in_ignore_list(dependency, analysis):
+                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+                else:
+                    result.scanned_import_dependencies.append(dependency)
+                    LOGGER.debug(f'adding import: {dependency}')
 
     # pylint: disable=unused-argument
     def _add_package_name_to_result(self, result: AbstractResult) -> str:

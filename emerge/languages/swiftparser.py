@@ -127,7 +127,12 @@ class SwiftParser(AbstractParser, AbstractParsingCore):
         for _, result in entity_results.items():
             for token in result.scanned_tokens:
                 if token in entity_names and token not in result.scanned_import_dependencies and token not in result.entity_name:
-                    result.scanned_import_dependencies.append(token)
+
+                    # ignore any dependency substring from the config ignore list
+                    if self._is_dependency_in_ignore_list(token, analysis):
+                        LOGGER.debug(f'ignoring dependency from {result.entity_name} to {token}')
+                    else:
+                        result.scanned_import_dependencies.append(token)
 
     def _add_imports_to_file_results(self, analysis) -> None:
         """Adds imports to file results. Since Swift has no direct include directives for files,
@@ -169,12 +174,18 @@ class SwiftParser(AbstractParser, AbstractParsingCore):
                 self._add_inheritance_to_entity_result(entity_result)
                 entity_results[entity_result.entity_name] = entity_result
 
-        # 2. if entity names are presenf in scanned tokens of file results, add to import dependencies
+        # 2. if entity names are present in scanned tokens of file results, add to import dependencies
         for entity_name, entity_result in entity_results.items():
             for _, file_result in filtered_results.items():
                 if entity_name in file_result.scanned_tokens and entity_result.scanned_file_name not in file_result.scanned_import_dependencies:
-                    file_result.scanned_import_dependencies.append(os.path.basename(os.path.normpath(
-                        entity_result.scanned_file_name)))  # TODO: hide last path methid in file result
+
+                    dependency = os.path.basename(os.path.normpath(entity_result.scanned_file_name))
+
+                    if self._is_dependency_in_ignore_list(dependency, analysis):
+                        LOGGER.debug(f'ignoring dependency from {file_result.unique_name} to {dependency}')
+                    else:
+                        file_result.scanned_import_dependencies.append(dependency)
+                        LOGGER.debug(f'adding import: {dependency}')
 
     def _add_package_name_to_result(self, result: AbstractResult) -> None:
         result.module_name = result.scanned_file_name

@@ -53,6 +53,7 @@ class Analysis:
         self.only_permit_file_extensions: List[str] = []
         self.ignore_directories_containing: List = []
         self.ignore_files_containing: List = []
+        self.ignore_dependencies_containing: List[str] = []
 
         self.results: Dict[str, AbstractResult] = {}
 

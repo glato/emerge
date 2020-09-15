@@ -58,6 +58,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     ONLY_PERMIT_FILE_EXTENSIONS = auto()
     IGNORE_DIRECTORIES_CONTAINING = auto()
     IGNORE_FILES_CONTAINING = auto()
+    IGNORE_DEPENDENCIES_CONTAINING = auto()
     FILE_SCAN = auto()
     ENTITY_SCAN = auto()
     EXPORT = auto()
@@ -376,9 +377,15 @@ class Configuration:
                 for directory in analysis_dict[ConfigKeyAnalysis.IGNORE_DIRECTORIES_CONTAINING.name.lower()]:
                     analysis.ignore_directories_containing.append(directory)
 
+            # ignore files if given in the configuration
             if ConfigKeyAnalysis.IGNORE_FILES_CONTAINING.name.lower() in analysis_dict:
                 for file in analysis_dict[ConfigKeyAnalysis.IGNORE_FILES_CONTAINING.name.lower()]:
                     analysis.ignore_files_containing.append(file)
+
+            # ignore dependencies if given in the configuration
+            if ConfigKeyAnalysis.IGNORE_DEPENDENCIES_CONTAINING.name.lower() in analysis_dict:
+                for ignored_dependency in analysis_dict[ConfigKeyAnalysis.IGNORE_DEPENDENCIES_CONTAINING.name.lower()]:
+                    analysis.ignore_dependencies_containing.append(ignored_dependency)
 
             # load metrics from analysis
             if ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis_dict:

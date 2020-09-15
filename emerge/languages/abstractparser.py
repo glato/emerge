@@ -10,6 +10,12 @@ from enum import Enum, unique, auto
 from typing import Dict, List, Generator
 from emerge.abstractresult import AbstractResult, AbstractEntityResult
 import re
+import coloredlogs
+import logging
+from emerge.logging import Logger
+
+LOGGER = Logger(logging.getLogger('parser'))
+coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 
 @unique
@@ -138,6 +144,14 @@ class AbstractParsingCore(ABC):
             if index < (length - 1):
                 following = list_of_words[index + 1:]
             yield index, obj, following
+
+    @staticmethod
+    def _is_dependency_in_ignore_list(dependency: str, analysis) -> bool:
+        if bool(analysis.ignore_dependencies_containing):
+            for ignored_dependency in analysis.ignore_dependencies_containing:
+                if ignored_dependency in dependency:
+                    return True
+        return False
 
     @classmethod
     def preprocess_file_content_and_generate_token_list(cls, file_content: str) -> List[str]:
