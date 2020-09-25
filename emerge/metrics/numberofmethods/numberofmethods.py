@@ -39,14 +39,14 @@ class NumberOfMethodsMetric(CodeMetric):
         super().__init__(analysis)
 
         self.regex_patters = {
-            "JAVA":       r"(.+)\s+.+\(.*\)(\s*)(.*)(\s*)\{",
-            "KOTLIN":     r"(.+)\s+.+\(.*\)(\s*)(.*)(\s*)\{",
+            "JAVA":       r"\b(?!if|for|while|switch|catch)\b[a-zA-Z\d_]+?\s*?\([a-zA-Z\d\s_,\>\<\?\*\.\[\]]*\)\s*?\{",
+            "KOTLIN":     r"fun\s[a-zA-Z\d_\.]+?\s*?\([a-zA-Z\d\s_,\?\@\>\<\?\*\.\[\]\:]*\)\s*?.*(\{|\=)",
             "OBJC":       r"(.+)\s+.+\(.*\)(\s*)(.*)(\s*)\{",
             "SWIFT":      r"(.+)\s+.+\(.*\)(\s*)(.*)(\s*)\{",
             "RUBY":       r"(def)\s(.+)",
-            "GROOVY":     r"(.+)\s(.+)\s*.+\(.*\)(\s*)\{",
+            "GROOVY":     r"\b(?!if|for|while|switch|catch)\b[a-zA-Z\d_]+?\s*?\([a-zA-Z\d\s_,\>\<\?\*\.\[\]\=\@\']*\)\s*?\{",
             "JAVASCRIPT": r"(function)\s(.+)\s*.+\(.*\)(\s*)(.*)(\s*)\{",
-            "C":          r"(.+)\s(.+)\s*.+\(.*\)(\s*)\{"
+            "C":          r"\b(?!if|for|while|switch)\b[a-zA-Z\d_]+?\s*?\([a-zA-Z\d\s_,\*]*\)\s*\{"
         }
 
         self.compiled_re = {}
