@@ -22,7 +22,7 @@
 </head>
 
 <!-- this project uses embedded svg icons from the Bootstrap icon library - https://icons.getbootstrap.com -->
-<div class="jumbotron">
+<div class="jumbotron" style="height: 100vh; margin-bottom: 0;">
     <div class="container-fluid">
         <div class="row d-flex justify-content-center">
             <div class="row">
@@ -259,7 +259,6 @@
                             <li class="list-group-item small">Move around, zoom in & out by scrolling, dragging or by using the buttons</li>
                             <li class="list-group-item small">Hover over nodes to get more details and highlight all connected nodes</li>
                         </ul>
-                        <p class="card-text small"></p>
                     </div>
                 </div>
             </div>
@@ -269,15 +268,15 @@
 
 <script>
     /*
-                    Some JS code is derived/borrowed or heavily inspired from demos/examples by the following people:
-                    Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
-                    Tom Roth - https://bl.ocks.org/puzzler10/4438752bb93f45dc5ad5214efaa12e4a
-                    Ma'moun othman/@mamounothman - https://stackoverflow.com/questions/61800343/d3-js-version-5-chart-to-pdf
-                    Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
-                    Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
+                            Some JS code is derived/borrowed or heavily inspired from demos/examples by the following people:
+                            Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
+                            Tom Roth - https://bl.ocks.org/puzzler10/4438752bb93f45dc5ad5214efaa12e4a
+                            Ma'moun othman/@mamounothman - https://stackoverflow.com/questions/61800343/d3-js-version-5-chart-to-pdf
+                            Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
+                            Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
 
-                    If I missed someone or gave wrong credit, please contact me and I'll update this.
-                */
+                            If I missed someone or gave wrong credit, please contact me and I'll update this.
+                        */
 
     var data = {}
     var starting_with_graph = ''
