@@ -19,6 +19,17 @@
     <script type="text/javascript" src="vendors/d3/d3.v4.min.js"></script>
     <!-- exported graph representations as js -->
     <script type="text/javascript" src="resources/js/graph_representations_d3_force_graph.js"></script>
+
+    <style>
+        .dropdown-menu {
+            width: 100%;
+            text-align: left;
+        }
+        
+        .controls-width {
+            min-width: 210px;
+        }
+    </style>
 </head>
 
 <!-- this project uses embedded svg icons from the Bootstrap icon library - https://icons.getbootstrap.com -->
@@ -32,7 +43,7 @@
                         <svg id="svg-container" width="1000" height="700"></svg>
                     </div>
                 </div>
-                <div class="card" style="min-width: 220px; max-width: 220px;">
+                <div class="card" style="min-width: 250px; max-width: 250px;">
                     <h6 class="card-header">
                         <span aria-hidden="true">
                             <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-controller" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -61,7 +72,7 @@
                             </li>
                         </ul>
                         <br>
-                        <div class="btn-group-vertical">
+                        <div class="btn-group-vertical controls-width">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" id="selectGraphButton" data-toggle="dropdown">
                                 Select graph
@@ -215,14 +226,14 @@
                                 </span>
                                 Overall metrics
                             </button>
+
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" id="selectMetricButton" data-toggle="dropdown">
-                                Select metric
-                                </button>
-                                <div class="dropdown-menu" id="dropdown-metric" aria-labelledby="dropdown-metric">
+                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" data-toggle="dropdown"><span></span> <span class="caret"></span>Apply metrics</button>
+                                <ul id="dropdown-apply-metric" class="dropdown-menu">
                                     <!-- injected by js -->
-                                </div>
+                                </ul>
                             </div>
+
                         </div>
                         <!-- Modal -->
                         <div class="modal fade" id="overallMetricsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -256,8 +267,7 @@
                         <!-- end modal -->
                         <br>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item small">Move around, zoom in & out by scrolling, dragging or by using the buttons</li>
-                            <li class="list-group-item small">Hover over nodes to get more details and highlight all connected nodes</li>
+                            <li class="list-group-item small disabled">Move around, zoom in & out by scrolling, dragging or by using the controls, hover over nodes to get more details</li>
                         </ul>
                     </div>
                 </div>
@@ -268,18 +278,19 @@
 
 <script>
     /*
-                            Some JS code is derived/borrowed or heavily inspired from demos/examples by the following people:
-                            Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
-                            Tom Roth - https://bl.ocks.org/puzzler10/4438752bb93f45dc5ad5214efaa12e4a
-                            Ma'moun othman/@mamounothman - https://stackoverflow.com/questions/61800343/d3-js-version-5-chart-to-pdf
-                            Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
-                            Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
+                Some JS code is derived/borrowed or heavily inspired from demos/examples by the following people:
+                Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
+                Tom Roth - https://bl.ocks.org/puzzler10/4438752bb93f45dc5ad5214efaa12e4a
+                Ma'moun othman/@mamounothman - https://stackoverflow.com/questions/61800343/d3-js-version-5-chart-to-pdf
+                Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
+                Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
 
-                            If I missed someone or gave wrong credit, please contact me and I'll update this.
-                        */
+                If I missed someone or gave wrong credit, please contact me and I'll update this.
+            */
 
     var data = {}
     var starting_with_graph = ''
+        // check which graph instances are available and setup
 
     if (typeof file_result_dependency_graph !== 'undefined') {
         data['file_result_dependency_graph'] = {}
@@ -305,7 +316,6 @@
         data['file_result_complete_graph']['overall_metric_results'] = file_result_complete_graph_overall_metric_results
     }
 
-    // check which graph instances are available and setup
     if (typeof entity_result_dependency_graph !== 'undefined') {
         data['entity_result_dependency_graph'] = {}
         data['entity_result_dependency_graph']['graph'] = entity_result_dependency_graph
@@ -363,7 +373,7 @@
 
     graphSelectHtml = ""
     for (var key in data) {
-        graphSelectHtml += '<button class="dropdown-item" type="button" onclick="startWithGraph(\''
+        graphSelectHtml += '<button class="dropdown-item btn-sm" style="font-size: 10px;" type="button" onclick="startWithGraph(\''
         graphSelectHtml += key
         graphSelectHtml += '\');">'
         graphSelectHtml += key
@@ -736,26 +746,24 @@
         }
         d3.select("#tbody-metrics").html(metrics_html)
 
-        metricSelectHtml = ""
+        // create apply metrics menu entries
+        applyMetricHtml = ""
+
         for (var key in metricKeys) {
             if (metricKeys[key] == "id") {
                 continue
             }
-            metricSelectHtml += '<button class="dropdown-item" type="button" onclick="selectMetric(\''
-            metricSelectHtml += metricKeys[key]
-            metricSelectHtml += '\');">'
-            metricSelectHtml += metricKeys[key]
-            metricSelectHtml += "</button>"
+
+            console.log("metric: " + metricKeys[key])
+
+            applyMetricHtml += '<li> &nbsp; <input data-value="'
+            applyMetricHtml += metricKeys[key]
+            applyMetricHtml += '" type="checkbox" onclick="applyMetrics(this);"/>&nbsp; <span class="badge badge-secondary" style="font-size:10px;">'
+            applyMetricHtml += metricKeys[key]
+            applyMetricHtml += '</span> &nbsp;</li>'
         }
 
-        // add one last dummy metric to reset back to default radius
-        metricSelectHtml += '<button class="dropdown-item" type="button" onclick="selectMetric(\''
-        metricSelectHtml += 'default_node_radius'
-        metricSelectHtml += '\');">'
-        metricSelectHtml += 'default_node_radius'
-        metricSelectHtml += "</button>"
-
-        d3.select("#dropdown-metric").html(metricSelectHtml)
+        d3.select("#dropdown-apply-metric").html(applyMetricHtml)
     }
 
     function setGraphProperties() {
@@ -764,9 +772,15 @@
         d3.select("#force").text(currentForce)
     }
 
-    function selectMetric(name) {
-        console.log("select metric: " + name)
-        d3.select("#selectMetricButton").text(name.slice(0, 20) + '...')
+    var activeMetrics = []
+
+    function applyMetrics(d) {
+        var metric = d.getAttribute("data-value")
+        if (activeMetrics.includes(metric)) {
+            removeItemAll(activeMetrics, metric)
+        } else {
+            activeMetrics.push(metric)
+        }
 
         node.selectAll("circle")
             .transition()
@@ -774,24 +788,46 @@
             .attr("r", function(d) {
 
                 // this resets all nodes back to the default radius
-                if (name == 'default_node_radius') {
+                if (activeMetrics.length == 0) {
                     return radius
                 }
 
-                var metricValue = d[name]
-                if (metricValue == undefined) {
-                    return radius
-                }
-                if (metricValue == 0) {
-                    return 0.5 * radius
-                }
-                if (metricValue < radius) {
+                // else iterate over all checked metrics and multiply values
+                var nodeMetricValue = 0
+                activeMetrics.forEach((m) => {
+
+                    var currentValue = d[m]
+                    if (currentValue == undefined) {;
+                    } else if (currentValue == 0) {;
+                    } else if (currentValue < radius) {
+                        nodeMetricValue = nodeMetricValue + currentValue
+                    } else if (currentValue >= radius) {
+                        nodeMetricValue = nodeMetricValue + currentValue
+                    }
+
+                });
+
+                if (nodeMetricValue <= radius) {
                     return radius
                 }
 
-                var smoothedRadius = Math.pow(2 * Math.log10(metricValue), 3) + radius
-                return smoothedRadius;
+                var smoothedRadius = Math.pow(2 * Math.log10(nodeMetricValue), 3) + radius
+                return smoothedRadius
+
             });
+    }
+
+    // borrowed from https://stackoverflow.com/questions/5767325/how-can-i-remove-a-specific-item-from-an-array
+    function removeItemAll(arr, value) {
+        var i = 0;
+        while (i < arr.length) {
+            if (arr[i] === value) {
+                arr.splice(i, 1);
+            } else {
+                ++i;
+            }
+        }
+        return arr;
     }
 
     function toggleNodeLabels() {
