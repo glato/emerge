@@ -277,16 +277,23 @@
 </div>
 
 <script>
-    /*
-                Some JS code is derived/borrowed or heavily inspired from demos/examples by the following people:
-                Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
-                Tom Roth - https://bl.ocks.org/puzzler10/4438752bb93f45dc5ad5214efaa12e4a
-                Ma'moun othman/@mamounothman - https://stackoverflow.com/questions/61800343/d3-js-version-5-chart-to-pdf
-                Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
-                Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
+    // Some JS code is derived/borrowed or heavily inspired from demos/examples by the following people:
+    // Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
+    // Tom Roth - https://bl.ocks.org/puzzler10/4438752bb93f45dc5ad5214efaa12e4a
+    // Ma'moun othman/@mamounothman - https://stackoverflow.com/questions/61800343/d3-js-version-5-chart-to-pdf
+    // Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
+    // Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
+    // If I missed someone or gave wrong credit, please contact me and I'll update this.
 
-                If I missed someone or gave wrong credit, please contact me and I'll update this.
-            */
+
+    // TODO: scaling table to better visually represent metric results should be generated in python code
+    var metricScaleTable = {
+        "fan_in": 5.0,
+        "fan_out": 5.0,
+        "louvain_modularity": 2.0,
+        "sloc": 1.0,
+        "number_of_methods": 4.0
+    }
 
     var data = {}
     var starting_with_graph = ''
@@ -797,21 +804,28 @@
                 activeMetrics.forEach((m) => {
 
                     var currentValue = d[m]
-                    if (currentValue == undefined) {;
-                    } else if (currentValue == 0) {;
-                    } else if (currentValue < radius) {
-                        nodeMetricValue = nodeMetricValue + currentValue
-                    } else if (currentValue >= radius) {
+                    if (currentValue == undefined) {
+                        if (nodeMetricValue == 0) {
+                            nodeMetricValue = 1
+                        }
+                    } else if (currentValue == 0) {
+                        if (nodeMetricValue == 0) {
+                            nodeMetricValue = 1
+                        }
+                    } else {
                         nodeMetricValue = nodeMetricValue + currentValue
                     }
 
                 });
 
-                if (nodeMetricValue <= radius) {
-                    return radius
-                }
+                // apply post-scaling for metric values to better visually represent metric impacts
+                Object.keys(metricScaleTable).forEach(function(key) {
+                    if (metric.includes(key)) {
+                        nodeMetricValue = nodeMetricValue * metricScaleTable[key]
+                    }
+                });
 
-                var smoothedRadius = Math.pow(2 * Math.log10(nodeMetricValue), 3) + radius
+                var smoothedRadius = Math.pow(1.5 * Math.log10(nodeMetricValue), 3) + radius
                 return smoothedRadius
 
             });
