@@ -244,8 +244,8 @@ The YAML configuration is basically defined at the following levels:
 |----------------------------------|--------------------|
 | `analysis_name`                  | a specific analysis name |
 | `source_directory`               | the source directory where the recursive file scan should start |
-| `ignore_files_containing`        | exclude file names from the scan that contains the given substrings |
-| `ignore_directories_containing`  | exclude directory names from the scan that contains the given substrings |
+| `ignore_files_containing`        | exclude file names from the scan that contain the given substrings |
+| `ignore_directories_containing`  | exclude directory names from the scan that contain the given substrings |
 | `only_permit_languages`          | possible values include: java, kotlin, objc, swift, ruby, groovy, javascript, c - explicitly prevents any other language from scanning besides the one you set here |
 | `only_permit_file_extensions`    | explicitly permit the following file extensions you set here, e.g. `.java` |
 | `ignore_dependencies_containing` | ignore every dependency included in this list of substrings, e.g. `java.util` |
@@ -292,7 +292,7 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version (0.7.1) supports the following scan types/ parsing keywords
+## The current version (0.7.2) supports the following scan types/ parsing keywords
 
 | Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | Ruby    |
 |------------------|--------|-------|--------|-------------------------|---------|------------|---------|---------|
@@ -304,6 +304,6 @@ The YAML configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.7.1) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.7.2) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](Contributing.md) and [Credits](Credits.md) for further details.
 
