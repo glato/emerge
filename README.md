@@ -244,7 +244,8 @@ The YAML configuration is basically defined at the following levels:
 |----------------------------------|--------------------|
 | `analysis_name`                  | a specific analysis name |
 | `source_directory`               | the source directory where the recursive file scan should start |
-| `ignore_files_containing`        | exclude the following files from the scan |
+| `ignore_files_containing`        | exclude file names from the scan that contains the given substrings |
+| `ignore_directories_containing`  | exclude directory names from the scan that contains the given substrings |
 | `only_permit_languages`          | possible values include: java, kotlin, objc, swift, ruby, groovy, javascript, c - explicitly prevents any other language from scanning besides the one you set here |
 | `only_permit_file_extensions`    | explicitly permit the following file extensions you set here, e.g. `.java` |
 | `ignore_dependencies_containing` | ignore every dependency included in this list of substrings, e.g. `java.util` |
