@@ -288,10 +288,10 @@
 
     // TODO: scaling table to better visually represent metric results should be generated in python code
     var metricScaleTable = {
-        "fan_in": 5.0,
-        "fan_out": 5.0,
-        "louvain_modularity": 2.0,
-        "sloc": 1.0,
+        "fan_in": 4.0,
+        "fan_out": 4.0,
+        "louvain_modularity": 5.0,
+        "sloc": 0.5,
         "number_of_methods": 4.0
     }
 
@@ -412,6 +412,7 @@
     }
 
     function startWithGraph(graphType, force = currentForce) {
+        activeMetrics = []
         currentGraphType = graphType
         currentForce = force
         console.log("starting with graph type: " + graphType + " and force: " + currentForce)
@@ -792,7 +793,7 @@
         node.selectAll("circle")
             .transition()
             .duration(250)
-            .attr("r", function(d) {
+            .attr("r", function(nodeAttributes) {
 
                 // this resets all nodes back to the default radius
                 if (activeMetrics.length == 0) {
@@ -801,9 +802,9 @@
 
                 // else iterate over all checked metrics and multiply values
                 var nodeMetricValue = 0
-                activeMetrics.forEach((m) => {
+                activeMetrics.forEach((metricName) => {
 
-                    var currentValue = d[m]
+                    var currentValue = nodeAttributes[metricName]
                     if (currentValue == undefined) {
                         if (nodeMetricValue == 0) {
                             nodeMetricValue = 1
@@ -816,13 +817,13 @@
                         nodeMetricValue = nodeMetricValue + currentValue
                     }
 
-                });
+                    // apply post-scaling for metric values to better visually represent metric impacts
+                    Object.keys(metricScaleTable).forEach(function(key) {
+                        if (metricName.includes(key)) {
+                            nodeMetricValue = nodeMetricValue * metricScaleTable[key]
+                        }
+                    });
 
-                // apply post-scaling for metric values to better visually represent metric impacts
-                Object.keys(metricScaleTable).forEach(function(key) {
-                    if (metric.includes(key)) {
-                        nodeMetricValue = nodeMetricValue * metricScaleTable[key]
-                    }
                 });
 
                 var smoothedRadius = Math.pow(1.5 * Math.log10(nodeMetricValue), 3) + radius
@@ -870,18 +871,17 @@
         currentTranslation.horizontal += 50
         svg.transition().call(zoom_handler.transform, d3.zoomIdentity.translate(0.5 * width * (1 - scaleFactor) +
                 currentTranslation.horizontal, 0.5 * height * (1 - scaleFactor) + currentTranslation.vertical)
-            .scale(scaleFactor)).scale(scaleFactor);
+            .scale(scaleFactor))
     }
 
     function translateLeft() {
         currentTranslation.horizontal -= 50
         svg.transition().call(zoom_handler.transform, d3.zoomIdentity.translate(0.5 * width * (1 - scaleFactor) +
                 currentTranslation.horizontal, 0.5 * height * (1 - scaleFactor) + currentTranslation.vertical)
-            .scale(scaleFactor)).scale(scaleFactor);
+            .scale(scaleFactor))
     }
 
     function translateUp() {
-        console.log("up")
         currentTranslation.vertical -= 50
         svg.transition().call(zoom_handler.transform, d3.zoomIdentity.translate(0.5 * width * (1 - scaleFactor) +
                 currentTranslation.horizontal, 0.5 * height * (1 - scaleFactor) + currentTranslation.vertical)
@@ -889,7 +889,6 @@
     }
 
     function translateDown() {
-        console.log("down")
         currentTranslation.vertical += 50
         svg.transition().call(zoom_handler.transform, d3.zoomIdentity.translate(0.5 * width * (1 - scaleFactor) +
                 currentTranslation.horizontal, 0.5 * height * (1 - scaleFactor) + currentTranslation.vertical)

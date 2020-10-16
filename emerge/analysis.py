@@ -260,10 +260,6 @@ class Analysis:
         elif self.export_tabular_console:
             TableExporter.export_statistics_and_metrics_to_console(statistics, overall_metric_results, local_metric_results, analysis_name)
 
-    # def export_graphs(self) -> None:
-    #     if self.graph_representations[GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower()] is not None:
-    #         GraphExporter.export_graph_as_graphml(self.graph_representations[GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower(
-    #         )].digraph, 'dependency-graph', self.export_directory)
 
     @property
     def entity_results(self) -> Dict[str, AbstractEntityResult]:
