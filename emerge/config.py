@@ -28,6 +28,8 @@ coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 
 class EnumKeyValid:
+    """Helper class that simply checks if a the subclassing class contains a specific key."""
+
     @classmethod
     def valid(cls, key) -> bool:
         if hasattr(cls, key.upper()):
@@ -38,6 +40,7 @@ class EnumKeyValid:
 
 @unique
 class ConfigKeyProject(EnumKeyValid, Enum):
+    """Config key checks of the project level."""
     PROJECT_NAME = auto()
     LOGLEVEL = auto()
     ANALYSES = auto()
@@ -45,6 +48,7 @@ class ConfigKeyProject(EnumKeyValid, Enum):
 
 @unique
 class ConfigValProject(EnumKeyValid, Enum):
+    """Config value checks of the project level."""
     DEBUG = auto()
     INFO = auto()
     ERROR = auto()
@@ -52,6 +56,7 @@ class ConfigValProject(EnumKeyValid, Enum):
 
 @unique
 class ConfigKeyAnalysis(EnumKeyValid, Enum):
+    """Config key checks of the analysis level."""
     ANALYSIS_NAME = auto()
     SOURCE_DIRECTORY = auto()
     ONLY_PERMIT_LANGUAGES = auto()
@@ -66,6 +71,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
 
 @unique
 class ConfigKeyFileScan(EnumKeyValid, Enum):
+    """Config key checks of the file scan level."""
     NUMBER_OF_METHODS = auto()
     SOURCE_LINES_OF_CODE = auto()
     DEPENDENCY_GRAPH = auto()
@@ -75,6 +81,7 @@ class ConfigKeyFileScan(EnumKeyValid, Enum):
 
 @unique
 class ConfigKeyEntityScan(EnumKeyValid, Enum):
+    """Config key checks of the entity scan level."""
     NUMBER_OF_METHODS = auto()
     SOURCE_LINES_OF_CODE = auto()
     NUMBER_OF_ENTITIES = auto()
@@ -87,6 +94,7 @@ class ConfigKeyEntityScan(EnumKeyValid, Enum):
 
 @unique
 class ConfigKeyExport(EnumKeyValid, Enum):
+    """Config key checks of the export level."""
     DIRECTORY = auto()
     GRAPHML = auto()
     DOT = auto()

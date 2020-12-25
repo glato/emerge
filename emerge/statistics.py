@@ -39,17 +39,17 @@ class Statistics:
 
     def add(self, *, key, value: Any, prefix: str = None) -> None:
         if prefix is not None:
-            if (k:= prefix + '-' + key.name.lower()) not in self.data:
+            if (k := prefix + '-' + key.name.lower()) not in self.data:
                 self.data[k] = value
         else:
-            if (k:= key.name.lower()) not in self.data:
+            if (k := key.name.lower()) not in self.data:
                 self.data[k] = value
 
     def update(self, *, key, value: Any) -> None:
         self.data[key.name.lower()] = value
 
     def increment(self, key) -> None:
-        if (k:= key.name.lower()) not in self.data:
+        if (k := key.name.lower()) not in self.data:
             self.data[k] = 1
         else:
             self.data[k] += 1

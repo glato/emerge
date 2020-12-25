@@ -10,7 +10,6 @@ import logging
 import coloredlogs
 from datetime import datetime
 from typing import List
-# from emerge.fsm import EmergeFSM
 from emerge.config import Configuration
 from emerge.analysis import Analysis
 from emerge.statistics import Statistics
