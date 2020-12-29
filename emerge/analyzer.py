@@ -5,11 +5,14 @@ Defines 'Analyzer' which brings together the current configuration, analyses, pa
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
+from emerge.graph import GraphType, FileSystemNode, FileSystemNodeType
 import os
 import logging
 import coloredlogs
 from datetime import datetime
 from typing import List
+from pathlib import Path, PurePath
+
 from emerge.config import Configuration
 from emerge.analysis import Analysis
 from emerge.statistics import Statistics
@@ -62,6 +65,9 @@ class Analyzer:
             LOGGER.error(f'error in analysis {analysis.analysis_name}: source directory not found/ accessible: {analysis.source_directory}')
             raise NotADirectoryError(f'error in analysis {analysis.analysis_name}: source directory not found/ accessible: {analysis.source_directory}')
 
+        self._create_project_graph(analysis)
+        LOGGER.info_done('created the project graph')
+
         if self._config.contains_file_scan(analysis) and not self._config.contains_entity_scan(analysis):
             self._create_file_results(analysis)
 
@@ -82,53 +88,37 @@ class Analyzer:
         self._collect_all_results()
         LOGGER.info_done('calculated and collected metric data')
 
+    def _create_project_graph(self, analysis: Analysis):
+        """Creates a project graph as a basis for all further file-based calculations.
+        """
+        analysis.create_graph_representation(GraphType.FILESYSTEM_GRAPH)
+        analysis.create_project_graph()
+
     def _create_file_results(self, analysis: Analysis):
-        """Checks configuration fow allowed directories/files/extensions,
-        creates file results in a given analysis by perfoming a recursive file-scan.
-        Adds statistics after the scan is finished.
+        """Iterate over all filesystem nodes from the given analysis, create FileResult objects and add it to the analysis.
 
         Args:
             analysis (Analysis): A given analysis.
         """
-        LOGGER.info_start(f'starting token extraction for file results in {analysis.analysis_name}')
-        LOGGER.info(f'starting scan at directory: {truncate_directory(analysis.source_directory)}')
 
-        scanned_files, skipped_files = 0, 0
-        scanning_starts = datetime.now()
+        LOGGER.info_start(f'starting file result creation in {analysis.analysis_name}')
+        file_result_creation_starts = datetime.now()
 
-        for root, dirs, files in os.walk(analysis.source_directory):
-            # exclude directories and scans
-            if analysis.ignore_directories_containing:
-                dirs[:] = [d for d in dirs if d not in analysis.ignore_directories_containing]
+        project_node: FileSystemNode
+        for _, filesystem_node in analysis.filesystem_nodes.items():
+            project_node = filesystem_node
 
-            if analysis.ignore_files_containing:
-                files[:] = [f for f in files if f not in analysis.ignore_files_containing]
+            if project_node.type == FileSystemNodeType.FILE:
+                file_extension = Path(project_node.absolute_name).suffix
+                file_name = Path(project_node.absolute_name).name
 
-            for file_name in files:
-                absolute_path_to_file = os.path.join(root, file_name)
-                file_name, file_extension = os.path.splitext(absolute_path_to_file)
-
-                if not analysis.file_extension_allowed(file_extension):
-                    if not file_extension.strip():
-                        LOGGER.info(f'ignoring {absolute_path_to_file}')
-                    else:
-                        LOGGER.info(f'{file_extension} is not allowed in the scan, ignoring {absolute_path_to_file}')
-                    skipped_files += 1
-                    continue
-
-                if not LanguageExtension.value_exists(file_extension):
-                    LOGGER.info(f'{file_extension} is an unknown extension, ignoring {absolute_path_to_file}')
-                    skipped_files += 1
-                    continue
-
-                file_name_with_extension = file_name + file_extension
                 parser_name = FileScanMapper.choose_parser(file_extension, analysis.only_permit_languages)
 
                 if parser_name in self._parsers:
                     parser: AbstractParser = self._parsers[parser_name]
-                    file_content = parser.read_input_from_file(absolute_path_to_file)
-                    parser.generate_file_result_from_analysis(analysis, file_name=file_name_with_extension, file_content=file_content)
-                    scanned_files += 1
+                    file_content = project_node.content
+
+                    parser.generate_file_result_from_analysis(analysis, file_name=file_name, full_file_path=project_node.absolute_name, file_content=file_content)
                     results = self._parsers[parser_name].results
                     analysis.add_results(results)
 
@@ -136,12 +126,34 @@ class Analyzer:
             if bool(parser.results):
                 parser.after_generated_file_results(analysis)
 
-        scanning_stops = datetime.now()
+        file_result_creation_stops = datetime.now()
 
-        analysis.statistics.add(key=Statistics.Key.SCANNING_RUNTIME, value=scanning_stops - scanning_starts)
-        analysis.statistics.add(key=Statistics.Key.SCANNED_FILES, value=scanned_files)
-        analysis.statistics.add(key=Statistics.Key.SKIPPED_FILES, value=skipped_files)
         analysis.statistics.add(key=Statistics.Key.EXTRACTED_FILE_RESULTS, value=analysis.number_of_file_results)
+        analysis.statistics.add(key=Statistics.Key.FILE_RESULTS_CREATION_RUNTIME, value=file_result_creation_stops - file_result_creation_starts)
+
+        # TODO: read all file nodes from project graph and create file results
+        #
+
+        #         file_name_with_extension = file_name + file_extension
+
+        #         parser_name = FileScanMapper.choose_parser(file_extension, analysis.only_permit_languages)
+
+        #         if parser_name in self._parsers:
+        #             parser: AbstractParser = self._parsers[parser_name]
+        #             file_content = parser.read_input_from_file(absolute_path_to_file)
+        #             parser.generate_file_result_from_analysis(analysis, file_name=file_name_with_extension, file_content=file_content)
+        #             scanned_files += 1
+        #             results = self._parsers[parser_name].results
+        #             analysis.add_results(results)
+
+        # for parser_name, parser in self._parsers.items():
+        #     if bool(parser.results):
+        #         parser.after_generated_file_results(analysis)
+
+        # file_result_creation_stops = datetime.now()
+
+        # analysis.statistics.add(key=Statistics.Key.SCANNING_RUNTIME, value=file_result_creation_stops - file_result_creation_starts)
+        # analysis.statistics.add(key=Statistics.Key.EXTRACTED_FILE_RESULTS, value=analysis.number_of_file_results)
 
     def _create_entity_results(self, analysis: Analysis):
         """Creates entity results from the file results of a given analysis for every active parser.

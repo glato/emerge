@@ -11,10 +11,11 @@ from typing import List, Dict, Any, Optional
 from emerge.languages.abstractparser import AbstractResult, AbstractParser, LanguageType
 from emerge.metrics.abstractmetric import AbstractMetric, AbstractCodeMetric, AbstractGraphMetric, MetricResultFilter
 from emerge.abstractresult import AbstractEntityResult, AbstractFileResult
-from emerge.graph import GraphRepresentation, GraphType
+from emerge.graph import GraphRepresentation, GraphType, FileSystemNode, FileSystemNodeType
 from emerge.statistics import Statistics
 from emerge.logging import Logger
 from emerge.core import format_timedelta
+from emerge.files import truncate_directory, LanguageExtension
 
 from emerge.export import GraphExporter, TableExporter, JSONExporter, DOTExporter, D3Exporter
 
@@ -22,6 +23,7 @@ import coloredlogs
 import logging
 from datetime import datetime, timedelta
 import os
+from pathlib import Path
 
 LOGGER = Logger(logging.getLogger('analysis'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
@@ -55,6 +57,7 @@ class Analysis:
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
 
+        self.filesystem_nodes: Dict[str, FileSystemNode] = {}
         self.results: Dict[str, AbstractResult] = {}
 
         self.local_metric_results: Dict[str, Dict[str, Any]] = {}
@@ -66,7 +69,8 @@ class Analysis:
             GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower(): None,
             GraphType.FILE_RESULT_COMPLETE_GRAPH.name.lower(): None,
             GraphType.FILE_RESULT_DEPENDENCY_GRAPH.name.lower(): None,
-            GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower(): None
+            GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower(): None,
+            GraphType.FILESYSTEM_GRAPH.name.lower(): None
         }
 
         self._start_time: datetime = None
@@ -260,7 +264,6 @@ class Analysis:
         elif self.export_tabular_console:
             TableExporter.export_statistics_and_metrics_to_console(statistics, overall_metric_results, local_metric_results, analysis_name)
 
-
     @property
     def entity_results(self) -> Dict[str, AbstractEntityResult]:
         """Returns a dictionary of all entity results from this analysis.
@@ -363,6 +366,96 @@ class Analysis:
         """
         if self.graph_representations[graph_type.name.lower()] is None:
             self.graph_representations[graph_type.name.lower()] = GraphRepresentation(graph_type)
+
+    def create_project_graph(self) -> None:
+        """Creates a project graph which is basically a graph representation of the project filesystem tree.
+        This project graph is used for further calculations and metric results.
+        The project graph does NOT contain file content, this info is stored in self.filesyste_nodes dict.
+        """
+        LOGGER.info_start(f'starting to create project graph in {self.analysis_name}')
+        LOGGER.info(f'starting scan at directory: {truncate_directory(self.source_directory)}')
+
+        scanned_files, skipped_files = 0, 0
+        scanning_starts = datetime.now()
+
+        project_graph = self.graph_representations[GraphType.FILESYSTEM_GRAPH.name.lower()]
+
+        # create a root directory filesystem node, add to project graph
+        filesystem_root_node = FileSystemNode(FileSystemNodeType.DIRECTORY, self.source_directory)
+        self.filesystem_nodes[filesystem_root_node.absolute_name] = filesystem_root_node
+
+        project_graph.digraph.add_node(
+            filesystem_root_node.absolute_name,
+            directory=True,
+            file=False,
+            absolute_name=filesystem_root_node.absolute_name,
+            file_name=Path(filesystem_root_node.absolute_name).name
+        )
+
+        for root, dirs, files in os.walk(self.source_directory):
+            # exclude directories and scans
+            if self.ignore_directories_containing:
+                dirs[:] = [d for d in dirs if d not in self.ignore_directories_containing]
+
+            for directory in dirs:
+                absolute_path_to_directory = os.path.join(root, directory)
+                directory_node = FileSystemNode(FileSystemNodeType.DIRECTORY, absolute_path_to_directory)
+                self.filesystem_nodes[directory_node.absolute_name] = directory_node
+
+                project_graph.digraph.add_node(
+                    directory_node.absolute_name,
+                    directory=True,
+                    file=False,
+                    absolute_name=directory_node.absolute_name,
+                    file_name=Path(directory_node.absolute_name).name
+                )
+
+                project_graph.digraph.add_edge(root, directory_node.absolute_name)
+
+            if self.ignore_files_containing:
+                files[:] = [f for f in files if f not in self.ignore_files_containing]
+
+            for file_name in files:
+                absolute_path_to_file = os.path.join(root, file_name)
+                file_name, file_extension = os.path.splitext(absolute_path_to_file)
+
+                if not self.file_extension_allowed(file_extension):
+                    if not file_extension.strip():
+                        LOGGER.info(f'ignoring {absolute_path_to_file}')
+                    else:
+                        LOGGER.info(f'{file_extension} is not allowed in the scan, ignoring {absolute_path_to_file}')
+                    skipped_files += 1
+                    continue
+
+                if not LanguageExtension.value_exists(file_extension):
+                    LOGGER.info(f'{file_extension} is an unknown extension, ignoring {absolute_path_to_file}')
+                    skipped_files += 1
+                    continue
+
+                # file_name_with_extension = file_name + file_extension
+
+                with open(absolute_path_to_file, encoding="ISO-8859-1") as file:
+                    file_content = file.read()
+                    file_node = FileSystemNode(FileSystemNodeType.FILE, absolute_path_to_file, file_content)
+                    self.filesystem_nodes[file_node.absolute_name] = file_node
+
+                    project_graph.digraph.add_node(
+                        file_node.absolute_name,
+                        directory=False,
+                        file=True,
+                        absolute_name=file_node.absolute_name,
+                        file_name=Path(file_node.absolute_name).name
+                    )
+
+                    project_graph.digraph.add_edge(root, file_node.absolute_name)
+
+                    scanned_files += 1
+
+        scanning_stops = datetime.now()
+
+        self.statistics.add(key=Statistics.Key.SCANNING_RUNTIME, value=scanning_stops - scanning_starts)
+        self.statistics.add(key=Statistics.Key.SCANNED_FILES, value=scanned_files)
+        self.statistics.add(key=Statistics.Key.SKIPPED_FILES, value=skipped_files)
 
     def calculate_graph_representations(self) -> None:
         """Calculate all necessary graph representations for this analysis in a specific order.

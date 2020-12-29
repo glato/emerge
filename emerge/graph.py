@@ -8,7 +8,7 @@ Defines a graph representations, available graph types and relevant calculations
 import logging
 import coloredlogs
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from enum import Enum, unique, auto
 import networkx as nx
 from networkx import DiGraph
@@ -28,6 +28,7 @@ class GraphType(Enum):
     ENTITY_RESULT_DEPENDENCY_GRAPH = auto()
     ENTITY_RESULT_INHERITANCE_GRAPH = auto()
     ENTITY_RESULT_COMPLETE_GRAPH = auto()
+    FILESYSTEM_GRAPH = auto()
 
 
 class GraphRepresentation:
@@ -103,3 +104,31 @@ class GraphRepresentation:
                 metric_dict = metric_results[node]
                 for name, value in metric_dict.items():
                     graph.nodes[node][name] = value
+
+
+@unique
+class FileSystemNodeType(Enum):
+    FILE = auto()
+    DIRECTORY = auto()
+
+
+class FileSystemNode:
+    def __init__(self, type: FileSystemNodeType, absolute_name: str, content: Optional[str] = None):
+        self.type: FileSystemNodeType = type
+        self.absolute_name: str = absolute_name
+        self.content: Optional[str] = content
+
+    def __hash__(self):
+        return hash(self.absolute_name)
+
+    def __eq__(self, other):
+        return (
+            self.__class__ == other.__class__ and
+            self.absolute_name == other.absolute_name
+        )
+
+    def __repr__(self):
+        return f"{self.absolute_name}"
+
+    def __str__(self):
+        return self.absolute_name

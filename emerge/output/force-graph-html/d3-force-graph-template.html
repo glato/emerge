@@ -348,6 +348,13 @@
             entity_result_complete_graph_overall_metric_results
     }
 
+    if (typeof filesystem_graph !== 'undefined') {
+        data['filesystem_graph'] = {}
+        data['filesystem_graph']['graph'] = filesystem_graph
+        data['filesystem_graph']['statistics'] = filesystem_graph_statistics
+        data['filesystem_graph']['overall_metric_results'] = filesystem_graph_overall_metric_results
+    }
+
     var currentGraphType
     var metricKeys
     var nodeLabelsVisible = false

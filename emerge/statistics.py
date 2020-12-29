@@ -29,6 +29,8 @@ class Statistics:
         SCANNED_FILES = auto()
         SKIPPED_FILES = auto()
         SCANNING_RUNTIME = auto()
+        FILE_RESULTS_CREATION_RUNTIME = auto()
+        ENTITY_RESULTS_CREATION_RUNTIME = auto()
         ANALYSIS_RUNTIME = auto()
         METRIC_CALCULATION_RUNTIME = auto()
         EXTRACTED_FILE_RESULTS = auto()

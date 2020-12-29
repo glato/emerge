@@ -199,7 +199,7 @@ class AbstractParser(AbstractParsingCore, ABC):
         ...
 
     @abstractmethod
-    def generate_file_result_from_analysis(self, analysis, *, file_name: str, file_content: str) -> None:
+    def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
         ...
 
     @abstractmethod

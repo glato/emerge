@@ -63,10 +63,20 @@ class CParser(AbstractParser, AbstractParsingCore):
     def results(self, value):
         self._results = value
 
-    def generate_file_result_from_analysis(self, analysis, *, file_name: str, file_content: str) -> None:
+    def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
         LOGGER.debug(f'generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
-        file_result = FileResult.create_file_result(analysis, file_name, "", self.parser_name(), LanguageType.C, scanned_tokens)
+
+        file_result = FileResult.create_file_result(
+            analysis=analysis,
+            scanned_file_name=file_name,
+            internal_name=full_file_path,
+            module_name="",
+            scanned_by=self.parser_name(),
+            scanned_language=LanguageType.C,
+            scanned_tokens=scanned_tokens
+        )
+
         self._add_package_name_to_result(file_result)
         self._add_imports_to_result(file_result, analysis)
         self._results[file_result.unique_name] = file_result
