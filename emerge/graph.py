@@ -6,6 +6,7 @@ Defines a graph representations, available graph types and relevant calculations
 # License: MIT
 
 import logging
+from pathlib import Path
 import coloredlogs
 
 from typing import List, Dict, Any, Optional
@@ -60,11 +61,13 @@ class GraphRepresentation:
         LOGGER.debug(f'creating dependency graph...')
         for _, result in results.items():
             node_name = result.unique_name
+            absolute_name = result.absolute_name
+            display_name = result.display_name
 
-            self._digraph.add_node(node_name)
+            self._digraph.add_node(node_name, absolute_name=absolute_name, display_name=display_name)
             dependencies = result.scanned_import_dependencies
             for dependency in dependencies:
-                self._digraph.add_node(dependency)
+                self._digraph.add_node(dependency, display_name=dependency)
                 self._digraph.add_edge(node_name, dependency)
 
     def calculate_inheritance_graph_from_results(self, results: List[AbstractEntityResult]) -> None:
@@ -100,10 +103,19 @@ class GraphRepresentation:
         graph = self._digraph
 
         for node in nodes:
-            if node in metric_results.keys():
-                metric_dict = metric_results[node]
-                for name, value in metric_dict.items():
-                    graph.nodes[node][name] = value
+
+            # clear the filesystem node from the absolute key prefix, since the metrics are calculated with a filename-based key
+            if self.graph_type == GraphType.FILESYSTEM_GRAPH:
+                cleared_node = Path(node).name
+                if cleared_node in metric_results.keys():
+                    metric_dict = metric_results[cleared_node]
+                    for name, value in metric_dict.items():
+                        graph.nodes[node][name] = value
+            else:
+                if node in metric_results.keys():
+                    metric_dict = metric_results[node]
+                    for name, value in metric_dict.items():
+                        graph.nodes[node][name] = value
 
 
 @unique

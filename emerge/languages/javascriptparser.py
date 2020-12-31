@@ -72,7 +72,8 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
         file_result = FileResult.create_file_result(
             analysis=analysis,
             scanned_file_name=file_name,
-            internal_name=full_file_path,
+            absolute_name=full_file_path,
+            display_name=file_name,
             module_name="",
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.JAVASCRIPT,

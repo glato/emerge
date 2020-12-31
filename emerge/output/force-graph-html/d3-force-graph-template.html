@@ -456,7 +456,7 @@
                     if (graphType.includes('dependency')) {
                         console.log("graph type dependency")
                         if (!k.includes('inheritance') && !k.includes('complete')) {
-                            if (k != "x" && k != "y" && k != "vx" && k != "vy" && k != "index") {
+                            if (k != "x" && k != "y" && k != "vx" && k != "vy" && k != "index" && k != "absolute_name" && k != "display_name" && k != "id") {
                                 console.log("adding element to metric keys: " + k);
                                 a.push(k);
                             }
@@ -466,7 +466,7 @@
                     if (graphType.includes('inheritance')) {
                         console.log("graph type inheritance")
                         if (!k.includes('dependency') && !k.includes('complete')) {
-                            if (k != "x" && k != "y" && k != "vx" && k != "vy" && k != "index") {
+                            if (k != "x" && k != "y" && k != "vx" && k != "vy" && k != "index" && k != "absolute_name" && k != "display_name" && k != "id") {
                                 console.log("adding element to metric keys: " + k);
                                 a.push(k);
                             }
@@ -476,12 +476,23 @@
                     if (graphType.includes('complete')) {
                         console.log("graph type complete")
                         if (!k.includes('dependency') && !k.includes('inheritance')) {
-                            if (k != "x" && k != "y" && k != "vx" && k != "vy" && k != "index") {
+                            if (k != "x" && k != "y" && k != "vx" && k != "vy" && k != "index" && k != "absolute_name" && k != "display_name" && k != "id") {
                                 console.log("adding element to metric keys: " + k);
                                 a.push(k);
                             }
                         }
                     }
+
+                    if (graphType.includes('filesystem')) {
+                        console.log("graph type filesystem")
+                        if (!k.includes('dependency') && !k.includes('inheritance') && !k.includes('complete')) {
+                            if (k != "x" && k != "y" && k != "vx" && k != "vy" && k != "index" && k != "absolute_name" && k != "display_name" && k != "id" && k != "directory" && k != "file") {
+                                console.log("adding element to metric keys: " + k);
+                                a.push(k);
+                            }
+                        }
+                    }
+
                 }
                 return a;
             }, arr)
@@ -545,7 +556,7 @@
             .attr("dx", 15)
             .attr("dy", -5)
             .text(function(d) {
-                return d.id;
+                return d.display_name;
             })
             .style("fill", "black")
             .style("fill-opacity", .7)
@@ -588,7 +599,7 @@
 
         function circleColour(d) {
             //return "rgb(219, 237, 254)"
-            if (currentGraphType.includes('file_result')) {
+            if (currentGraphType.includes('file_result') ||  currentGraphType.includes('filesystem')) {
                 return color(d.louvain_modularity_in_file)
             } else {
                 return color(d.louvain_modularity_in_entity);
@@ -632,11 +643,11 @@
             mouseOverHtmlString += "Node name"
             mouseOverHtmlString +=
                 "</td><td style='padding: 4px; border-bottom: 1px solid #ccc; background-color: #ebebeb;'>"
-            mouseOverHtmlString += d.id
+            mouseOverHtmlString += d.display_name
             mouseOverHtmlString += "</td></tr>"
 
             for (var key in metricKeys) {
-                if (metricKeys[key] == "id") {
+                if (metricKeys[key] == "id" || metricKeys[key] == "display_name" || metricKeys[key] == "absolute_name") {
                     continue
                 }
 

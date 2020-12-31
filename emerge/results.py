@@ -28,7 +28,8 @@ class EntityResult(AbstractEntityResult):
     def __init__(self, *,
                  analysis,
                  scanned_file_name: str,
-                 internal_name: str,
+                 absolute_name: str,
+                 display_name: str,
                  scanned_by,
                  scanned_language,
                  scanned_tokens,
@@ -40,7 +41,8 @@ class EntityResult(AbstractEntityResult):
                  ):
         self._analysis = analysis
         self._scanned_file_name = scanned_file_name
-        self._internal_name = internal_name
+        self._absolute_name = absolute_name
+        self._display_name = display_name
         self._scanned_language = scanned_language
         self._scanned_by = scanned_by
         self._scanned_tokens = scanned_tokens
@@ -79,12 +81,20 @@ class EntityResult(AbstractEntityResult):
         return self._scanned_file_name
 
     @property
-    def internal_name(self) -> str:
-        return self._internal_name
+    def absolute_name(self) -> str:
+        return self._absolute_name
 
-    @internal_name.setter
-    def internal_name(self, value):
-        self._internal_name = value
+    @absolute_name.setter
+    def absolute_name(self, value):
+        self._absolute_name = value
+
+    @property
+    def display_name(self) -> str:
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        self._display_name = value
 
     @property
     def scanned_by(self) -> str:
@@ -154,7 +164,8 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
     def __init__(self,
                  anaylsis,
                  scanned_file_name: str,
-                 internal_name: str,
+                 absolute_name: str,
+                 display_name: str,
                  module_name: str,
                  scanned_by,
                  scanned_language,
@@ -162,8 +173,8 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
                  ):
         self._analysis = anaylsis
         self._scanned_file_name = scanned_file_name
-        self._internal_name = internal_name
-        self._display_name = internal_name
+        self._absolute_name = absolute_name
+        self._display_name = display_name
         self._module_name = module_name
         self._scanned_language = scanned_language
         self._scanned_by = scanned_by
@@ -180,12 +191,13 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
         metrics: {self._metrics=}'''
 
     @classmethod
-    def create_file_result(cls, analysis, scanned_file_name, internal_name, module_name, scanned_by, scanned_language, scanned_tokens) -> 'FileResult':
-        return FileResult(analysis, scanned_file_name, internal_name, module_name, scanned_by, scanned_language, scanned_tokens)
+    def create_file_result(cls, analysis, scanned_file_name, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens) -> 'FileResult':
+        return FileResult(analysis, scanned_file_name, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens)
 
     @property
     def unique_name(self) -> str:
         return os.path.basename(os.path.normpath(self._scanned_file_name))
+        # return self._absolute_name
 
     @property
     def analysis(self):
@@ -232,12 +244,12 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
         self._metrics = value
 
     @property
-    def internal_name(self) -> str:
-        return self._internal_name
+    def absolute_name(self) -> str:
+        return self._absolute_name
 
-    @internal_name.setter
-    def internal_name(self, value):
-        self._internal_name = value
+    @absolute_name.setter
+    def absolute_name(self, value):
+        self._absolute_name = value
 
     @property
     def display_name(self) -> str:
@@ -321,10 +333,12 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
 
         for entity_name, tokens in found_entities.items():
 
+            unique_entity_name = self.absolute_name + "/" + entity_name
             entity_result = EntityResult(
                 analysis=self.analysis,
                 scanned_file_name=self.scanned_file_name,
-                internal_name=self.internal_name,
+                absolute_name=unique_entity_name,
+                display_name=entity_name,
                 scanned_by=self.scanned_by,
                 scanned_language=self.scanned_language,
                 scanned_tokens=tokens,

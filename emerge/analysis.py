@@ -388,8 +388,7 @@ class Analysis:
             filesystem_root_node.absolute_name,
             directory=True,
             file=False,
-            absolute_name=filesystem_root_node.absolute_name,
-            file_name=Path(filesystem_root_node.absolute_name).name
+            display_name=filesystem_root_node.absolute_name
         )
 
         for root, dirs, files in os.walk(self.source_directory):
@@ -406,8 +405,7 @@ class Analysis:
                     directory_node.absolute_name,
                     directory=True,
                     file=False,
-                    absolute_name=directory_node.absolute_name,
-                    file_name=Path(directory_node.absolute_name).name
+                    display_name=directory_node.absolute_name
                 )
 
                 project_graph.digraph.add_edge(root, directory_node.absolute_name)
@@ -443,8 +441,7 @@ class Analysis:
                         file_node.absolute_name,
                         directory=False,
                         file=True,
-                        absolute_name=file_node.absolute_name,
-                        file_name=Path(file_node.absolute_name).name
+                        display_name=Path(file_node.absolute_name).name
                     )
 
                     project_graph.digraph.add_edge(root, file_node.absolute_name)
