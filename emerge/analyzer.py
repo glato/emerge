@@ -92,7 +92,7 @@ class Analyzer:
         """Creates a project graph as a basis for all further file-based calculations.
         """
         analysis.create_graph_representation(GraphType.FILESYSTEM_GRAPH)
-        analysis.create_project_graph()
+        analysis.create_filesystem_graph()
 
     def _create_file_results(self, analysis: Analysis):
         """Iterate over all filesystem nodes from the given analysis, create FileResult objects and add it to the analysis.
@@ -104,8 +104,10 @@ class Analyzer:
         LOGGER.info_start(f'starting file result creation in {analysis.analysis_name}')
         file_result_creation_starts = datetime.now()
 
+        filesystem_graph = analysis.graph_representations[GraphType.FILESYSTEM_GRAPH.name.lower()]
+
         project_node: FileSystemNode
-        for _, filesystem_node in analysis.filesystem_nodes.items():
+        for _, filesystem_node in filesystem_graph.filesystem_nodes.items():
             project_node = filesystem_node
 
             if project_node.type == FileSystemNodeType.FILE:

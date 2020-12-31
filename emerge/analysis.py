@@ -57,7 +57,7 @@ class Analysis:
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
 
-        self.filesystem_nodes: Dict[str, FileSystemNode] = {}
+        # self.filesystem_nodes: Dict[str, FileSystemNode] = {}
         self.results: Dict[str, AbstractResult] = {}
 
         self.local_metric_results: Dict[str, Dict[str, Any]] = {}
@@ -367,24 +367,24 @@ class Analysis:
         if self.graph_representations[graph_type.name.lower()] is None:
             self.graph_representations[graph_type.name.lower()] = GraphRepresentation(graph_type)
 
-    def create_project_graph(self) -> None:
-        """Creates a project graph which is basically a graph representation of the project filesystem tree.
-        This project graph is used for further calculations and metric results.
-        The project graph does NOT contain file content, this info is stored in self.filesyste_nodes dict.
+    def create_filesystem_graph(self) -> None:
+        """Creates a filesystem graph which is basically a graph representation of the project filesystem tree.
+        This filesystem graph is used for further calculations and metric results.
+        The filesystem graph does NOT contain file content, only the graph structure. The content is stored in the self.filesyste_nodes dict.
         """
-        LOGGER.info_start(f'starting to create project graph in {self.analysis_name}')
+        LOGGER.info_start(f'starting to create filesystem graph in {self.analysis_name}')
         LOGGER.info(f'starting scan at directory: {truncate_directory(self.source_directory)}')
 
         scanned_files, skipped_files = 0, 0
         scanning_starts = datetime.now()
 
-        project_graph = self.graph_representations[GraphType.FILESYSTEM_GRAPH.name.lower()]
+        filesystem_graph = self.graph_representations[GraphType.FILESYSTEM_GRAPH.name.lower()]
 
         # create a root directory filesystem node, add to project graph
         filesystem_root_node = FileSystemNode(FileSystemNodeType.DIRECTORY, self.source_directory)
-        self.filesystem_nodes[filesystem_root_node.absolute_name] = filesystem_root_node
+        filesystem_graph.filesystem_nodes[filesystem_root_node.absolute_name] = filesystem_root_node
 
-        project_graph.digraph.add_node(
+        filesystem_graph.digraph.add_node(
             filesystem_root_node.absolute_name,
             directory=True,
             file=False,
@@ -399,16 +399,16 @@ class Analysis:
             for directory in dirs:
                 absolute_path_to_directory = os.path.join(root, directory)
                 directory_node = FileSystemNode(FileSystemNodeType.DIRECTORY, absolute_path_to_directory)
-                self.filesystem_nodes[directory_node.absolute_name] = directory_node
+                filesystem_graph.filesystem_nodes[directory_node.absolute_name] = directory_node
 
-                project_graph.digraph.add_node(
+                filesystem_graph.digraph.add_node(
                     directory_node.absolute_name,
                     directory=True,
                     file=False,
                     display_name=directory_node.absolute_name
                 )
 
-                project_graph.digraph.add_edge(root, directory_node.absolute_name)
+                filesystem_graph.digraph.add_edge(root, directory_node.absolute_name)
 
             if self.ignore_files_containing:
                 files[:] = [f for f in files if f not in self.ignore_files_containing]
@@ -435,16 +435,16 @@ class Analysis:
                 with open(absolute_path_to_file, encoding="ISO-8859-1") as file:
                     file_content = file.read()
                     file_node = FileSystemNode(FileSystemNodeType.FILE, absolute_path_to_file, file_content)
-                    self.filesystem_nodes[file_node.absolute_name] = file_node
+                    filesystem_graph.filesystem_nodes[file_node.absolute_name] = file_node
 
-                    project_graph.digraph.add_node(
+                    filesystem_graph.digraph.add_node(
                         file_node.absolute_name,
                         directory=False,
                         file=True,
                         display_name=Path(file_node.absolute_name).name
                     )
 
-                    project_graph.digraph.add_edge(root, file_node.absolute_name)
+                    filesystem_graph.digraph.add_edge(root, file_node.absolute_name)
 
                     scanned_files += 1
 

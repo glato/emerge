@@ -39,6 +39,7 @@ class GraphRepresentation:
     def __init__(self, graph_type: GraphType):
         self._digraph: DiGraph = DiGraph()
         self._graph_type: GraphType = graph_type
+        self.filesystem_nodes: Dict[str, FileSystemNode] = {}
 
     @property
     def digraph(self) -> DiGraph:
