@@ -640,7 +640,15 @@
                 "<table style='font-size: 10px; font-family: sans-serif; background-color: #fff;' >"
             mouseOverHtmlString +=
                 "<tr><td style='padding: 4px; border-bottom: 1px solid #ccc; background-color: #ebebeb;'>"
-            mouseOverHtmlString += "Node name"
+
+            if (d.hasOwnProperty('directory') && d.directory == true) {
+                mouseOverHtmlString += "Directory"
+            } else if (d.hasOwnProperty('file') && d.file == true) {
+                mouseOverHtmlString += "File name"
+            } else {
+                mouseOverHtmlString += "Node name"
+            }
+
             mouseOverHtmlString +=
                 "</td><td style='padding: 4px; border-bottom: 1px solid #ccc; background-color: #ebebeb;'>"
             mouseOverHtmlString += d.display_name
