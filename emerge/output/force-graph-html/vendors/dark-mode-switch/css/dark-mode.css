@@ -1,0 +1,48 @@
+[data-theme="dark"] {
+    background-color: #111 !important;
+    color: #eee;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: #333 !important;
+}
+
+[data-theme="dark"] .bg-white {
+    background-color: #000 !important;
+}
+
+[data-theme="dark"] .bg-black {
+    background-color: #eee !important;
+}
+
+[data-theme="dark"] .card {
+    background-color: rgb(20, 20, 20) !important;
+}
+
+[data-theme="dark"] .jumbotron {
+    background-color: #111 !important;
+}
+
+[data-theme="dark"] .list-group-item {
+    background-color: rgb(20, 20, 20) !important;
+}
+
+[data-theme="dark"] .card-header {
+    background-color: rgb(30, 30, 30) !important;
+}
+
+[data-theme="dark"] .tooltip table tbody tr td {
+    background-color: rgb(40, 40, 40) !important;
+}
+
+[data-theme="dark"] .modal-title {
+    color: rgb(30, 30, 30) !important;
+}
+
+[data-theme="dark"] .node text {
+    fill: #ffffff;
+}
+
+[data-theme="dark"] .links line {
+    stroke: #a1a1a1;
+}
