@@ -75,4 +75,14 @@ div.tooltip {
 
 .card-header {
     padding: 8px;
+    max-height: 36px;
+}
+
+.card {
+    margin: 2px;
+}
+
+.custom-control-input {
+    width: 16px;
+    height: 16px;
 }

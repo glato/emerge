@@ -42,7 +42,3 @@
 [data-theme="dark"] .node text {
     fill: #ffffff;
 }
-
-[data-theme="dark"] .links line {
-    stroke: #a1a1a1;
-}
