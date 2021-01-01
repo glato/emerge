@@ -3,9 +3,11 @@ emerge
 
 emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It can scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph) and further export the results in some file formats or even create an interactive graph web application for further interactive exploration. emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
-![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/02-emerge-github.png)
-![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/03-emerge-github.png)
-![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/05-emerge-github.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-01.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-02.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-03.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-04.png)
+
 
 ## Goals of this project
 
