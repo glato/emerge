@@ -57,7 +57,6 @@ class Analysis:
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
 
-        # self.filesystem_nodes: Dict[str, FileSystemNode] = {}
         self.results: Dict[str, AbstractResult] = {}
 
         self.local_metric_results: Dict[str, Dict[str, Any]] = {}

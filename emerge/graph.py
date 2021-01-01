@@ -23,6 +23,8 @@ coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 @unique
 class GraphType(Enum):
+    """Small enum class to represent a type of a GraphRepresentation. 
+    """
     FILE_RESULT_DEPENDENCY_GRAPH = auto()
     FILE_RESULT_INHERITANCE_GRAPH = auto()
     FILE_RESULT_COMPLETE_GRAPH = auto()
@@ -126,6 +128,10 @@ class FileSystemNodeType(Enum):
 
 
 class FileSystemNode:
+    """Small representation of a filesystem object, e.g. a directory or a file. This class is currently used to build the filesystem graph.
+    Could be further used to resolve import paths more precisely.
+    """
+
     def __init__(self, type: FileSystemNodeType, absolute_name: str, content: Optional[str] = None):
         self.type: FileSystemNodeType = type
         self.absolute_name: str = absolute_name

@@ -1,7 +1,7 @@
 emerge
 ======
 
-emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It can scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph) and further export the results in some file formats or even create an interactive graph web application for further exploration. emerge is mainly written in Python 3.
+emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It can scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph) and further export the results in some file formats or even create an interactive graph web application for further interactive exploration. emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
 ![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/02-emerge-github.png)
 ![](https://raw.githubusercontent.com/glato/emerge/assets/github-assets/03-emerge-github.png)
@@ -14,21 +14,21 @@ emerge is a code analysis tool that can be used to gather insights about source 
 > - to appear by coming out of something or out from behind something
 > - to become known, especially as a result of examining something or asking questions about it
 
-The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, software architecture and software metrics to gather more insights about those topics. Further is should facilitate/ support getting a better understanding of a software project and its architecture.
+The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given a software project.
 
 ## The following features are currently supported by emerge
 
 - File scan support for the following languages: C, Groovy, Java, JavaScript, Kotlin, ObjC, Ruby, Swift
 - Basic entity scan/extraction (e.g. classes) for the following languages: Groovy, Java, Kotlin, Swift
-- Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity
+- Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
 - Logging support with configurable log levels
 - Configuration support based on YAML syntax to configure multiple/specific analyses
 - Export of scan results/ metrics/ statistics for the following formats/ outputs
-  - Code dependency, inheritance and complete graph (enriched with scan results/metrics)
+  - Code dependency, inheritance, complete and filesystem graph (enriched with scan results/metrics)
   - [GraphML](http://graphml.graphdrawing.org)
   - [Graphviz DOT format](https://graphviz.org/doc/info/lang.html)
   - JavaScript format suited for a [D3 force graph simulation](https://github.com/d3/d3-force)
-  - Basic HTML/ web application based on [Bootstrap](https://getbootstrap.com) and [D3](https://d3js.org) for interactive, exploratory analysis and data visualization of graphs/ results/ metrics with PDF export support (the UI is basically oriented on [Gephi](https://gephi.org))
+  - Basic HTML/ web application with [dark mode support](https://github.com/coliff/dark-mode-switch) based on [Bootstrap](https://getbootstrap.com) and [D3](https://d3js.org) for interactive, exploratory analysis and data visualization of graphs/ results/ metrics with PDF export support (the UI is basically oriented on [Gephi](https://gephi.org))
   - Tabular console output
   - Tabular file output
   - JSON file output
@@ -89,7 +89,7 @@ python run_tests.py
 python emerge.py 
 usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-s]
 
-Welcome to emerge 0.7.1 (2020-09-15 21:32:37).
+Welcome to emerge 0.8.0 (2021-01-01 17:09:40).
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -292,7 +292,7 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version (0.7.2) supports the following scan types/ parsing keywords
+## The current version (0.8.0) supports the following scan types/ parsing keywords
 
 | Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | Ruby    |
 |------------------|--------|-------|--------|-------------------------|---------|------------|---------|---------|
@@ -304,6 +304,6 @@ The YAML configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.7.2) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
-- Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](Contributing.md) and [Credits](Credits.md) for further details.
+- *Disclaimer*: The current version (0.8.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 

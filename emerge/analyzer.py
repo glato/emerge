@@ -65,8 +65,8 @@ class Analyzer:
             LOGGER.error(f'error in analysis {analysis.analysis_name}: source directory not found/ accessible: {analysis.source_directory}')
             raise NotADirectoryError(f'error in analysis {analysis.analysis_name}: source directory not found/ accessible: {analysis.source_directory}')
 
-        self._create_project_graph(analysis)
-        LOGGER.info_done('created the project graph')
+        self._create_filesystem_graph(analysis)
+        LOGGER.info_done('created the filesystem graph')
 
         if self._config.contains_file_scan(analysis) and not self._config.contains_entity_scan(analysis):
             self._create_file_results(analysis)
@@ -88,7 +88,7 @@ class Analyzer:
         self._collect_all_results()
         LOGGER.info_done('calculated and collected metric data')
 
-    def _create_project_graph(self, analysis: Analysis):
+    def _create_filesystem_graph(self, analysis: Analysis):
         """Creates a project graph as a basis for all further file-based calculations.
         """
         analysis.create_graph_representation(GraphType.FILESYSTEM_GRAPH)
@@ -132,30 +132,6 @@ class Analyzer:
 
         analysis.statistics.add(key=Statistics.Key.EXTRACTED_FILE_RESULTS, value=analysis.number_of_file_results)
         analysis.statistics.add(key=Statistics.Key.FILE_RESULTS_CREATION_RUNTIME, value=file_result_creation_stops - file_result_creation_starts)
-
-        # TODO: read all file nodes from project graph and create file results
-        #
-
-        #         file_name_with_extension = file_name + file_extension
-
-        #         parser_name = FileScanMapper.choose_parser(file_extension, analysis.only_permit_languages)
-
-        #         if parser_name in self._parsers:
-        #             parser: AbstractParser = self._parsers[parser_name]
-        #             file_content = parser.read_input_from_file(absolute_path_to_file)
-        #             parser.generate_file_result_from_analysis(analysis, file_name=file_name_with_extension, file_content=file_content)
-        #             scanned_files += 1
-        #             results = self._parsers[parser_name].results
-        #             analysis.add_results(results)
-
-        # for parser_name, parser in self._parsers.items():
-        #     if bool(parser.results):
-        #         parser.after_generated_file_results(analysis)
-
-        # file_result_creation_stops = datetime.now()
-
-        # analysis.statistics.add(key=Statistics.Key.SCANNING_RUNTIME, value=file_result_creation_stops - file_result_creation_starts)
-        # analysis.statistics.add(key=Statistics.Key.EXTRACTED_FILE_RESULTS, value=analysis.number_of_file_results)
 
     def _create_entity_results(self, analysis: Analysis):
         """Creates entity results from the file results of a given analysis for every active parser.
