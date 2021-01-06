@@ -296,7 +296,7 @@ The YAML configuration is basically defined at the following levels:
 
 ## The current version (0.8.0) supports the following scan types/ parsing keywords
 
-| Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | Ruby    |
+| Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | C    |
 |------------------|--------|-------|--------|-------------------------|---------|------------|---------|---------|
 | Files            | yes    | yes   | yes    | yes                     | yes     | yes        | yes     | yes     |
 | Entity type      | class  | class | class  | class, struct           | no      | no         | no      | no      |
