@@ -27,7 +27,7 @@ The following fuzzy roadmap should show the direction in which this project is h
 - Standalone python file `emerge.py` that can perform all the described functionality
 
 
-0.7.1 - 1.0.0 (Further releases/ideas/unsorted)
+0.7.1 - 1.x.0 (Further releases/ideas/unsorted)
 -----------------------------------------------
 
 - [ ] increase languages/parser precision for entity scan/extraction
@@ -35,7 +35,7 @@ The following fuzzy roadmap should show the direction in which this project is h
 - [ ] include framework import dependencies in swift
 - [ ] write parser for further languages e.g. golang, rust, c++, python
 - [ ] add more metrics for every language (e.g. McCabe, cognitive complexity (https://blog.sonarsource.com/cognitive-complexity-because-testability-understandability), depth of inheritance tree, ...)
-- [ ] implement a better web application export for D3 force graph simulation and interactive analysis
+- [x] implement a better web application export for D3 force graph simulation and interactive analysis
 - [ ] implement a version/package that can easily be installed by using `pip`
 - [ ] identify and fix more bugs 🐞
 - [ ] add more/better unit tests

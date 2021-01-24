@@ -263,6 +263,10 @@ class Analysis:
         elif self.export_tabular_console:
             TableExporter.export_statistics_and_metrics_to_console(statistics, overall_metric_results, local_metric_results, analysis_name)
 
+        LOGGER.info_done(f'all your generated/exported data can be found here: {self.export_directory}')
+        if self.export_d3:
+            LOGGER.info_done(f'you can browse your interactive web app at: file://{self.export_directory}/force-graph-html/d3-force-graph-template.html')
+
     @property
     def entity_results(self) -> Dict[str, AbstractEntityResult]:
         """Returns a dictionary of all entity results from this analysis.

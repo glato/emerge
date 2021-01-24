@@ -120,7 +120,7 @@ class FileManager:
                 LOGGER.error(f'{ex}')
         try:
             shutil.copytree(origin_complete_path, target_complete_path)
-            LOGGER.info_done(f"you can browse your d3 web app at: {'file://' + target_complete_path + '/d3-force-graph-template.html'}")
+            LOGGER.info_done(f"generated d3 web app for your browser")
             pass
         except Exception as ex:
             LOGGER.error(f'{ex}')

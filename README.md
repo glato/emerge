@@ -1,13 +1,13 @@
 emerge
 ======
 
-emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It can scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph) and further export the results in some file formats or even create an interactive graph web application for further interactive exploration. emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
+emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It can scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph) and further export the results in some file formats or even create an **interactive web application** for further exploration. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-01.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-02.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-03.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-8-screenshot-04.png)
-
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-01.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-02.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-03.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-04.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-05.png)
 
 ## Goals of this project
 
@@ -30,7 +30,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
   - [GraphML](http://graphml.graphdrawing.org)
   - [Graphviz DOT format](https://graphviz.org/doc/info/lang.html)
   - JavaScript format suited for a [D3 force graph simulation](https://github.com/d3/d3-force)
-  - Basic HTML/ web application with [dark mode support](https://github.com/coliff/dark-mode-switch) based on [Bootstrap](https://getbootstrap.com) and [D3](https://d3js.org) for interactive, exploratory analysis and data visualization of graphs/ results/ metrics with PDF export support (the UI is basically oriented on [Gephi](https://gephi.org))
+  - Basic HTML/ web application with [dark mode support](https://github.com/coliff/dark-mode-switch) based on [Bootstrap](https://getbootstrap.com) and [D3](https://d3js.org) and HTML canvas for interactive, exploratory analysis and data visualization of graphs/ results/ metrics (the UI is basically oriented on [Gephi](https://gephi.org))
   - Tabular console output
   - Tabular file output
   - JSON file output
@@ -91,7 +91,7 @@ python run_tests.py
 python emerge.py 
 usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-s]
 
-Welcome to emerge 0.8.0 (2021-01-01 17:09:40).
+Welcome to emerge 0.9.0 (2021-01-24 12:00:00).
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -143,22 +143,22 @@ python emerge.py -c configs/c-template.yaml
 ... which should produce a similar output:
 
 ```
-2020-09-10 15:31:51   analysis I 👉 starting to analyze c-example-project
-2020-09-10 15:31:51   analysis I ⏩ performing analysis 1/1: check_c_files
-2020-09-10 15:31:51   analysis I 👉 starting token extraction for file results in check_c_files
-2020-09-10 15:31:51   analysis I ⏩ starting scan at directory: .../github/linux-5.8.5/crypto
+...   analysis I 👉 starting to analyze c-example-project
+...   analysis I ⏩ performing analysis 1/1: check_c_files
+...   analysis I 👉 starting token extraction for file results in check_c_files
+...   analysis I ⏩ starting scan at directory: .../github/linux-5.8.5/crypto
 ...
-2020-09-10 15:31:57   analysis I ✅ scanning complete
-2020-09-10 15:31:57   analysis I 👉 starting code metric calculation for analysis check_c_files
-2020-09-10 15:31:57   analysis I ⏩ calculating metric results for: number of methods metric
-2020-09-10 15:32:38   analysis I ⏩ calculating metric results for: source lines of code metric
-2020-09-10 15:32:38   analysis I ✅ done calculating code metric results
-2020-09-10 15:32:38   analysis I 👉 starting graph metric calculation for analysis check_c_files
-2020-09-10 15:32:38   analysis I ⏩ calculating metric results for: louvain modularity metric
-2020-09-10 15:32:42   analysis I ⏩ calculating metric results for: fan in out metric
-2020-09-10 15:32:42   analysis I ✅ done calculating graph metric results
-2020-09-10 15:32:42     emerge I ✅ successfully copied output to /Users/user1/emerge/project/export/force-graph-html
-2020-09-10 15:32:43   analysis I 👉 the following statistics were collected in check_c_files
+...   analysis I ✅ scanning complete
+...   analysis I 👉 starting code metric calculation for analysis check_c_files
+...   analysis I ⏩ calculating metric results for: number of methods metric
+...   analysis I ⏩ calculating metric results for: source lines of code metric
+...   analysis I ✅ done calculating code metric results
+...   analysis I 👉 starting graph metric calculation for analysis check_c_files
+...   analysis I ⏩ calculating metric results for: louvain modularity metric
+...   analysis I ⏩ calculating metric results for: fan in out metric
+...   analysis I ✅ done calculating graph metric results
+...     emerge I ✅ successfully copied output to /Users/user1/emerge/project/export/force-graph-html
+...   analysis I 👉 the following statistics were collected in check_c_files
 +-------------------------------------+-------------------+
 |                      statistic name | value             |
 +-------------------------------------+-------------------+
@@ -172,7 +172,7 @@ python emerge.py -c configs/c-template.yaml
 |   louvain-modularity-metric-runtime | 00:00:04 + 229 ms |
 |           fan-in-out-metric-runtime | 00:00:00 + 18 ms  |
 +-------------------------------------+-------------------+
-2020-09-10 15:32:43   analysis I 👉 the following overall metrics were collected in check_c_files
+...   analysis I 👉 the following overall metrics were collected in check_c_files
 +----------------------------------------------+------------------------------+
 |                                  metric name | value                        |
 +----------------------------------------------+------------------------------+
@@ -188,8 +188,11 @@ python emerge.py -c configs/c-template.yaml
 |                 max-fan-out-dependency-graph | 18                           |
 |            max-fan-out-name-dependency-graph | testmgr.c                    |
 +----------------------------------------------+------------------------------+
-2020-09-10 15:32:43   analysis I ✅ calculated and collected metric data
-2020-09-10 15:32:43     emerge I ✅ total runtime: 00:00:52 + 166 ms
+...  analysis I ✅ all your generated/exported data can be found here: /Users/user1/emerge/project/export
+...   analysis I ✅ you can browse your interactive web app at: file:///Users/user1/emerge/project/export/force-graph-html/d3-force-graph-template.html
+...   analysis I ✅ calculated and collected metric data
+...     emerge I ✅ total runtime: 00:00:35 + 876 ms
+
 ```
 
 A full YAML configuration that contains both file and entity scan has the following format:
@@ -294,18 +297,18 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version (0.8.0) supports the following scan types/ parsing keywords
+## The current version (0.9.0) supports the following scan types/ parsing keywords
 
 | Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | C    |
 |------------------|--------|-------|--------|-------------------------|---------|------------|---------|---------|
-| Files            | yes    | yes   | yes    | yes                     | yes     | yes        | yes     | yes     |
-| Entity type      | class  | class | class  | class, struct           | no      | no         | no      | no      |
+| Files            | ✅    | ✅   | ✅    | ✅                     | ✅     | ✅        | ✅     | ✅     |
+| Entity type      | class  | class | class  | class, struct           | ❌      | ❌         | ❌      | ❌      |
 |                  |        |       |        |                         |         |            |         |         |
 
-- Parsing of further entity types (e.g. structs, ...) is planned for further development.
+- Parsing of further entity types for more languages (e.g. structs, ...) is planned for further development.
 
 ## Further development
 
-- *Disclaimer*: The current version (0.8.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.9.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 

@@ -25,8 +25,6 @@ If I missed someone or gave wrong credit, please contact me and I'll update this
 
 - Bootstrap (https://getbootstrap.com)
 - D3.js (https://d3js.org)
-- Font Awesome (https://fontawesome.com)
-- pdfkit and svg-to-pdfkit
 - jquery (https://jquery.com)
 - popper.js https://popper.js.org
 - dark-mode-switch.js (https://github.com/coliff/dark-mode-switch)

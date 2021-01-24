@@ -112,13 +112,26 @@ class GraphRepresentation:
                 cleared_node = Path(node).name
                 if cleared_node in metric_results.keys():
                     metric_dict = metric_results[cleared_node]
+
                     for name, value in metric_dict.items():
-                        graph.nodes[node][name] = value
-            else:
+                        if 'entity' not in name:  # do not include any entity metrics in the filesystem graph
+                            graph.nodes[node]['metric_' + name] = value
+
+            if self.graph_type == GraphType.FILE_RESULT_COMPLETE_GRAPH or self.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or self.graph_type == GraphType.FILE_RESULT_INHERITANCE_GRAPH:
                 if node in metric_results.keys():
                     metric_dict = metric_results[node]
+
                     for name, value in metric_dict.items():
-                        graph.nodes[node][name] = value
+                        if 'entity' not in name:  # do not include any entity metrics in FILE_RESULT graphs
+                            graph.nodes[node]['metric_' + name] = value
+
+            if self.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH or self.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH or self.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
+                if node in metric_results.keys():
+                    metric_dict = metric_results[node]
+
+                    for name, value in metric_dict.items():
+                        if 'file' not in name:  # do not include any file metrics in the ENTITY_RESULT graphs
+                            graph.nodes[node]['metric_' + name] = value
 
 
 @unique

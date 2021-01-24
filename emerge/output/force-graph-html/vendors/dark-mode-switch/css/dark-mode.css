@@ -36,9 +36,39 @@
 }
 
 [data-theme="dark"] .modal-title {
-    color: rgb(30, 30, 30) !important;
+    /* color: rgb(30, 30, 30) !important; */
+    color: #eee;
+}
+
+[data-theme="dark"] .modal-body table {
+    /* color: rgb(30, 30, 30) !important; */
+    color: #eee;
 }
 
 [data-theme="dark"] .node text {
     fill: #ffffff;
+}
+
+[data-theme="dark"] .canvas-content-dark-mode-node-label {
+    color: #ffffff;
+}
+
+[data-theme="dark"] #dropdown-apply-metric {
+    background-color: rgb(20, 20, 20) !important;
+    color: #eee;
+}
+
+[data-theme="dark"] #dropdown-graph {
+    background-color: rgb(20, 20, 20) !important;
+    color: #eee;
+}
+
+[data-theme="dark"] .dropdown-item {
+    background-color: rgb(20, 20, 20) !important;
+    color: #eee;
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: #111 !important;
+    color: #eee;
 }
