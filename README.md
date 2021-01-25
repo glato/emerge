@@ -45,7 +45,13 @@ At this time there is no simple installation by using pip (tbd), so the followin
 git clone https://github.com/glato/emerge.git
 ```
 
-**2.** (*macOS*) Create a Python 3 virtual environment (optionally within the project structure)
+**2.1** (*macOS*) Install the `graphviz` package first
+
+```
+brew install graphviz
+```
+
+**2.2** (*macOS*) Create a Python 3 virtual environment (optionally within the project structure)
 
 ```
 cd emerge
