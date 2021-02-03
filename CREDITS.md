@@ -14,9 +14,9 @@ emerge contains third party code from the following people/projects
 
 - Mike Bostock - https://github.com/mbostock, https://bost.ocks.org/mike/
 - Tom Roth - https://bl.ocks.org/puzzler10/4438752bb93f45dc5ad5214efaa12e4a
-- Ma'moun othman/@mamounothman - https://stackoverflow.com/questions/61800343/d3-js-version-5-chart-to-pdf
 - Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
 - Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
+- Scott Johnson / https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197
 
 If I missed someone or gave wrong credit, please contact me and I'll update this.
 
@@ -32,6 +32,7 @@ If I missed someone or gave wrong credit, please contact me and I'll update this
 Further, the project uses the following libraries/ packages that needs to be installed with pip (containt in the requirements.txt):
 
 ```
+wheel==0.32.2
 astroid==2.3.3
 attrs==19.3.0
 autopep8==1.5.4
@@ -44,7 +45,7 @@ interrogate==1.2.0
 isort==4.3.21
 lazy-object-proxy==1.4.3
 networkx==2.4
-numpy==1.19.1
+numpy==1.20.0
 prettytable==0.7.2
 py==1.9.0
 pycodestyle==2.6.0

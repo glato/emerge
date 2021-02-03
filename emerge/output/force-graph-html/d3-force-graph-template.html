@@ -512,6 +512,41 @@
             }
         }
 
+        // borrowed from Scott Johnson / https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197 with minor adjustments
+        function drawArrowhead(context, from, to, radius) {
+            const midX = 0.5 * (from.x + to.x)
+            const midY = 0.5 * (from.y + to.y)
+
+            var x_center = midX
+            var y_center = midY
+
+            var angle;
+            var x;
+            var y;
+
+            context.beginPath();
+
+            angle = Math.atan2(to.y - from.y, to.x - from.x)
+            x = radius * Math.cos(angle) + x_center;
+            y = radius * Math.sin(angle) + y_center;
+
+            context.moveTo(x, y);
+
+            angle += (1.0 / 3.0) * (2 * Math.PI)
+            x = radius * Math.cos(angle) + x_center;
+            y = radius * Math.sin(angle) + y_center;
+
+            context.lineTo(x, y);
+
+            angle += (1.0 / 3.0) * (2 * Math.PI)
+            x = radius * Math.cos(angle) + x_center;
+            y = radius * Math.sin(angle) + y_center;
+
+            context.lineTo(x, y);
+            context.closePath();
+            context.fill();
+        }
+
         function nodeColorByModularity(node, alpha = 1.0) {
             if (currentGraphType.includes('file_result') ||  currentGraphType.includes('filesystem')) {
                 return hexToRGB(color(node.metric_louvain_modularity_in_file), alpha)
@@ -729,23 +764,27 @@
 
             // draw edges
             currentGraph.links.forEach(function(d) {
+
                 context.beginPath();
                 context.moveTo(d.source.x, d.source.y);
                 context.lineTo(d.target.x, d.target.y);
 
                 if (closeNode == null) { // not hovering over any node
                     context.strokeStyle = currentActiveEdgeColor
+                    context.fillStyle = currentActiveEdgeColor
                 } else  {
                     if ((d.target.id == closeNode.id) || (d.source.id == closeNode.id)) { // there is an edge that contains our hovered node
                         context.strokeStyle = currentActiveEdgeColor
+                        context.fillStyle = currentActiveEdgeColor
                     } else { // node is not included in the edge
                         context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
                     }
                 }
 
-                // context.strokeStyle = "#AAAAAA";
                 context.lineWidth = 0.5;
                 context.stroke();
+
+                drawArrowhead(context, d.source, d.target, 3)
             });
 
             // Draw nodes
