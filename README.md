@@ -51,7 +51,7 @@ git clone https://github.com/glato/emerge.git
 brew install graphviz
 ```
 
-**2.2** (*macOS*) Create a Python 3 virtual environment (optionally within the project structure)
+**2.2** (*macOS*) Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
 
 ```
 cd emerge
