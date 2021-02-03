@@ -1,3 +1,4 @@
+wheel==0.32.2
 astroid==2.3.3
 attrs==19.3.0
 autopep8==1.5.4
@@ -10,7 +11,7 @@ interrogate==1.2.0
 isort==4.3.21
 lazy-object-proxy==1.4.3
 networkx==2.4
-numpy==1.19.1
+numpy==1.20.0
 prettytable==0.7.2
 py==1.9.0
 pycodestyle==2.6.0

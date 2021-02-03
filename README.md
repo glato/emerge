@@ -55,7 +55,8 @@ brew install graphviz
 
 ```
 cd emerge
-python3 -m venv venv
+pip3 install virtualenv
+virtualenv -p python3 venv
 ```
 
 **2.** (*ubuntu*) Install required packages and create a Python 3 virtual environment (optionally within the project structure)
