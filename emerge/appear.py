@@ -30,8 +30,8 @@ from emerge.core import format_timedelta
 LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
-__version__ = '0.9.1'
-__updated__ = '2021-02-03 20:12:49'
+__version__ = '0.9.2'
+__updated__ = '2021-02-08 21:16:07'
 
 
 class Emerge:

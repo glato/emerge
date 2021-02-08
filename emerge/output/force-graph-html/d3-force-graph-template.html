@@ -776,6 +776,7 @@
                     if ((d.target.id == closeNode.id) || (d.source.id == closeNode.id)) { // there is an edge that contains our hovered node
                         context.strokeStyle = currentActiveEdgeColor
                         context.fillStyle = currentActiveEdgeColor
+
                     } else { // node is not included in the edge
                         context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
                     }
@@ -784,7 +785,9 @@
                 context.lineWidth = 0.5;
                 context.stroke();
 
-                drawArrowhead(context, d.source, d.target, 3)
+                if (closeNode != null && ((d.target.id == closeNode.id) || (d.source.id == closeNode.id))) { // there is an edge that contains our hovered node
+                    drawArrowhead(context, d.source, d.target, 5)
+                }
             });
 
             // Draw nodes
@@ -809,6 +812,12 @@
                         context.fillStyle = nodeColorByModularity(d)
                         context.strokeStyle = nodeStrokeStyle;
                         context.stroke();
+
+                        // show/highlight node label of every connected node from the hovered node
+                        context.fillStyle = currentActiveNodeLabelColor;
+                        drawNodeLabel(d.id, d.x + 14, d.y - 7)
+                        context.fillStyle = nodeColorByModularity(d)
+
 
                         if (nodeLabelsEnabled) {
                             context.fillStyle = currentActiveNodeLabelColor;
@@ -843,15 +852,14 @@
                         context.lineWidth = 1.0;
                         context.stroke();
 
-                        // TODO: this seems to be buggy since it creates a random lag
                         drawNodeToolTip(closeNode.id, closeNode.x + 14, closeNode.y - 7, closeNode.metrics)
                     }
                 }
-
             });
 
             context.restore();
         }
+
 
         /**
          * * Handling of data structures
