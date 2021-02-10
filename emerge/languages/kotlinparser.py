@@ -24,7 +24,7 @@ coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 @unique
 class KotlinParsingKeyword(Enum):
     CLASS = "class"
-    STRUCT = "struct"
+    OBJECT = "object"
     OPEN_SCOPE = "{"
     CLOSE_SCOPE = "}"
     INLINE_COMMENT = "//"
@@ -100,9 +100,10 @@ class KotlinParser(AbstractParser, AbstractParsingCore):
         result: AbstractFileResult
         for _, result in filtered_results.items():
 
-            entity_keywords: List[str] = [KotlinParsingKeyword.CLASS.value]
+            entity_keywords: List[str] = [KotlinParsingKeyword.CLASS.value, KotlinParsingKeyword.OBJECT.value]
             entity_name = pp.Word(pp.alphanums)
-            match_expression = pp.Keyword(KotlinParsingKeyword.CLASS.value) + \
+
+            match_expression = (pp.Keyword(KotlinParsingKeyword.CLASS.value) | pp.Keyword(KotlinParsingKeyword.OBJECT.value)) + \
                 entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
                 pp.Optional(
                 pp.Keyword(CoreParsingKeyword.COLON.value) +
@@ -125,8 +126,9 @@ class KotlinParser(AbstractParser, AbstractParsingCore):
         LOGGER.debug(f'adding imports to entity result...')
         for scanned_import in entity_result.parent_file_result.scanned_import_dependencies:
             last_component_of_import = scanned_import.split(CoreParsingKeyword.DOT.value)[-1]
-            if last_component_of_import in entity_result.scanned_tokens and scanned_import not in entity_result.scanned_import_dependencies:
-                entity_result.scanned_import_dependencies.append(scanned_import)
+            for token in entity_result.scanned_tokens:  # either check for substrings in token, or find a better way to tokenize
+                if last_component_of_import in token and scanned_import not in entity_result.scanned_import_dependencies:
+                    entity_result.scanned_import_dependencies.append(scanned_import)
 
     def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from base result {result.scanned_file_name}...')
