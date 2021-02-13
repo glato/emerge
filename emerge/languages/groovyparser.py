@@ -11,7 +11,7 @@ from enum import Enum, unique
 import coloredlogs
 import logging
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
-from emerge.results import FileResult
+from emerge.results import EntityResult, FileResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.logging import Logger
 from emerge.statistics import Statistics
@@ -89,8 +89,11 @@ class GroovyParser(AbstractParser, AbstractParsingCore):
     def after_generated_file_results(self, analysis) -> None:
         pass
 
-    def create_unique_entity_name(self, *, entity: AbstractEntityResult) -> None:
-        raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
+    def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
+        if entity.module_name:
+            entity.unique_name = entity.module_name + CoreParsingKeyword.DOT.value + entity.entity_name
+        else:
+            entity.unique_name = entity.entity_name
 
     def generate_entity_results_from_analysis(self, analysis):
         LOGGER.debug(f'generating entity results...')
@@ -114,10 +117,8 @@ class GroovyParser(AbstractParser, AbstractParsingCore):
             for entity_result in entity_results:
                 self._add_inheritance_to_entity_result(entity_result)
                 self._add_imports_to_entity_result(entity_result)
-                if entity_result.module_name:
-                    self._results[entity_result.module_name + CoreParsingKeyword.DOT.value + entity_result.entity_name] = entity_result
-                else:
-                    self._results[entity_result.entity_name] = entity_result
+                self.create_unique_entity_name(entity_result)
+                self._results[entity_result.unique_name] = entity_result
 
     def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
@@ -155,8 +156,9 @@ class GroovyParser(AbstractParser, AbstractParsingCore):
         LOGGER.debug(f'adding imports to entity result...')
         for scanned_import in entity_result.parent_file_result.scanned_import_dependencies:
             last_component_of_import = scanned_import.split(CoreParsingKeyword.DOT.value)[-1]
-            if last_component_of_import in entity_result.scanned_tokens and scanned_import not in entity_result.scanned_import_dependencies:
-                entity_result.scanned_import_dependencies.append(scanned_import)
+            for token in entity_result.scanned_tokens:  # either check for substrings in token, or find a better way to tokenize
+                if last_component_of_import in token and scanned_import not in entity_result.scanned_import_dependencies:
+                    entity_result.scanned_import_dependencies.append(scanned_import)
 
     def _add_package_name_to_result(self, result: AbstractResult) -> str:
         LOGGER.debug(f'extracting package name from base result {result.scanned_file_name}...')

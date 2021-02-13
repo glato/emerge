@@ -50,7 +50,7 @@ class Analyzer:
 
     def start_scanning(self, analysis: Analysis):
         """Starts the scanning phase of a given analysis, depending on the current configuration:
-        - Creates file/entity results 
+        - Creates file/entity results
         - Creates graph representations
         - Calculates metric results
         - Add local results to graph representations
@@ -166,6 +166,7 @@ class Analyzer:
             if bool(metric_mapping):
                 metric: AbstractMetric
                 for _, metric in metric_mapping.items():
+                    LOGGER.info(f'calculating code metric results for: {metric.pretty_metric_name}')
                     analysis.calculate_metric(metric)
 
         LOGGER.info_done('done calculating code metric results')
@@ -187,6 +188,7 @@ class Analyzer:
             if bool(metric_mapping):
                 metric: AbstractMetric
                 for _, metric in metric_mapping.items():
+                    LOGGER.info(f'calculating graph metric results for: {metric.pretty_metric_name}')
                     analysis.calculate_metric(metric)
 
         LOGGER.info_done('done calculating graph metric results')

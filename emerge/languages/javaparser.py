@@ -11,7 +11,7 @@ from enum import Enum, unique
 import coloredlogs
 import logging
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
-from emerge.results import FileResult
+from emerge.results import EntityResult, FileResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.statistics import Statistics
 from emerge.logging import Logger
@@ -88,7 +88,7 @@ class JavaParser(AbstractParser, AbstractParsingCore):
     def after_generated_file_results(self, analysis) -> None:
         pass
 
-    def create_unique_entity_name(self, *, entity: AbstractEntityResult) -> None:
+    def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         if entity.module_name:
             entity.unique_name = entity.module_name + CoreParsingKeyword.DOT.value + entity.entity_name
         else:
@@ -113,18 +113,20 @@ class JavaParser(AbstractParser, AbstractParsingCore):
                                                 CoreParsingKeyword.START_BLOCK_COMMENT.value: JavaParsingKeyword.START_BLOCK_COMMENT.value, CoreParsingKeyword.STOP_BLOCK_COMMENT.value: JavaParsingKeyword.STOP_BLOCK_COMMENT.value}
             entity_results = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
 
+            entity_results: List[EntityResult]
             for entity_result in entity_results:
                 self._add_inheritance_to_entity_result(entity_result)
                 self._add_imports_to_entity_result(entity_result)
-                self.create_unique_entity_name(entity=entity_result)
+                self.create_unique_entity_name(entity_result)
                 self._results[entity_result.unique_name] = entity_result
 
     def _add_imports_to_entity_result(self, entity_result: AbstractEntityResult):
         LOGGER.debug(f'adding imports to entity result...')
         for scanned_import in entity_result.parent_file_result.scanned_import_dependencies:
             last_component_of_import = scanned_import.split(CoreParsingKeyword.DOT.value)[-1]
-            if last_component_of_import in entity_result.scanned_tokens and scanned_import not in entity_result.scanned_import_dependencies:
-                entity_result.scanned_import_dependencies.append(scanned_import)
+            for token in entity_result.scanned_tokens:  # either check for substrings in token, or find a better way to tokenize
+                if last_component_of_import in token and scanned_import not in entity_result.scanned_import_dependencies:
+                    entity_result.scanned_import_dependencies.append(scanned_import)
 
     def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')

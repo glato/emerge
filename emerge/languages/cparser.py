@@ -88,7 +88,7 @@ class CParser(AbstractParser, AbstractParsingCore):
     def generate_entity_results_from_analysis(self, analysis):
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
-    def create_unique_entity_name(self, *, entity: AbstractEntityResult) -> None:
+    def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
     def _add_imports_to_result(self, result: AbstractResult, analysis):

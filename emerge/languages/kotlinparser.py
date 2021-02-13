@@ -12,7 +12,7 @@ import coloredlogs
 import logging
 
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
-from emerge.results import FileResult
+from emerge.results import EntityResult, FileResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.statistics import Statistics
 from emerge.logging import Logger
@@ -90,8 +90,11 @@ class KotlinParser(AbstractParser, AbstractParsingCore):
     def after_generated_file_results(self, analysis) -> None:
         pass
 
-    def create_unique_entity_name(self, *, entity: AbstractEntityResult) -> None:
-        raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
+    def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
+        if entity.module_name:
+            entity.unique_name = entity.module_name + CoreParsingKeyword.DOT.value + entity.entity_name
+        else:
+            entity.unique_name = entity.entity_name
 
     def generate_entity_results_from_analysis(self, analysis):
         LOGGER.debug(f'generating entity results...')
@@ -114,13 +117,12 @@ class KotlinParser(AbstractParser, AbstractParsingCore):
                                                 CoreParsingKeyword.START_BLOCK_COMMENT.value: KotlinParsingKeyword.START_BLOCK_COMMENT.value, CoreParsingKeyword.STOP_BLOCK_COMMENT.value: KotlinParsingKeyword.STOP_BLOCK_COMMENT.value}
             entity_results = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
 
+            entity_results: List[EntityResult]
             for entity_result in entity_results:
                 self._add_inheritance_to_entity_result(entity_result)
                 self._add_imports_to_entity_result(entity_result)
-                if entity_result.module_name:
-                    self._results[entity_result.module_name + CoreParsingKeyword.DOT.value + entity_result.entity_name] = entity_result
-                else:
-                    self._results[entity_result.entity_name] = entity_result
+                self.create_unique_entity_name(entity_result)
+                self._results[entity_result.unique_name] = entity_result
 
     def _add_imports_to_entity_result(self, entity_result: AbstractEntityResult):
         LOGGER.debug(f'adding imports to entity result...')

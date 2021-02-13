@@ -87,7 +87,7 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
     def after_generated_file_results(self, analysis) -> None:
         pass
 
-    def create_unique_entity_name(self, *, entity: AbstractEntityResult) -> None:
+    def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
     def generate_entity_results_from_analysis(self, analysis):

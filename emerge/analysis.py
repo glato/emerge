@@ -193,7 +193,7 @@ class Analysis:
         Args:
             metric (AbstractMetric): A metric can be any subclass of AbstractMetric.
         """
-        LOGGER.info(f'calculating metric results for: {metric.pretty_metric_name}')
+        
         start_metric_calculation = datetime.now()
 
         if self.contains_metric_for_entity_results(metric.metric_name):

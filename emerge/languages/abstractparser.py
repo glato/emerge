@@ -207,5 +207,5 @@ class AbstractParser(AbstractParsingCore, ABC):
         ...
 
     @abstractmethod
-    def create_unique_entity_name(self, *, entity: AbstractEntityResult) -> None:
+    def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         ...
