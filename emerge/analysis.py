@@ -193,7 +193,7 @@ class Analysis:
         Args:
             metric (AbstractMetric): A metric can be any subclass of AbstractMetric.
         """
-        
+
         start_metric_calculation = datetime.now()
 
         if self.contains_metric_for_entity_results(metric.metric_name):
@@ -249,7 +249,7 @@ class Analysis:
             created_graph_representations = {k: v for (k, v) in self.graph_representations.items() if v is not None}
             FileManager.copy_force_graph_template_to_export_dir(self.export_directory)
             D3Exporter.export_d3_force_directed_graph(
-                created_graph_representations, statistics, overall_metric_results, self.export_directory
+                created_graph_representations, statistics, overall_metric_results, analysis_name, self.export_directory
             )
 
         if self.export_tabular_file:

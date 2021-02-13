@@ -2,7 +2,7 @@
 project_name: kotlin_example_project
 loglevel: info
 analyses:
-- analysis_name: check_kotlin_files_and_classes
+- analysis_name: full kotlin check
   source_directory: /Users/user1/emerge/project/source
   only_permit_languages:
   - kotlin

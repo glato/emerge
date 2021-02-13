@@ -2,7 +2,7 @@
 project_name: objc-example-project
 loglevel: info
 analyses:
-- analysis_name: check_objc_files
+- analysis_name: objc check
   source_directory: /Users/user1/emerge/project/source
   only_permit_languages:
   - objc

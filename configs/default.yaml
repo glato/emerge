@@ -2,7 +2,7 @@
 project_name: default project
 loglevel: info
 analyses:
-- analysis_name: check_files
+- analysis_name: file check
   source_directory: /Users/user1/emerge/project/source
   only_permit_languages:
   - c

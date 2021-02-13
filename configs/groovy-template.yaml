@@ -2,7 +2,7 @@
 project_name: groovy_project_example
 loglevel: info
 analyses:
-- analysis_name: check_groovy_files_and_entities
+- analysis_name: full groovy check
   source_directory: /Users/user1/emerge/project/source
   only_permit_languages:
   - groovy

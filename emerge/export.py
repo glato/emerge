@@ -235,7 +235,7 @@ class D3Exporter:
         ...
 
     @staticmethod
-    def export_d3_force_directed_graph(graph_representations, statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], export_dir):
+    def export_d3_force_directed_graph(graph_representations, statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], analysis_name, export_dir):
         """Exports all given graph representations to a JavaScript syntax ready to be used within a D3 force graph simulation."""
 
         d3_js_string = ''
@@ -244,7 +244,7 @@ class D3Exporter:
 
             graph = graph_representation.digraph
             data = json_graph.node_link_data(graph)
-            d3_js_string += 'var ' + graph_representation.graph_type.name.lower() + ' = ' + json.dumps(data)
+            d3_js_string += 'const ' + graph_representation.graph_type.name.lower() + ' = ' + json.dumps(data)
             json_statistics = {}
             json_metrics = {}
 
@@ -253,7 +253,7 @@ class D3Exporter:
                     json_statistics[name] = value
 
                 d3_js_string += '\n'
-                d3_js_string += 'var ' + graph_representation.graph_type.name.lower() + '_statistics = '
+                d3_js_string += 'const ' + graph_representation.graph_type.name.lower() + '_statistics = '
                 d3_js_string += json.dumps(json_statistics)
 
             if bool(overall_metric_results):
@@ -268,12 +268,14 @@ class D3Exporter:
                         json_metrics[name] = round(value, 2)
 
                 d3_js_string += '\n'
-                d3_js_string += 'var ' + graph_representation.graph_type.name.lower() + '_overall_metric_results = '
+                d3_js_string += 'const ' + graph_representation.graph_type.name.lower() + '_overall_metric_results = '
                 d3_js_string += json.dumps(json_metrics)
 
             d3_js_string += '\n\n'
 
         d3_js_string = d3_js_string.replace('-', '_')  # kebab case variable names are evil
+
+        d3_js_string += "const analysis_name = '" + analysis_name + "'"
 
         target_force_graph_subpath = "/force-graph-html"
         target_graph_subpath = "/resources/js"

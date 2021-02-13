@@ -2,7 +2,7 @@
 project_name: java_project_example
 loglevel: info
 analyses:
-- analysis_name: check_java_files_and_classes
+- analysis_name: full java check
   source_directory: /Users/user1/emerge/project/source
   only_permit_languages:
   - java
