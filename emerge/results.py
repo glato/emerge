@@ -175,6 +175,7 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
         self._scanned_file_name = scanned_file_name
         self._absolute_name = absolute_name
         self._display_name = display_name
+        self._unique_name = os.path.basename(os.path.normpath(self._scanned_file_name))
         self._module_name = module_name
         self._scanned_language = scanned_language
         self._scanned_by = scanned_by
@@ -196,8 +197,15 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
 
     @property
     def unique_name(self) -> str:
-        return os.path.basename(os.path.normpath(self._scanned_file_name))
-        # return self._absolute_name
+        return self._unique_name
+
+    @property
+    def absolute_name(self) -> str:
+        return self._absolute_name
+
+    @unique_name.setter
+    def unique_name(self, value):
+        self._unique_name = value
 
     @property
     def analysis(self):

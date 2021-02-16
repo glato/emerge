@@ -26,7 +26,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 ## The following features are currently supported by emerge
 
-- File scan support for the following languages: C, Groovy, Java, JavaScript, Kotlin, ObjC, Ruby, Swift
+- File scan support for the following languages: C, Groovy, Java, JavaScript, TypeScript, Kotlin, ObjC, Ruby, Swift
 - Basic entity scan/extraction (e.g. classes) for the following languages: Groovy, Java, Kotlin, Swift
 - Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
 - Logging support with configurable log levels
@@ -104,7 +104,7 @@ python run_tests.py
 python emerge.py 
 usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-s]
 
-Welcome to emerge 0.10.0 (2021-02-03 12:00:00).
+Welcome to emerge x.y.z (yyyy-mm-dd hh:mm:ss).
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -310,18 +310,18 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.10.0 supports the following scan types/ parsing keywords
+## The current version 0.11.0 supports the following scan types/ parsing keywords
 
-| Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | ObjC    | C    |
-|------------------|--------|-------|--------|-------------------------|---------|------------|---------|---------|
-| Files            | ✅    | ✅   | ✅    | ✅                     | ✅     | ✅        | ✅     | ✅     |
-| Entity type      | class  | class | class, object  | class, struct           | ❌      | ❌         | ❌      | ❌      |
-|                  |        |       |        |                         |         |            |         |         |
+| Parsing/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | TypeScript | ObjC    | C      |
+|------------------|--------|-------|--------|-------------------------|---------|------------|------------|--------|--------|
+| Files            | ✅     | ✅    | ✅      | ✅                      | ✅       | ✅         | ✅         | ✅      | ✅      |
+| Entity type      | class  | class | class, object  | class, struct   | ❌      | ❌         | ❌          | ❌      | ❌      |
+|                  |        |       |        |                         |         |            |            |        |         |
 
 - Parsing of further entity types for more languages (e.g. structs, ...) is planned for further development.
 
 ## Further development
 
-- *Disclaimer*: The current version (0.10.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.11.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 

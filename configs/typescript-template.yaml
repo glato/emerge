@@ -1,0 +1,24 @@
+---
+project_name: typescript-example-project
+loglevel: info
+analyses:
+- analysis_name: ts check
+  source_directory: /Users/user1/emerge/project/source
+  only_permit_languages:
+  - typescript
+  only_permit_file_extensions:
+  - .ts
+  file_scan:
+  - number_of_methods
+  - source_lines_of_code
+  - dependency_graph
+  - fan_in_out
+  - louvain_modularity
+  export:
+  - directory: /Users/user1/emerge/project/export
+  - graphml
+  - dot
+  - json
+  - tabular_file
+  - tabular_console_overall
+  - d3

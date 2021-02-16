@@ -18,6 +18,7 @@ from emerge.languages.swiftparser import SwiftParser
 from emerge.languages.cparser import CParser
 from emerge.languages.groovyparser import GroovyParser
 from emerge.languages.javascriptparser import JavaScriptParser
+from emerge.languages.typescriptparser import TypeScriptParser
 from emerge.languages.kotlinparser import KotlinParser
 from emerge.languages.objcparser import ObjCParser
 from emerge.languages.rubyparser import RubyParser
@@ -30,8 +31,8 @@ from emerge.core import format_timedelta
 LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
-__version__ = '0.10.0'
-__updated__ = '2021-02-14 17:59:23'
+__version__ = '0.11.0'
+__updated__ = '2021-02-16 21:19:39'
 
 
 class Emerge:
@@ -48,6 +49,7 @@ class Emerge:
             CParser.parser_name(): CParser(),
             GroovyParser.parser_name(): GroovyParser(),
             JavaScriptParser.parser_name(): JavaScriptParser(),
+            TypeScriptParser.parser_name(): TypeScriptParser(),
             KotlinParser.parser_name(): KotlinParser(),
             ObjCParser.parser_name(): ObjCParser(),
             RubyParser.parser_name(): RubyParser()

@@ -41,6 +41,7 @@ class SLOCCommentType(Enum):
     RUBY = {CommentKeyword.LINE_COMMENT.name: "#", CommentKeyword.START_BLOCK_COMMENT.name: "=begin", CommentKeyword.STOP_BLOCK_COMMENT.name: "=end"}
     GROOVY = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
     JAVASCRIPT = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
+    TYPESCRIPT = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
     C = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
 
 
@@ -132,6 +133,8 @@ class SourceLinesOfCodeMetric(CodeMetric):
             return SLOCCommentType.JAVA.value
         if result.scanned_language == LanguageType.JAVASCRIPT:
             return SLOCCommentType.JAVASCRIPT.value
+        if result.scanned_language == LanguageType.TYPESCRIPT:
+            return SLOCCommentType.TYPESCRIPT.value
         if result.scanned_language == LanguageType.KOTLIN:
             return SLOCCommentType.KOTLIN.value
         if result.scanned_language == LanguageType.OBJC:

@@ -27,6 +27,7 @@ class LanguageType(Enum):
     RUBY = auto()
     GROOVY = auto()
     JAVASCRIPT = auto()
+    TYPESCRIPT = auto()
     C = auto()
 
 
@@ -38,6 +39,7 @@ class Parser(Enum):
     SWIFT_PARSER = auto()
     C_PARSER = auto()
     JAVASCRIPT_PARSER = auto()
+    TYPESCRIPT_PARSER = auto()
     RUBY_PARSER = auto()
     GROOVY_PARSER = auto()
 
@@ -67,6 +69,8 @@ class CoreParsingKeyword(Enum):
     DASH = "-"
     OPENING_ROUND_BRACKET = "("
     CLOSING_ROUND_BRACKET = ")"
+    POSIX_CURRENT_DIRECTORY = "./"
+    POSIX_PARENT_DIRECTORY = "../"
 
 
 class AbstractParsingCore(ABC):

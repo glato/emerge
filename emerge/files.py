@@ -13,6 +13,7 @@ from emerge.languages.swiftparser import SwiftParser
 from emerge.languages.cparser import CParser
 from emerge.languages.groovyparser import GroovyParser
 from emerge.languages.javascriptparser import JavaScriptParser
+from emerge.languages.typescriptparser import TypeScriptParser
 from emerge.languages.kotlinparser import KotlinParser
 from emerge.languages.objcparser import ObjCParser
 from emerge.languages.rubyparser import RubyParser
@@ -41,6 +42,7 @@ class LanguageExtension(Enum):
     C = ".c"
     GROOVY = ".groovy"
     JAVASCRIPT = ".js"
+    TYPESCRIPT = ".ts"
     KOTLIN = ".kt"
     OBJC = ".m"
     RUBY = ".rb"
@@ -83,6 +85,8 @@ class FileScanMapper:
             return GroovyParser.parser_name()
         if file_extension == LanguageExtension.JAVASCRIPT.value:
             return JavaScriptParser.parser_name()
+        if file_extension == LanguageExtension.TYPESCRIPT.value:
+            return TypeScriptParser.parser_name()
         if file_extension == LanguageExtension.KOTLIN.value:
             return KotlinParser.parser_name()
         if file_extension == LanguageExtension.OBJC.value:

@@ -54,6 +54,11 @@ class AbstractFileResult(AbstractResult):
     def module_name(self) -> str:
         ...
 
+    @property
+    @abstractmethod
+    def absolute_name(self) -> str:
+        ...
+
     @classmethod
     @abstractmethod
     def create_file_result(cls, analysis, scanned_file_name, module_name, scanned_by, scanned_language, scanned_tokens):

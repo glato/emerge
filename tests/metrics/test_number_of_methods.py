@@ -14,6 +14,7 @@ from emerge.languages.cparser import CParser
 from emerge.languages.groovyparser import GroovyParser
 from emerge.languages.javaparser import JavaParser
 from emerge.languages.javascriptparser import JavaScriptParser
+from emerge.languages.typescriptparser import TypeScriptParser
 from emerge.languages.kotlinparser import KotlinParser
 from emerge.languages.objcparser import ObjCParser
 from emerge.languages.rubyparser import RubyParser
@@ -28,6 +29,7 @@ from tests.testdata.c import C_TEST_FILES
 from tests.testdata.groovy import GROOVY_TEST_FILES
 from tests.testdata.java import JAVA_TEST_FILES
 from tests.testdata.javascript import JAVASCRIPT_TEST_FILES
+from tests.testdata.typescript import TYPESCRIPT_TEST_FILES
 from tests.testdata.kotlin import KOTLIN_TEST_FILES
 from tests.testdata.objc import OBJC_TEST_FILES
 from tests.testdata.ruby import RUBY_TEST_FILES
@@ -48,6 +50,7 @@ class NumberOfMethodsTestCase(unittest.TestCase):
             GroovyParser.parser_name(): GROOVY_TEST_FILES,
             JavaParser.parser_name(): JAVA_TEST_FILES,
             JavaScriptParser.parser_name(): JAVASCRIPT_TEST_FILES,
+            TypeScriptParser.parser_name(): TYPESCRIPT_TEST_FILES,
             KotlinParser.parser_name(): KOTLIN_TEST_FILES,
             ObjCParser.parser_name(): OBJC_TEST_FILES,
             RubyParser.parser_name(): RUBY_TEST_FILES,
@@ -59,6 +62,7 @@ class NumberOfMethodsTestCase(unittest.TestCase):
             GroovyParser.parser_name(): GroovyParser(),
             JavaParser.parser_name(): JavaParser(),
             JavaScriptParser.parser_name(): JavaScriptParser(),
+            TypeScriptParser.parser_name(): TypeScriptParser(),
             KotlinParser.parser_name(): KotlinParser(),
             ObjCParser.parser_name(): ObjCParser(),
             RubyParser.parser_name(): RubyParser(),
@@ -68,6 +72,7 @@ class NumberOfMethodsTestCase(unittest.TestCase):
         self.analysis = Analysis()
         self.analyzer = Analyzer(None, self.parsers)
         self.analysis.analysis_name = "test"
+        self.analysis.source_directory = "/source"
 
         self.number_of_methods_metric = NumberOfMethodsMetric(self.analysis)
 
@@ -80,7 +85,8 @@ class NumberOfMethodsTestCase(unittest.TestCase):
 
         for parser_name, test_data_dict in self.test_data.items():
             for file_name, file_content in test_data_dict.items():
-                self.parsers[parser_name].generate_file_result_from_analysis(self.analysis, file_name=file_name, full_file_path="tests/" + file_name, file_content=file_content)
+                self.parsers[parser_name].generate_file_result_from_analysis(
+                    self.analysis, file_name=file_name, full_file_path="/source/tests/" + file_name, file_content=file_content)
 
                 self.assertTrue(bool(self.parsers[parser_name].results))
                 results.update(self.parsers[parser_name].results)
