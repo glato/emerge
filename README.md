@@ -36,7 +36,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
   - [GraphML](http://graphml.graphdrawing.org)
   - [Graphviz DOT format](https://graphviz.org/doc/info/lang.html)
   - JavaScript format suited for a [D3 force graph simulation](https://github.com/d3/d3-force)
-  - Basic HTML/ web application with [dark mode support](https://github.com/coliff/dark-mode-switch) based on [Bootstrap](https://getbootstrap.com) and [D3](https://d3js.org) and HTML canvas for interactive, exploratory analysis and data visualization of graphs/ results/ metrics (the UI is basically oriented on [Gephi](https://gephi.org))
+  - Basic HTML/ web application with [dark mode support](https://github.com/coliff/dark-mode-switch) based on [Bootstrap](https://getbootstrap.com), [D3](https://d3js.org) and HTML canvas for interactive, exploratory analysis and data visualization of graphs/ results/ metrics (the UI is basically oriented on [Gephi](https://gephi.org))
   - Tabular console output
   - Tabular file output
   - JSON file output
