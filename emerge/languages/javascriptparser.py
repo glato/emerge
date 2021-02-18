@@ -10,6 +10,9 @@ from typing import Dict
 from enum import Enum, unique
 import coloredlogs
 import logging
+from pathlib import PosixPath
+import os
+
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
 from emerge.abstractresult import AbstractResult, AbstractEntityResult
@@ -69,6 +72,12 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
         LOGGER.debug(f'generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
+        # get relative path name starting from the anaylsis scanning path
+        relative_project_path_name = full_file_path
+        split_project_path = full_file_path.split(f"{analysis.source_directory}/")
+        if len(split_project_path) > 1:
+            relative_project_path_name = split_project_path[1]
+
         file_result = FileResult.create_file_result(
             analysis=analysis,
             scanned_file_name=file_name,
@@ -79,6 +88,9 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
             scanned_language=LanguageType.JAVASCRIPT,
             scanned_tokens=scanned_tokens
         )
+
+        # use the relative full project path name as uniqe name of the result
+        file_result.unique_name = relative_project_path_name
 
         self._add_package_name_to_result(file_result)
         self._add_imports_to_result(file_result, analysis)
@@ -120,13 +132,43 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
 
                 analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
-                # ignore any dependency substring from the config ignore list
                 dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+
+                if CoreParsingKeyword.AT.value in dependency:
+                    pass  # let @-dependencies as they are
+                elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
+                    dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
+
+                elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.js': a naive way to get a good/unique dependency path ...
+                    # ... first construct the result path + dependency path
+                    path = result.absolute_name.replace(os.path.basename(os.path.normpath(result.scanned_file_name)), "")
+                    path += dependency
+                    posix_path = PosixPath(path)
+                    try:
+                        # then resolve the full path in a posix way
+                        resolved_posix_path = posix_path.resolve()
+                        project_scanning_path = analysis.source_directory
+                        if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:
+                            project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
+
+                        if project_scanning_path in str(resolved_posix_path):
+                            # substract the beginning project source path
+                            resolved_relative_path = str(resolved_posix_path).replace(f"{analysis.source_directory}{CoreParsingKeyword.SLASH.value}", "")
+                            # set our new constructed dependency
+                            dependency = resolved_relative_path
+                    except:
+                        pass
+
+                # strongly assume the .js suffix for every dependency
+                if '.js' not in dependency:
+                    dependency = f"{dependency}.js"
+
+                # ignore any dependency substring from the config ignore list
                 if self._is_dependency_in_ignore_list(dependency, analysis):
                     LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
                 else:
                     result.scanned_import_dependencies.append(dependency)
-                    LOGGER.debug(f'adding import: {dependency}')
+                    LOGGER.info(f'adding import: {dependency} to {result.unique_name}')
 
     # pylint: disable=unused-argument
     def _add_package_name_to_result(self, result: AbstractResult) -> str:
