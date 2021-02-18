@@ -116,6 +116,7 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
             if obj == TypeScriptParsingKeyword.IMPORT.value:
                 read_ahead_string = self.create_read_ahead_string(obj, following)
 
+                # grammar syntax for pyparsing to parse dependencies
                 valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value +
                                      CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
                 expression_to_match = pp.SkipTo(pp.Literal(TypeScriptParsingKeyword.FROM.value)) + pp.Literal(TypeScriptParsingKeyword.FROM.value) + \
@@ -123,6 +124,7 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
                     pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
 
                 try:
+                    # try to parse the dependency based on the syntax
                     parsing_result = expression_to_match.parseString(read_ahead_string)
                 except Exception as some_exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
@@ -133,7 +135,6 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
                 analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
                 dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-
                 if CoreParsingKeyword.AT.value in dependency:
                     pass  # let @-dependencies as they are
                 elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
