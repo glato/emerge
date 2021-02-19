@@ -72,3 +72,14 @@
     background-color: #111 !important;
     color: #eee;
 }
+
+[data-theme="dark"] .tooltip-inner {
+    background-color: black !important;
+    font-size: smaller;
+}
+
+[data-theme="dark"] .tooltip-inner {
+    background-color: black !important;
+    color: white;
+    font-size: smaller;
+}
