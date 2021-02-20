@@ -36,7 +36,14 @@ The main goal of this project is to create a free/ open source tool, that can ea
   - [GraphML](http://graphml.graphdrawing.org)
   - [Graphviz DOT format](https://graphviz.org/doc/info/lang.html)
   - JavaScript format suited for a [D3 force graph simulation](https://github.com/d3/d3-force)
-  - Basic HTML/ web application with [dark mode support](https://github.com/coliff/dark-mode-switch) based on [Bootstrap](https://getbootstrap.com), [D3](https://d3js.org) and HTML canvas for interactive, exploratory analysis and data visualization of graphs/ results/ metrics (the UI is basically oriented on [Gephi](https://gephi.org))
+  - Interactive HTML/ web application for interactive, exploratory analysis and data visualization of your project based on graph structures
+    - HTML app is based on [Bootstrap](https://getbootstrap.com)
+    - Force-directed graph simulation by [D3](https://d3js.org)
+    - Fast full-screen UI rendering on HTML canvas
+    - Visualization of files, entities and given metrics
+    - [dark mode support](https://github.com/coliff/dark-mode-switch)
+    - Reactive visual live search of files/ entities (e.g. classes)
+    - Interactivity given by translation, zooming, dragging and hovering over nodes
   - Tabular console output
   - Tabular file output
   - JSON file output
@@ -310,18 +317,18 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.12.0 supports the following scan types/ parsing keywords
+## The current version 0.13.0 supports the following scan types/ parsing keywords
 
 | Parse/Language | Groovy | Java  | Kotlin | Swift                   | Ruby    | JavaScript | TypeScript | ObjC    | C    |
 |----------------|--------|-------|--------|-------------------------|---------|------------|------------|--------|-------|
 | Files          | ✅     | ✅    | ✅      | ✅                      | ✅       | ✅         | ✅         | ✅      | ✅    |
-| Entity type    | class  | class | class, object  | class, struct   | ❌      | ❌         | ❌          | ❌      | ❌    |
+| Entities    | ✅ class  | ✅ class | ✅ class/object  | ✅ class/struct   | ❌      | ❌         | ❌          | ❌      | ❌    |
 |                |        |       |        |                         |         |            |            |        |       |
 
-- Parsing of further entity types for more languages (e.g. structs, ...) is planned for further development.
+- Parsing of further entity types for more languages is planned for further development. [Contributions](CONTRIBUTING.md) are welcome 👍
 
 ## Further development
 
-- *Disclaimer*: The current version (0.12.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.13.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
