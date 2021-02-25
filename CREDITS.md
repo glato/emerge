@@ -5,7 +5,8 @@ Everyone that contributes to emerge can be named here with a short contribution 
 
 ## Contributors
 
-- Grzegorz Lato, first public release.
+- Grzegorz Lato
+- Nicolas Carlo
 
 
 ## emerge contains third party code from the following people 
