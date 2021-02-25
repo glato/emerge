@@ -351,4 +351,11 @@ export function launchEditor(
     childProcess = null;
   });
 }
+""", "file3.js": """
+// Test parser also works with double-quote imports
+import {sum} from "./math";
+
+export function add10(a) {
+  return sum(a, 10);
+}
 """}

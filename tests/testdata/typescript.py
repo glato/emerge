@@ -99,4 +99,11 @@ function sortActivatedRouteSnapshots(nodes: TreeNode<ActivatedRouteSnapshot>[]):
     return a.value.outlet.localeCompare(b.value.outlet);
   });
 }
+""", "file3.ts": """
+// Test parser also works with double-quote imports
+import {sum} from "./math";
+
+export function add10(a: number): number {
+  return sum(a, 10);
+}
 """}
