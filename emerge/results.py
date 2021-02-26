@@ -199,10 +199,6 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
     def unique_name(self) -> str:
         return self._unique_name
 
-    @property
-    def absolute_name(self) -> str:
-        return self._absolute_name
-
     @unique_name.setter
     def unique_name(self, value):
         self._unique_name = value

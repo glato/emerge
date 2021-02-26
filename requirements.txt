@@ -1,5 +1,5 @@
 wheel==0.32.2
-astroid==2.3.3
+astroid==2.5.0
 attrs==19.3.0
 autopep8==1.5.4
 click==7.1.2
@@ -16,7 +16,7 @@ prettytable==0.7.2
 py==1.9.0
 pycodestyle==2.6.0
 pygraphviz==1.6
-pylint==2.4.4
+pylint==2.7.1
 pyparsing==2.4.5
 python-louvain==0.14
 PyYAML==5.2
