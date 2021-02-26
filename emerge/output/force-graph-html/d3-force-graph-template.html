@@ -236,7 +236,7 @@
                                 <table class="card-table table table-condensed">
                                     <thead class="table-borderless">
                                         <tr>
-                                            <th scope="col">Statistic name</th>
+                                            <th scope="col">Statistic</th>
                                             <th scope="col">Value</th>
                                         </tr>
                                     </thead>
@@ -285,6 +285,7 @@
                 </div>
 
             </div>
+
             <!-- Modal -->
             <div class="modal fade" id="overallMetricsModal" tabindex="-1" role="dialog" aria-labelledby="overallMetricsModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -299,7 +300,7 @@
                             <table class="card-table table table-condensed">
                                 <thead class="table-borderless">
                                     <tr>
-                                        <th scope="col">Statistic name</th>
+                                        <th scope="col">Metric</th>
                                         <th scope="col">Value</th>
                                     </tr>
                                 </thead>
@@ -345,6 +346,9 @@
         const toolTipMetricItemBoxColor = hexToRGB("#333333", 1.0);
         const toolTipMetricItemBoxFillColor = hexToRGB("#f7f7f7", 1.0);
 
+        /**
+         * * UI workarounds
+         */
         // workaround from https://stackoverflow.com/questions/6985507/one-time-page-refresh-after-first-page-load to fix strange safari full screen loading problems
         var userAgent = navigator.userAgent.toLowerCase();
         if (userAgent.includes('safari')) {
@@ -355,6 +359,12 @@
                 }
             }
         }
+
+        // Workaround to prevent buttons that trigger modals to stay focused after dismiss (https://stackoverflow.com/questions/30322918/bootstrap-modal-restores-button-focus-on-close)
+        $('body').on('hidden.bs.modal', '.modal', function() {
+            $('#buttonShowOverallMetrics').blur();
+            $('#buttonShowOverallStatistics').blur();
+        });
 
         function setDarkMode(mode) {
             if (mode == true) {
