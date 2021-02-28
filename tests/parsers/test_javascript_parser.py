@@ -1,5 +1,5 @@
 """
-All unit tests that are related to JavaParser.
+All unit tests that are related to JavaScriptParser.
 """
 
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>

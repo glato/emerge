@@ -1,5 +1,5 @@
 """
-Contains the implementation of the JavaScript language parser and a relevant keyword enum. This is basically a copy of the JavaScript parser with some nice modifications.
+Contains the implementation of the TypeScript language parser and a relevant keyword enum. This is basically a copy of the JavaScript parser with some nice modifications.
 """
 
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
