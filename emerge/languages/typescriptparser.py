@@ -113,6 +113,9 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
+            if obj != TypeScriptParsingKeyword.IMPORT.value:
+                continue
+
             if obj == TypeScriptParsingKeyword.IMPORT.value:
                 read_ahead_string = self.create_read_ahead_string(obj, following)
 
