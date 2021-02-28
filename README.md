@@ -9,11 +9,11 @@ emerge
 
 emerge is a code analysis tool that can be used to gather insights about source code structure, metrics, dependencies and complexity of software projects. It can scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph) and further export the results in some file formats or even create an **interactive web application** for further exploration. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-01.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-02.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-03.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-04.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-9-screenshot-05.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-13-screenshot-01.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-13-screenshot-02.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-13-screenshot-03.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-13-screenshot-04.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-13-screenshot-05.png)
 
 ## Goals of this project
 
