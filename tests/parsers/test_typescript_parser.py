@@ -39,7 +39,7 @@ class TypeScriptParserTestCase(unittest.TestCase):
 
         results: Dict[str, FileResult] = self.parser.results
         self.assertTrue(results)
-        self.assertTrue(len(results) == 3)
+        self.assertTrue(len(results) == 4)
 
         result: FileResult
         for _, result in results.items():
