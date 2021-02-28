@@ -114,122 +114,71 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
-            if obj == JavaScriptParsingKeyword.IMPORT.value:
-                read_ahead_string = self.create_read_ahead_string(obj, following)
+            if obj != JavaScriptParsingKeyword.IMPORT.value and obj != JavaScriptParsingKeyword.REQUIRE.value:
+               continue
 
-                # grammar syntax for pyparsing to parse dependencies
-                valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value +
-                                     CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
+            read_ahead_string = self.create_read_ahead_string(obj, following)
+
+            # grammar syntax for pyparsing to parse dependencies
+            valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value + CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
+
+            if obj == JavaScriptParsingKeyword.IMPORT.value:
                 expression_to_match = pp.SkipTo(pp.Literal(JavaScriptParsingKeyword.FROM.value)) + pp.Literal(JavaScriptParsingKeyword.FROM.value) + \
                     pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
                     pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
-
-                try:
-                    # try to parse the dependency based on the syntax
-                    parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
-                    result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
-                    LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
-                    continue
-
-                analysis.statistics.increment(Statistics.Key.PARSING_HITS)
-
-                dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-                if CoreParsingKeyword.AT.value in dependency:
-                    pass  # let @-dependencies as they are
-                elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
-                    dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
-
-                elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.js': a naive way to get a good/unique dependency path ...
-                    # ... first construct the result path + dependency path
-                    path = result.absolute_name.replace(os.path.basename(os.path.normpath(result.scanned_file_name)), "")
-                    path += dependency
-                    posix_path = PosixPath(path)
-                    try:
-                        # then resolve the full path in a posix way
-                        resolved_posix_path = posix_path.resolve()
-                        project_scanning_path = analysis.source_directory
-                        if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:
-                            project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
-
-                        if project_scanning_path in str(resolved_posix_path):
-                            # substract the beginning project source path
-                            resolved_relative_path = str(resolved_posix_path).replace(f"{analysis.source_directory}{CoreParsingKeyword.SLASH.value}", "")
-                            # set our new constructed dependency
-                            dependency = resolved_relative_path
-                    except:
-                        pass
-
-                # strongly assume the .js suffix for every dependency
-                if '.js' not in dependency:
-                    dependency = f"{dependency}.js"
-
-                # ignore any dependency substring from the config ignore list
-                if self._is_dependency_in_ignore_list(dependency, analysis):
-                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
-                else:
-                    result.scanned_import_dependencies.append(dependency)
-                    LOGGER.debug(f'adding import: {dependency} to {result.unique_name}')
-
             elif obj == JavaScriptParsingKeyword.REQUIRE.value:
-                read_ahead_string = self.create_read_ahead_string(obj, following)
-
-                # grammar syntax for pyparsing to parse dependencies
-                valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value +
-                                     CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
                 expression_to_match = pp.SkipTo(pp.Literal(CoreParsingKeyword.OPENING_ROUND_BRACKET.value)) + \
                     pp.Literal(CoreParsingKeyword.OPENING_ROUND_BRACKET.value) + \
                     pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
                     pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
 
+            try:
+                # try to parse the dependency based on the syntax
+                parsing_result = expression_to_match.parseString(read_ahead_string)
+            except Exception as some_exception:
+                result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
+                LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
+                continue
+
+            analysis.statistics.increment(Statistics.Key.PARSING_HITS)
+
+            dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+            if CoreParsingKeyword.AT.value in dependency:
+                pass  # let @-dependencies as they are
+            elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
+                dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
+
+            elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.js': a naive way to get a good/unique dependency path ...
+                # ... first construct the result path + dependency path
+                path = result.absolute_name.replace(os.path.basename(os.path.normpath(result.scanned_file_name)), "")
+                path += dependency
+                posix_path = PosixPath(path)
                 try:
-                    # try to parse the dependency based on the syntax
-                    parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
-                    result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
-                    LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
-                    continue
+                    # then resolve the full path in a posix way
+                    resolved_posix_path = posix_path.resolve()
+                    project_scanning_path = analysis.source_directory
+                    if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:
+                        project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
 
-                analysis.statistics.increment(Statistics.Key.PARSING_HITS)
+                    if project_scanning_path in str(resolved_posix_path):
+                        # substract the beginning project source path
+                        resolved_relative_path = str(resolved_posix_path).replace(f"{analysis.source_directory}{CoreParsingKeyword.SLASH.value}", "")
+                        # set our new constructed dependency
+                        dependency = resolved_relative_path
+                except:
+                    pass
 
-                dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-                if CoreParsingKeyword.AT.value in dependency:
-                    pass  # let @-dependencies as they are
-                elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
-                    dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
+            # strongly assume the .js suffix for every dependency
+            if '.js' not in dependency:
+                dependency = f"{dependency}.js"
 
-                elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.js': a naive way to get a good/unique dependency path ...
-                    # ... first construct the result path + dependency path
-                    path = result.absolute_name.replace(os.path.basename(os.path.normpath(result.scanned_file_name)), "")
-                    path += dependency
-                    posix_path = PosixPath(path)
-                    try:
-                        # then resolve the full path in a posix way
-                        resolved_posix_path = posix_path.resolve()
-                        project_scanning_path = analysis.source_directory
-                        if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:
-                            project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
-
-                        if project_scanning_path in str(resolved_posix_path):
-                            # substract the beginning project source path
-                            resolved_relative_path = str(resolved_posix_path).replace(f"{analysis.source_directory}{CoreParsingKeyword.SLASH.value}", "")
-                            # set our new constructed dependency
-                            dependency = resolved_relative_path
-                    except:
-                        pass
-
-                # strongly assume the .js suffix for every dependency
-                if '.js' not in dependency:
-                    dependency = f"{dependency}.js"
-
-                # ignore any dependency substring from the config ignore list
-                if self._is_dependency_in_ignore_list(dependency, analysis):
-                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
-                else:
-                    result.scanned_import_dependencies.append(dependency)
-                    LOGGER.debug(f'adding import: {dependency} to {result.unique_name}')
+            # ignore any dependency substring from the config ignore list
+            if self._is_dependency_in_ignore_list(dependency, analysis):
+                LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+            else:
+                result.scanned_import_dependencies.append(dependency)
+                LOGGER.debug(f'adding import: {dependency} to {result.unique_name}')
 
     # pylint: disable=unused-argument
     def _add_package_name_to_result(self, result: AbstractResult) -> str:
