@@ -347,6 +347,12 @@
         const toolTipMetricItemBoxFillColor = hexToRGB("#f7f7f7", 1.0);
 
         /**
+         * * Math constants
+         */
+        const TWO_TIMES_PI = 2 * Math.PI
+        const ONE_THIRD_TWO_TIMES_PI = (1.0 / 3.0) * TWO_TIMES_PI
+
+        /**
          * * UI workarounds
          */
         // workaround from https://stackoverflow.com/questions/6985507/one-time-page-refresh-after-first-page-load to fix strange safari full screen loading problems
@@ -518,7 +524,7 @@
         }
 
         function drawNode(d) {
-            context.arc(d.x, d.y, d.radius, 0, 2 * Math.PI);
+            context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI);
         }
 
         function drawNodeLabel(text, xPos, yPos) {
@@ -535,7 +541,8 @@
             var maxLineWidth = 0
             for (metricKey in nodeMetrics) {
                 const val = nodeMetrics[metricKey]
-                const w = context.measureText(metricKey + ": " + val).width;
+                let human_readable_metric_name = metricKey.replace('metric_', '').replace(/_/gi, " ")
+                const w = context.measureText(human_readable_metric_name + ": " + val).width;
                 if (maxLineWidth < w) {
                     maxLineWidth = w
                 }
@@ -565,8 +572,9 @@
 
             for (metricKey in nodeMetrics) {
                 let val = nodeMetrics[metricKey]
+                let human_readable_metric_name = metricKey.replace('metric_', '').replace(/_/gi, " ")
+                let metricItemText = human_readable_metric_name + ": " + val
 
-                let metricItemText = metricKey + ": " + val
                 let newYPos = yPosOffset + (metricLineHeight * metricItem)
 
                 // Interesting bug: on Safari it seems to cause random lags if you do fillStyle/fillRect BEFORE strokeStyle/strokeRect
@@ -585,11 +593,8 @@
 
         // borrowed from Scott Johnson / https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197 with minor adjustments
         function drawArrowhead(context, from, to, radius) {
-            const midX = 0.5 * (from.x + to.x)
-            const midY = 0.5 * (from.y + to.y)
-
-            var x_center = midX
-            var y_center = midY
+            const x_center = 0.5 * (from.x + to.x)
+            const y_center = 0.5 * (from.y + to.y)
 
             var angle;
             var x;
@@ -603,13 +608,13 @@
 
             context.moveTo(x, y);
 
-            angle += (1.0 / 3.0) * (2 * Math.PI)
+            angle += ONE_THIRD_TWO_TIMES_PI
             x = radius * Math.cos(angle) + x_center;
             y = radius * Math.sin(angle) + y_center;
 
             context.lineTo(x, y);
 
-            angle += (1.0 / 3.0) * (2 * Math.PI)
+            angle += ONE_THIRD_TWO_TIMES_PI
             x = radius * Math.cos(angle) + x_center;
             y = radius * Math.sin(angle) + y_center;
 
@@ -883,7 +888,7 @@
             currentGraph.nodes.forEach(function(d, i) {
 
                 context.beginPath();
-                context.arc(d.x, d.y, d.radius, 0, 2 * Math.PI, true);
+                context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI, true);
 
                 if (closeNode == null) { // not hovering over any node
 
