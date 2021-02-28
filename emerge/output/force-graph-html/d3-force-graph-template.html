@@ -1083,14 +1083,21 @@
                     }
                 });
 
-                // update what is drawn on screen
-                simulationUpdate();
-
                 // if this animation is over
                 if (t === 1) {
+                    // always make sure that node sizes return to default if no metric is active
+                    if (activeMetrics.length == 0) {
+                        currentGraph.nodes.forEach(node => {
+                            node.radius = radius
+                        })
+                    }
+
                     // stop this timer since we are done animating.
                     timer.stop();
                 }
+
+                // update what is drawn on screen
+                simulationUpdate();
             });
         }
 
