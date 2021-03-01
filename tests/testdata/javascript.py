@@ -358,4 +358,26 @@ import {sum} from "./math";
 export function add10(a) {
   return sum(a, 10);
 }
+""", "file4.js": """
+// Test parser also works with require-style imports
+var Reflux = require("./lib/reflux");
+var urlb = require('../lib/urlb');
+
+function search(info, offset) {
+  var url = urlb("/api/transaction-error-mappings", {
+    code: info.code,
+    message: info.message,
+    operation: info.operation,
+    unmapped: info.unmapped,
+    offset: offset || 0,
+    limit: 20
+  });
+
+  request.apiRequest("get", url, this.trigger.bind(this, "search"));
+}
+
+module.exports = {
+  search,
+  purchaseSearch: Reflux.createAction()
+}
 """}
