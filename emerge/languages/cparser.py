@@ -10,6 +10,8 @@ from typing import Dict
 from enum import Enum, unique
 import coloredlogs
 import logging
+from pathlib import PosixPath
+
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
 from emerge.abstractresult import AbstractResult, AbstractEntityResult
@@ -67,9 +69,14 @@ class CParser(AbstractParser, AbstractParsingCore):
         LOGGER.debug(f'generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
+        # make sure to create unique names by using the relative analysis path as a base for the result
+        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
+
         file_result = FileResult.create_file_result(
             analysis=analysis,
             scanned_file_name=file_name,
+            relative_file_path_to_analysis=relative_file_path_to_analysis,
             absolute_name=full_file_path,
             display_name=file_name,
             module_name="",

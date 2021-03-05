@@ -10,8 +10,10 @@ from typing import Dict, List
 from enum import Enum, unique
 import coloredlogs
 import logging
+from pathlib import PosixPath
+
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
-from emerge.results import EntityResult, FileResult
+from emerge.results import FileResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.logging import Logger
 from emerge.statistics import Statistics
@@ -71,9 +73,14 @@ class GroovyParser(AbstractParser, AbstractParsingCore):
         LOGGER.debug(f'generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
+        # make sure to create unique names by using the relative analysis path as a base for the result
+        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
+
         file_result = FileResult.create_file_result(
             analysis=analysis,
             scanned_file_name=file_name,
+            relative_file_path_to_analysis=relative_file_path_to_analysis,
             absolute_name=full_file_path,
             display_name=file_name,
             module_name="",
