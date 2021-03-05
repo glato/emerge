@@ -73,25 +73,21 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
         LOGGER.debug(f'generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
-        # get relative path name starting from the anaylsis scanning path
-        relative_project_path_name = full_file_path
-        split_project_path = full_file_path.split(f"{analysis.source_directory}/")
-        if len(split_project_path) > 1:
-            relative_project_path_name = split_project_path[1]
+        # make sure to create unique names by using the relative analysis path as a base for the result
+        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
 
         file_result = FileResult.create_file_result(
             analysis=analysis,
             scanned_file_name=file_name,
+            relative_file_path_to_analysis=relative_file_path_to_analysis,
             absolute_name=full_file_path,
-            display_name=file_name,
+            display_name=relative_file_path_to_analysis,
             module_name="",
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.TYPESCRIPT,
             scanned_tokens=scanned_tokens
         )
-
-        # use the relative full project path name as uniqe name of the result
-        file_result.unique_name = relative_project_path_name
 
         self._add_package_name_to_result(file_result)
         self._add_imports_to_result(file_result, analysis)
@@ -108,6 +104,8 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
 
     def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from base result {result.scanned_file_name}...')
+
+        # prepare list of tokens
         list_of_words_with_newline_strings = result.scanned_tokens
         source_string_no_comments = self._filter_source_tokens_without_comments(
             list_of_words_with_newline_strings, TypeScriptParsingKeyword.INLINE_COMMENT.value, TypeScriptParsingKeyword.START_BLOCK_COMMENT.value, TypeScriptParsingKeyword.STOP_BLOCK_COMMENT.value)
@@ -119,9 +117,9 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
 
             read_ahead_string = self.create_read_ahead_string(obj, following)
 
-            # grammar syntax for pyparsing to parse dependencies
+            # create parsing expression
             valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value +
-                                    CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
+                                 CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
 
             if obj == TypeScriptParsingKeyword.IMPORT.value:
                 expression_to_match = pp.SkipTo(pp.Literal(TypeScriptParsingKeyword.FROM.value)) + pp.Literal(TypeScriptParsingKeyword.FROM.value) + \
@@ -134,7 +132,7 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
                     pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
 
             try:
-                # try to parse the dependency based on the syntax
+                # parse the dependency based on the expression
                 parsing_result = expression_to_match.parseString(read_ahead_string)
             except Exception as some_exception:
                 result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
@@ -144,15 +142,17 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
 
             analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
+            # now try to resolve/adjust the dependency to have a unique path
             dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+
             if CoreParsingKeyword.AT.value in dependency:
                 pass  # let @-dependencies as they are
+
             elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
                 dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
-                if '.ts' not in dependency:
-                    dependency = f"{dependency}.ts"
-            elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.ts': a naive way to get a good/unique dependency path ...
+                dependency = f"{result.relative_analysis_path}/{dependency}"  # adjust dependency to have a relative analysis path
 
+            elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.ts': a naive way to get a good/unique dependency path ...
                 # ... first construct the result path + dependency path
                 path = result.absolute_name.replace(os.path.basename(os.path.normpath(result.scanned_file_name)), "")
                 path += dependency
@@ -160,21 +160,26 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
                 try:
                     # then resolve the full path in a posix way
                     resolved_posix_path = posix_path.resolve()
-
                     project_scanning_path = analysis.source_directory
                     if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:
                         project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
 
                     if project_scanning_path in str(resolved_posix_path):
                         # substract the beginning project source path
-                        resolved_relative_path = str(resolved_posix_path).replace(f"{analysis.source_directory}{CoreParsingKeyword.SLASH.value}", "")
-                        if '.ts' not in resolved_relative_path:
-                            # assume the dependency is a ts file
-                            resolved_relative_path = f"{resolved_relative_path}.ts"
-                        # set our new constructed dependency
-                        dependency = resolved_relative_path
+
+                        resolved_relative_analysis_dependency_path = str(resolved_posix_path).replace(
+                            f"{PosixPath(analysis.source_directory).parent}{CoreParsingKeyword.SLASH.value}", "")
+
+                        # adjust our new resolved dependency
+                        dependency = resolved_relative_analysis_dependency_path
+                        pass
                 except:
                     pass
+
+            # verify if the dependency physically exist, then add the remaining suffix
+            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.ts"
+            if os.path.exists(check_dependency_path):
+                dependency = f"{dependency}.ts"
 
             # ignore any dependency substring from the config ignore list
             if self._is_dependency_in_ignore_list(dependency, analysis):
