@@ -5,6 +5,7 @@ Defines non-abstract result classes, e.g. FileResult or EntityResult.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
+from pathlib import PosixPath
 from emerge.abstractresult import AbstractFileResult, AbstractEntityResult
 from emerge.languages.abstractparser import AbstractParsingCore, CoreParsingKeyword, LanguageType
 from emerge.statistics import Statistics
@@ -164,6 +165,7 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
     def __init__(self,
                  anaylsis,
                  scanned_file_name: str,
+                 relative_file_path_to_analysis: str,
                  absolute_name: str,
                  display_name: str,
                  module_name: str,
@@ -173,9 +175,11 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
                  ):
         self._analysis = anaylsis
         self._scanned_file_name = scanned_file_name
+        self._relative_file_path_to_analysis = relative_file_path_to_analysis
+        self._relative_analysis_path = PosixPath(relative_file_path_to_analysis).parent
         self._absolute_name = absolute_name
         self._display_name = display_name
-        self._unique_name = os.path.basename(os.path.normpath(self._scanned_file_name))
+        self._unique_name = relative_file_path_to_analysis  # os.path.basename(os.path.normpath(self._scanned_file_name))
         self._module_name = module_name
         self._scanned_language = scanned_language
         self._scanned_by = scanned_by
@@ -192,8 +196,8 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
         metrics: {self._metrics=}'''
 
     @classmethod
-    def create_file_result(cls, analysis, scanned_file_name, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens) -> 'FileResult':
-        return FileResult(analysis, scanned_file_name, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens)
+    def create_file_result(cls, analysis, scanned_file_name, relative_file_path_to_analysis, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens) -> 'FileResult':
+        return FileResult(analysis, scanned_file_name, relative_file_path_to_analysis, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens)
 
     @property
     def unique_name(self) -> str:
@@ -210,6 +214,18 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
     @property
     def scanned_file_name(self) -> str:
         return self._scanned_file_name
+
+    @property
+    def relative_file_path_to_analysis(self) -> str:
+        return self._relative_file_path_to_analysis
+
+    @relative_file_path_to_analysis.setter
+    def relative_file_path_to_analysis(self, value):
+        self._relative_file_path_to_analysis = value
+
+    @property
+    def relative_analysis_path(self) -> str:
+        return self._relative_analysis_path
 
     @property
     def module_name(self) -> str:

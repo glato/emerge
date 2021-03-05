@@ -73,25 +73,21 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
         LOGGER.debug(f'generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
-        # get relative path name starting from the anaylsis scanning path
-        relative_project_path_name = full_file_path
-        split_project_path = full_file_path.split(f"{analysis.source_directory}/")
-        if len(split_project_path) > 1:
-            relative_project_path_name = split_project_path[1]
+        # make sure to create unique names by using the relative analysis path as a base for the result
+        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
 
         file_result = FileResult.create_file_result(
             analysis=analysis,
             scanned_file_name=file_name,
+            relative_file_path_to_analysis=relative_file_path_to_analysis,
             absolute_name=full_file_path,
-            display_name=file_name,
+            display_name=relative_file_path_to_analysis,
             module_name="",
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.JAVASCRIPT,
             scanned_tokens=scanned_tokens
         )
-
-        # use the relative full project path name as uniqe name of the result
-        file_result.unique_name = relative_project_path_name
 
         self._add_package_name_to_result(file_result)
         self._add_imports_to_result(file_result, analysis)
@@ -108,6 +104,8 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
 
     def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from base result {result.scanned_file_name}...')
+
+        # prepare list of tokens
         list_of_words_with_newline_strings = result.scanned_tokens
         source_string_no_comments = self._filter_source_tokens_without_comments(
             list_of_words_with_newline_strings, JavaScriptParsingKeyword.INLINE_COMMENT.value, JavaScriptParsingKeyword.START_BLOCK_COMMENT.value, JavaScriptParsingKeyword.STOP_BLOCK_COMMENT.value)
@@ -115,12 +113,13 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
             if obj != JavaScriptParsingKeyword.IMPORT.value and obj != JavaScriptParsingKeyword.REQUIRE.value:
-               continue
+                continue
 
             read_ahead_string = self.create_read_ahead_string(obj, following)
 
-            # grammar syntax for pyparsing to parse dependencies
-            valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value + CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
+            # create parsing expression
+            valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value +
+                                 CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
 
             if obj == JavaScriptParsingKeyword.IMPORT.value:
                 expression_to_match = pp.SkipTo(pp.Literal(JavaScriptParsingKeyword.FROM.value)) + pp.Literal(JavaScriptParsingKeyword.FROM.value) + \
@@ -133,7 +132,7 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
                     pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
 
             try:
-                # try to parse the dependency based on the syntax
+                # parse the dependency based on the expression
                 parsing_result = expression_to_match.parseString(read_ahead_string)
             except Exception as some_exception:
                 result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
@@ -143,11 +142,15 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
 
             analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
+            # now try to resolve/adjust the dependency to have a unique path
             dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+
             if CoreParsingKeyword.AT.value in dependency:
                 pass  # let @-dependencies as they are
+
             elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
                 dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
+                dependency = f"{result.relative_analysis_path}/{dependency}"  # adjust dependency to have a relative analysis path
 
             elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.js': a naive way to get a good/unique dependency path ...
                 # ... first construct the result path + dependency path
@@ -163,14 +166,19 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
 
                     if project_scanning_path in str(resolved_posix_path):
                         # substract the beginning project source path
-                        resolved_relative_path = str(resolved_posix_path).replace(f"{analysis.source_directory}{CoreParsingKeyword.SLASH.value}", "")
-                        # set our new constructed dependency
-                        dependency = resolved_relative_path
+
+                        resolved_relative_analysis_dependency_path = str(resolved_posix_path).replace(
+                            f"{PosixPath(analysis.source_directory).parent}{CoreParsingKeyword.SLASH.value}", "")
+
+                        # adjust our new resolved dependency
+                        dependency = resolved_relative_analysis_dependency_path
+                        pass
                 except:
                     pass
 
-            # strongly assume the .js suffix for every dependency
-            if '.js' not in dependency:
+            # verify if the dependency physically exist, then add the remaining suffix
+            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.js"
+            if os.path.exists(check_dependency_path):
                 dependency = f"{dependency}.js"
 
             # ignore any dependency substring from the config ignore list
