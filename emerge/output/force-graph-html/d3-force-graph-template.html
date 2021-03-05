@@ -496,7 +496,18 @@
 
         var transform = d3.zoomIdentity;
 
-        const color = d3.scaleOrdinal(d3.schemeCategory10)
+        // bring back d3 schemeCategory20 to live
+        const schemeCategory20 = "1f77b4aec7e8ff7f0effbb782ca02c98df8ad62728ff98969467bdc5b0d58c564bc49c94e377c2f7b6d27f7f7fc7c7c7bcbd22dbdb8d17becf9edae5"
+
+        function d3ColorExport(specifier) {
+            var n = specifier.length / 6 | 0,
+                colors = new Array(n),
+                i = 0;
+            while (i < n) colors[i] = "#" + specifier.slice(i * 6, ++i * 6);
+            return colors;
+        }
+
+        const color = d3.scaleOrdinal(d3ColorExport(schemeCategory20))
 
         /**
          * * Connectivity checks 
