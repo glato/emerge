@@ -109,9 +109,17 @@ class GraphRepresentation:
 
             # clear the filesystem node from the absolute key prefix, since the metrics are calculated with a filename-based key
             if self.graph_type == GraphType.FILESYSTEM_GRAPH:
-                cleared_node = Path(node).name
-                if cleared_node in metric_results.keys():
-                    metric_dict = metric_results[cleared_node]
+
+                current_node = nodes[node]
+                if not bool(current_node):
+                    continue  # if a file/dependency doesn't physically exits, do not consider it for the filsystem graph
+
+                current_node: FileSystemNode
+                if current_node['directory'] == True:
+                    continue  # do not add any metrics to directories
+
+                if node in metric_results.keys():
+                    metric_dict = metric_results[node]
 
                     for name, value in metric_dict.items():
                         if 'entity' not in name:  # do not include any entity metrics in the filesystem graph
@@ -142,12 +150,12 @@ class FileSystemNodeType(Enum):
 
 class FileSystemNode:
     """Small representation of a filesystem object, e.g. a directory or a file. This class is currently used to build the filesystem graph.
-    Could be further used to resolve import paths more precisely.
     """
 
     def __init__(self, type: FileSystemNodeType, absolute_name: str, content: Optional[str] = None):
         self.type: FileSystemNodeType = type
         self.absolute_name: str = absolute_name
+
         self.content: Optional[str] = content
 
     def __hash__(self):
