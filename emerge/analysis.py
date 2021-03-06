@@ -23,7 +23,7 @@ import coloredlogs
 import logging
 from datetime import datetime, timedelta
 import os
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 LOGGER = Logger(logging.getLogger('analysis'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
@@ -384,7 +384,11 @@ class Analysis:
         filesystem_graph = self.graph_representations[GraphType.FILESYSTEM_GRAPH.name.lower()]
 
         # create a root directory filesystem node, add to project graph
-        filesystem_root_node = FileSystemNode(FileSystemNodeType.DIRECTORY, self.source_directory)
+
+        parent_analysis_source_path = f"{PosixPath(self.source_directory).parent}/"
+        relative_file_path_to_analysis = self.source_directory.replace(parent_analysis_source_path, "")
+
+        filesystem_root_node = FileSystemNode(FileSystemNodeType.DIRECTORY, relative_file_path_to_analysis)
         filesystem_graph.filesystem_nodes[filesystem_root_node.absolute_name] = filesystem_root_node
 
         filesystem_graph.digraph.add_node(
@@ -401,7 +405,15 @@ class Analysis:
 
             for directory in dirs:
                 absolute_path_to_directory = os.path.join(root, directory)
-                directory_node = FileSystemNode(FileSystemNodeType.DIRECTORY, absolute_path_to_directory)
+
+                # create relative analysis path to exactly match the same path of nodes in other graphs (and get their metrics)
+                parent_analysis_source_path = f"{PosixPath(absolute_path_to_directory).parent}/"
+                relative_file_path_to_analysis = absolute_path_to_directory.replace(parent_analysis_source_path, "")
+
+                relative_path_parent = f'{PosixPath(root)}'.replace(f'{ PosixPath(self.source_directory).parent}/', "")
+                relative_path_directoy_node = f"{self.source_directory}/{relative_file_path_to_analysis}".replace(f"{PosixPath(self.source_directory).parent}/", "")
+
+                directory_node = FileSystemNode(FileSystemNodeType.DIRECTORY, relative_path_directoy_node)
                 filesystem_graph.filesystem_nodes[directory_node.absolute_name] = directory_node
 
                 filesystem_graph.digraph.add_node(
@@ -411,7 +423,7 @@ class Analysis:
                     display_name=directory_node.absolute_name
                 )
 
-                filesystem_graph.digraph.add_edge(root, directory_node.absolute_name)
+                filesystem_graph.digraph.add_edge(relative_path_parent, relative_path_directoy_node)
 
             if self.ignore_files_containing:
                 files[:] = [f for f in files if f not in self.ignore_files_containing]
@@ -419,6 +431,11 @@ class Analysis:
             for file_name in files:
                 absolute_path_to_file = os.path.join(root, file_name)
                 file_name, file_extension = os.path.splitext(absolute_path_to_file)
+
+                # create relative analysis path to exactly match the same path of nodes in other graphs (and get their metrics)
+                parent_analysis_source_path = f"{PosixPath(absolute_path_to_file).parent}/"
+                relative_root = f'{PosixPath(root)}'.replace(f'{ PosixPath(self.source_directory).parent}/', "")
+                relative_file_path_to_analysis = absolute_path_to_file.replace(f'{PosixPath(self.source_directory).parent}/', "")
 
                 if not self.file_extension_allowed(file_extension):
                     if not file_extension.strip():
@@ -433,11 +450,9 @@ class Analysis:
                     skipped_files += 1
                     continue
 
-                # file_name_with_extension = file_name + file_extension
-
                 with open(absolute_path_to_file, encoding="ISO-8859-1") as file:
                     file_content = file.read()
-                    file_node = FileSystemNode(FileSystemNodeType.FILE, absolute_path_to_file, file_content)
+                    file_node = FileSystemNode(FileSystemNodeType.FILE, relative_file_path_to_analysis, file_content)
                     filesystem_graph.filesystem_nodes[file_node.absolute_name] = file_node
 
                     filesystem_graph.digraph.add_node(
@@ -447,7 +462,7 @@ class Analysis:
                         display_name=Path(file_node.absolute_name).name
                     )
 
-                    filesystem_graph.digraph.add_edge(root, file_node.absolute_name)
+                    filesystem_graph.digraph.add_edge(relative_root, file_node.absolute_name)
 
                     scanned_files += 1
 
@@ -509,7 +524,7 @@ class Analysis:
         for _, graph in actual_graph_representation.items():
             graph.add_local_metric_results_to_graph_nodes(self.local_metric_results)
 
-    @property
+    @ property
     def existing_graph_representations(self) -> Dict[str, GraphRepresentation]:
         """Returns the instantiated graph representations in the analysis.
 
