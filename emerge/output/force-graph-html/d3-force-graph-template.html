@@ -635,7 +635,7 @@
         }
 
         function nodeColorByModularity(node, alpha = 1.0) {
-            if (currentGraphType.includes('file_result') ||  currentGraphType.includes('filesystem')) {
+            if (currentGraphType.includes('file_result') || currentGraphType.includes('filesystem')) {
                 return hexToRGB(color(node.metric_louvain_modularity_in_file), alpha)
             } else {
                 return hexToRGB(color(node.metric_louvain_modularity_in_entity), alpha);
