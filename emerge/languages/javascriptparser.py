@@ -177,7 +177,7 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
                     pass
 
             # verify if the dependency physically exist, then add the remaining suffix
-            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.js"
+            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.js"  # FIXME: source_directory.parent is wrong here
             if os.path.exists(check_dependency_path):
                 dependency = f"{dependency}.js"
 
