@@ -26,6 +26,7 @@ class JavaParserTestCase(unittest.TestCase):
         self.parser = JavaParser()
         self.analysis = Analysis()
         self.analysis.analysis_name = "test"
+        self.analysis.source_directory = "/tests"
 
     def tearDown(self):
         pass

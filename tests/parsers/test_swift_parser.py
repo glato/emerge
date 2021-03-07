@@ -30,6 +30,7 @@ class SwiftParserTestCase(unittest.TestCase):
         self.parser = SwiftParser()
         self.analysis = Analysis()
         self.analysis.analysis_name = "test"
+        self.analysis.source_directory = "/tests"
 
     def tearDown(self):
         pass

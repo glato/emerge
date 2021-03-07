@@ -26,6 +26,7 @@ class ObjCParserTestCase(unittest.TestCase):
         self.parser = ObjCParser()
         self.analysis = Analysis()
         self.analysis.analysis_name = "test"
+        self.analysis.source_directory = "/tests"
 
     def tearDown(self):
         pass
