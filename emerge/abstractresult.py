@@ -41,6 +41,11 @@ class AbstractFileResult(AbstractResult):
 
     @property
     @abstractmethod
+    def absolute_dir_path(self) -> str:
+        ...
+
+    @property
+    @abstractmethod
     def scanned_by(self) -> str:
         ...
 

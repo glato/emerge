@@ -11,6 +11,7 @@ from enum import Enum, unique
 import coloredlogs
 import logging
 from pathlib import PosixPath
+import os
 
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import EntityResult, FileResult
@@ -160,8 +161,10 @@ class JavaParser(AbstractParser, AbstractParsingCore):
 
                 analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
+                dependency: str = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+                # TODO: try to check/resolve the dependency
+
                 # ignore any dependency substring from the config ignore list
-                dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
                 if self._is_dependency_in_ignore_list(dependency, analysis):
                     LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
                 else:
