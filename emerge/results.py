@@ -175,6 +175,7 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
                  ):
         self._analysis = anaylsis
         self._scanned_file_name = scanned_file_name
+        self._absolute_dir_path = f"{PosixPath(anaylsis.source_directory).parent}/{absolute_name}"
         self._relative_file_path_to_analysis = relative_file_path_to_analysis
         self._relative_analysis_path = PosixPath(relative_file_path_to_analysis).parent
         self._absolute_name = absolute_name
@@ -222,6 +223,14 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
     @relative_file_path_to_analysis.setter
     def relative_file_path_to_analysis(self, value):
         self._relative_file_path_to_analysis = value
+
+    @property
+    def absolute_dir_path(self) -> str:
+        return self._absolute_dir_path
+
+    @absolute_dir_path.setter
+    def absolute_dir_path(self, value):
+        self._absolute_dir_path = value
 
     @property
     def relative_analysis_path(self) -> str:
