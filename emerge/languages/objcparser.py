@@ -11,10 +11,11 @@ from enum import Enum, unique
 import coloredlogs
 import logging
 from pathlib import PosixPath
+import os
 
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
-from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from emerge.abstractresult import AbstractFileResult, AbstractResult, AbstractEntityResult
 from emerge.statistics import Statistics
 from emerge.logging import Logger
 
@@ -127,6 +128,16 @@ class ObjCParser(AbstractParser, AbstractParsingCore):
 
                 # ignore any dependency substring from the config ignore list
                 dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+
+                if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency and CoreParsingKeyword.SLASH.value not in dependency and '.h' in dependency:
+
+                    result: AbstractFileResult
+                    check_dependency_path = f'{ PosixPath(analysis.source_directory).parent }/{result.relative_analysis_path}/{dependency}'
+                    if os.path.exists(check_dependency_path):
+                        dependency = f'{result.relative_analysis_path}/{dependency}'
+
+                # TODO: else -> try to resolve the path for all other cases
+
                 if self._is_dependency_in_ignore_list(dependency, analysis):
                     LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
                 else:
