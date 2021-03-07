@@ -36,6 +36,11 @@ class AbstractFileResult(AbstractResult):
 
     @property
     @abstractmethod
+    def relative_file_path_to_analysis(self) -> str:
+        ...
+
+    @property
+    @abstractmethod
     def scanned_by(self) -> str:
         ...
 

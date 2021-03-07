@@ -406,12 +406,11 @@ class Analysis:
             for directory in dirs:
                 absolute_path_to_directory = os.path.join(root, directory)
 
-                # create relative analysis path to exactly match the same path of nodes in other graphs (and get their metrics)
+                # create relative analysis paths to exactly match the same path of nodes in other graphs (and get their metrics)
                 parent_analysis_source_path = f"{PosixPath(absolute_path_to_directory).parent}/"
                 relative_file_path_to_analysis = absolute_path_to_directory.replace(parent_analysis_source_path, "")
-
                 relative_path_parent = f'{PosixPath(root)}'.replace(f'{ PosixPath(self.source_directory).parent}/', "")
-                relative_path_directoy_node = f"{self.source_directory}/{relative_file_path_to_analysis}".replace(f"{PosixPath(self.source_directory).parent}/", "")
+                relative_path_directoy_node = f'{PosixPath(root)}/{relative_file_path_to_analysis}'.replace(f"{PosixPath(self.source_directory).parent}/", "")
 
                 directory_node = FileSystemNode(FileSystemNodeType.DIRECTORY, relative_path_directoy_node)
                 filesystem_graph.filesystem_nodes[directory_node.absolute_name] = directory_node
