@@ -11,7 +11,7 @@ import logging
 import coloredlogs
 from datetime import datetime
 from typing import List
-from pathlib import Path, PurePath
+from pathlib import Path
 
 from emerge.config import Configuration
 from emerge.analysis import Analysis

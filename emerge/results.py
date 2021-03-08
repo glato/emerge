@@ -11,7 +11,6 @@ from emerge.languages.abstractparser import AbstractParsingCore, CoreParsingKeyw
 from emerge.statistics import Statistics
 import coloredlogs
 import logging
-import os
 
 from emerge.logging import Logger
 

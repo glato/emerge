@@ -6,7 +6,6 @@ Defines a graph representations, available graph types and relevant calculations
 # License: MIT
 
 import logging
-from pathlib import Path
 import coloredlogs
 
 from typing import List, Dict, Any, Optional

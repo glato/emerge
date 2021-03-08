@@ -11,7 +11,6 @@ from enum import Enum, unique
 import coloredlogs
 import logging
 from pathlib import PosixPath
-import os
 
 from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import EntityResult, FileResult
