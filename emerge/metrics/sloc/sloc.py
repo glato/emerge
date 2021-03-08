@@ -43,6 +43,7 @@ class SLOCCommentType(Enum):
     JAVASCRIPT = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
     TYPESCRIPT = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
     C = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
+    CPP = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
 
 
 class SourceLinesOfCodeMetric(CodeMetric):
@@ -127,6 +128,8 @@ class SourceLinesOfCodeMetric(CodeMetric):
     def __get_comment_types(self, result: AbstractResult) -> Dict:
         if result.scanned_language == LanguageType.C:
             return SLOCCommentType.C.value
+        if result.scanned_language == LanguageType.CPP:
+            return SLOCCommentType.CPP.value
         if result.scanned_language == LanguageType.GROOVY:
             return SLOCCommentType.GROOVY.value
         if result.scanned_language == LanguageType.JAVA:

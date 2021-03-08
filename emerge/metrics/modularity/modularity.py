@@ -55,7 +55,7 @@ class LouvainModularityMetric(GraphMetric):
             digraph: DiGraph = graph_instance.digraph
             undirected_graph = digraph.to_undirected()
             try:
-                optimization_runs = 20
+                optimization_runs = 10
                 sum_communities_found, sum_modularity = 0, 0.0
                 sum_biggest_five_community_distribution = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
 

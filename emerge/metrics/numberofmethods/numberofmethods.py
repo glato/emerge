@@ -47,7 +47,8 @@ class NumberOfMethodsMetric(CodeMetric):
             "GROOVY":     r"\b(?!if|for|while|switch|catch)\b[a-zA-Z\d_]+?\s*?\([a-zA-Z\d\s_,\>\<\?\*\.\[\]\=\@\']*?\)\s*?\{",
             "JAVASCRIPT": r"(function\s+?)([a-zA-Z\d_\:\*\-\<\>\?\,\[\]\.\s\|\=\$]+?)\(([a-zA-Z\d_\(\)\:\*\s\-\<\>\?\,\[\]\.\|\=\$\/]*?)\)*?[\:]*?\s*?\{",
             "TYPESCRIPT": r"(function\s+?)([a-zA-Z\d_\:\*\-\<\>\?\,\[\]\.\s\|\=\$]+?)\(([a-zA-Z\d_\(\)\:\*\s\-\<\>\?\,\[\]\.\|\=\$\/]*?)\)*?[\:]*?\s*?\{",
-            "C":          r"\b(?!if|for|while|switch)\b[a-zA-Z\d_]+?\s*?\([a-zA-Z\d\s_,\*]*?\)\s*?\{"
+            "C":          r"\b(?!if|for|while|switch)\b[a-zA-Z\d_]+?\s*?\([a-zA-Z\d\s_,\*]*?\)\s*?\{",
+            "CPP":        r"\b(?!if|for|while|switch)\b[a-zA-Z\d\_\:\<\>\*\&]+?\s*?\([\(a-zA-Z\d\s_,\*&:]*?\)\s*?\w+\s*?\{"
         }
 
         self.compiled_re = {}
@@ -68,9 +69,7 @@ class NumberOfMethodsMetric(CodeMetric):
             find_method_expression = self.__get_expression(result)
 
             LOGGER.debug(f'extracting methods from result {result.scanned_file_name}')
-            list_of_words = result.scanned_tokens
-            full_string = " ".join(list_of_words)
-
+            full_string = " ".join(result.scanned_tokens)
             number_of_methods = len(find_method_expression.findall(full_string))
 
             if isinstance(result, AbstractFileResult):
