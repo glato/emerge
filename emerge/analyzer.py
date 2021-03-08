@@ -16,10 +16,11 @@ from pathlib import Path
 from emerge.config import Configuration
 from emerge.analysis import Analysis
 from emerge.statistics import Statistics
-from emerge.files import FileScanMapper, LanguageExtension, truncate_directory
+from emerge.files import FileScanMapper
 from emerge.metrics.abstractmetric import AbstractCodeMetric, AbstractGraphMetric, AbstractMetric
 from emerge.languages.abstractparser import AbstractParser
 from emerge.logging import Logger
+from emerge.core import format_timedelta
 
 LOGGER = Logger(logging.getLogger('analysis'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
@@ -60,6 +61,8 @@ class Analyzer:
             analysis (Analysis): A given analysis.
         """
 
+        start_time = datetime.now()
+
         # check if source directoy really exists, otherwise log error and throw exception
         if not os.path.isdir(analysis.source_directory):
             LOGGER.error(f'error in analysis {analysis.analysis_name}: source directory not found/ accessible: {analysis.source_directory}')
@@ -83,10 +86,16 @@ class Analyzer:
             analysis.calculate_graph_representations()
             self._calculate_graph_metric_results(analysis)
             analysis.add_local_metric_results_to_graphs()
-            analysis.export()
 
         self._collect_all_results()
-        LOGGER.info_done('calculated and collected metric data')
+
+        stop_time = datetime.now()
+        delta_total_runtime = stop_time - start_time
+        analysis.total_runtime = format_timedelta(delta_total_runtime, '%H:%M:%S + %s ms')
+        analysis.statistics.add(key=Statistics.Key.TOTAL_RUNTIME, value=analysis.total_runtime)
+        analysis.export()
+
+        LOGGER.info_done(f'total runtime of analysis: {analysis.total_runtime}')
 
     def _create_filesystem_graph(self, analysis: Analysis):
         """Creates a project graph as a basis for all further file-based calculations.

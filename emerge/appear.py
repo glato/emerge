@@ -8,7 +8,6 @@ All analyses get started from here.
 from typing import Dict
 import coloredlogs
 import logging
-import datetime
 
 from emerge.config import Configuration
 
@@ -27,13 +26,12 @@ from emerge.languages.rubyparser import RubyParser
 from emerge.analyzer import Analyzer
 from emerge.abstractresult import AbstractResult
 from emerge.logging import Logger, LogLevel
-from emerge.core import format_timedelta
 
 LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 __version__ = '0.15.0'
-__updated__ = '2021-03-08 09:39:56'
+__updated__ = '2021-03-08 14:57:49'
 
 
 class Emerge:
@@ -77,7 +75,6 @@ class Emerge:
     def start(self):
         """Starts emerge by parsing arguments/configuration and starting the analysis from an analyzer instance. 
         """
-        start_time = datetime.datetime.now()
 
         self.parse_args()
 
@@ -88,11 +85,6 @@ class Emerge:
             else:
                 LOGGER.error(f'will not start with any analysis due configuration errors')
                 return
-
-        stop_time = datetime.datetime.now()
-        delta_total_runtime = stop_time - start_time
-        total_runtime = format_timedelta(delta_total_runtime, '%H:%M:%S + %s ms')
-        LOGGER.info_done(f'total runtime: {total_runtime}')
 
     def start_with_log_level(self, level: LogLevel):
         """Sets a custom log level and starts emerge.

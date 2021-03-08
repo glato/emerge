@@ -46,6 +46,8 @@ class Analysis:
         self.export_tabular_file: bool = False
         self.export_tabular_console_overall: bool = False
         self.export_tabular_console: bool = False
+        self.analysis_date: Optional[str] = None
+        self.analysis_runtime: Optional[str] = None
 
         self.export_json: bool = False
         self.export_dot: bool = False
