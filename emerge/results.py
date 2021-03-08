@@ -310,6 +310,21 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
 
         return "\n".join(source_lines_without_comments)
 
+    @staticmethod
+    def filter_lines_with_keywords(list_of_words: List[str], list_of_filter_keywords: List[str]) -> str:
+        source = " ".join(list_of_words)
+        source_lines = source.splitlines()
+        filtered_source_lines = []
+
+        for line in source_lines:
+            for keyword in list_of_filter_keywords:
+                if keyword not in line:
+                    filtered_source_lines.append(line)
+                else:
+                    LOGGER.info(f'negative keyword found {keyword}')
+
+        return "\n".join(filtered_source_lines)
+
     def generate_entity_results_from_scopes(self, entity_keywords, entity_expression, comment_keywords) -> List[EntityResult]:
         """Generate entity results by extracting everything within a scope that begins with an entity keyword."""
         open_scope_character: str = CoreParsingKeyword.OPENING_CURVED_BRACKET.value
