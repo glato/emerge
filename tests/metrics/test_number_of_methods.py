@@ -5,12 +5,14 @@ All unit tests that are related to the number of methods metric.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
+from emerge.languages.cppparser import CPPParser
 import unittest
 from typing import Dict
 import coloredlogs
 import logging
 
 from emerge.languages.cparser import CParser
+from emerge.languages.cppparser import CPPParser
 from emerge.languages.groovyparser import GroovyParser
 from emerge.languages.javaparser import JavaParser
 from emerge.languages.javascriptparser import JavaScriptParser
@@ -26,6 +28,7 @@ from emerge.metrics.numberofmethods.numberofmethods import NumberOfMethodsMetric
 from emerge.results import FileResult
 
 from tests.testdata.c import C_TEST_FILES
+from tests.testdata.cpp import CPP_TEST_FILES
 from tests.testdata.groovy import GROOVY_TEST_FILES
 from tests.testdata.java import JAVA_TEST_FILES
 from tests.testdata.javascript import JAVASCRIPT_TEST_FILES
@@ -47,6 +50,7 @@ class NumberOfMethodsTestCase(unittest.TestCase):
 
         self.test_data: Dict[str, Dict[str, str]] = {
             CParser.parser_name(): C_TEST_FILES,
+            CPPParser.parser_name(): CPP_TEST_FILES,
             GroovyParser.parser_name(): GROOVY_TEST_FILES,
             JavaParser.parser_name(): JAVA_TEST_FILES,
             JavaScriptParser.parser_name(): JAVASCRIPT_TEST_FILES,
@@ -59,6 +63,7 @@ class NumberOfMethodsTestCase(unittest.TestCase):
 
         self.parsers: Dict[str, AbstractParser] = {
             CParser.parser_name(): CParser(),
+            CPPParser.parser_name(): CPPParser(),
             GroovyParser.parser_name(): GroovyParser(),
             JavaParser.parser_name(): JavaParser(),
             JavaScriptParser.parser_name(): JavaScriptParser(),
