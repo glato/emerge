@@ -29,6 +29,7 @@ class LanguageType(Enum):
     JAVASCRIPT = auto()
     TYPESCRIPT = auto()
     C = auto()
+    CPP = auto()
 
 
 @unique
@@ -38,6 +39,7 @@ class Parser(Enum):
     OBJC_PARSER = auto()
     SWIFT_PARSER = auto()
     C_PARSER = auto()
+    CPP_PARSER = auto()
     JAVASCRIPT_PARSER = auto()
     TYPESCRIPT_PARSER = auto()
     RUBY_PARSER = auto()

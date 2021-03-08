@@ -11,6 +11,7 @@ from typing import Optional
 from emerge.languages.javaparser import JavaParser
 from emerge.languages.swiftparser import SwiftParser
 from emerge.languages.cparser import CParser
+from emerge.languages.cppparser import CPPParser
 from emerge.languages.groovyparser import GroovyParser
 from emerge.languages.javascriptparser import JavaScriptParser
 from emerge.languages.typescriptparser import TypeScriptParser
@@ -40,6 +41,7 @@ class LanguageExtension(Enum):
     JAVA = ".java"
     SWIFT = ".swift"
     C = ".c"
+    CPP = ".cpp"
     GROOVY = ".groovy"
     JAVASCRIPT = ".js"
     TYPESCRIPT = ".ts"
@@ -81,6 +83,8 @@ class FileScanMapper:
             return SwiftParser.parser_name()
         if file_extension == LanguageExtension.C.value:
             return CParser.parser_name()
+        if file_extension == LanguageExtension.CPP.value:
+            return CPPParser.parser_name()
         if file_extension == LanguageExtension.GROOVY.value:
             return GroovyParser.parser_name()
         if file_extension == LanguageExtension.JAVASCRIPT.value:
@@ -99,6 +103,8 @@ class FileScanMapper:
                     return ObjCParser.parser_name()
                 if 'c' in only_permit_languages:
                     return CParser.parser_name()
+                if 'cpp' in only_permit_languages:
+                    return CPPParser.parser_name()
 
         return None
 
