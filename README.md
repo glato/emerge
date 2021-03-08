@@ -26,8 +26,8 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 ## The following features are currently supported by emerge
 
-- File scan support for the following languages: C, C++, Groovy, Java, JavaScript, TypeScript, Kotlin, ObjC, Ruby, Swift
-- Basic entity scan/extraction (e.g. classes) for the following languages: Groovy, Java, Kotlin, Swift
+- File scan support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`
+- Basic entity scan/extraction (e.g. classes) for the following languages: `Groovy`, `Java`, `Kotlin`, `Swift`
 - Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
 - Logging support with configurable log levels
 - Configuration support based on YAML syntax to configure multiple/specific analyses
