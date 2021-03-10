@@ -12,7 +12,7 @@ import coloredlogs
 import logging
 from pathlib import PosixPath
 
-from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
+from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
 from emerge.abstractresult import AbstractResult, AbstractEntityResult
 from emerge.logging import Logger
@@ -32,7 +32,7 @@ class CPPParsingKeyword(Enum):
     STOP_BLOCK_COMMENT = "*/"
 
 
-class CPPParser(AbstractParser, AbstractParsingCore):
+class CPPParser(AbstractParser, ParsingMixin):
 
     def __init__(self):
         self._results: Dict[str, AbstractResult] = {}
@@ -123,7 +123,7 @@ class CPPParser(AbstractParser, AbstractParsingCore):
                 except Exception as some_exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
                     LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
-                    LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
+                    LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
                 analysis.statistics.increment(Statistics.Key.PARSING_HITS)

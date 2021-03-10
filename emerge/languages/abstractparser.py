@@ -8,7 +8,9 @@ Contains all abstract parsing classes and relevant enums.
 from abc import ABC, abstractmethod
 from enum import Enum, unique, auto
 from typing import Dict, List, Generator
-from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from pathlib import PosixPath
+
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 import re
 import coloredlogs
 import logging
@@ -75,10 +77,46 @@ class CoreParsingKeyword(Enum):
     POSIX_PARENT_DIRECTORY = "../"
 
 
-class AbstractParsingCore(ABC):
+class ParsingMixin(ABC):
 
     class Constants(Enum):
         MAX_DEBUG_TOKENS_READAHEAD = 10
+
+    @staticmethod
+    def resolve_relative_dependency_path(relative_analysis_dependency_path: str, result_absolute_dir_path: str, analysis_source_directory: str) -> str:
+        """Creates the absolute path for a dependency and try to resolve it with pathlib."""
+
+        resolved_dependency = relative_analysis_dependency_path
+        try:
+            unresolved_path = f'{result_absolute_dir_path}/{relative_analysis_dependency_path}'
+            resolved_path = f'{PosixPath(unresolved_path).resolve()}'
+
+            project_scanning_path = analysis_source_directory
+            if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:  # add trailing '/' to project scanning path if necessary
+                project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
+
+            # if the resolved path is still inside the project path, try to construct a full dependency path
+            # which is only relative to the project_scanning_path
+            if project_scanning_path in resolved_path:
+                resolved_relative_analysis_dependency_path = str(resolved_path).replace(
+                    f"{PosixPath(analysis_source_directory).parent}{CoreParsingKeyword.SLASH.value}", "")
+
+                resolved_dependency = resolved_relative_analysis_dependency_path
+
+        except Exception as ex:
+            LOGGER.warning(f'{ex}')
+
+        return resolved_dependency
+
+    @staticmethod
+    def create_relative_analysis_path_for_dependency(dependency: str, relative_analysis_path: str) -> str:
+        return f"{relative_analysis_path}/{dependency}"
+
+    @staticmethod
+    def create_relative_analysis_file_path(analysis_source_directory: str, full_file_path: str) -> str:
+        parent_analysis_source_path = f"{PosixPath(analysis_source_directory).parent}/"
+        relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
+        return relative_file_path_to_analysis
 
     @classmethod
     def create_before_and_ahead_string(cls, obj, previous, following) -> str:
@@ -183,7 +221,7 @@ class AbstractParsingCore(ABC):
         return re.findall(r'\S+|\n', file_content)
 
 
-class AbstractParser(AbstractParsingCore, ABC):
+class AbstractParser(ParsingMixin, ABC):
 
     @property
     @abstractmethod

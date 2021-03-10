@@ -12,7 +12,7 @@ import coloredlogs
 import logging
 from pathlib import PosixPath
 
-from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
+from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import EntityResult, FileResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.statistics import Statistics
@@ -36,7 +36,7 @@ class KotlinParsingKeyword(Enum):
     PACKAGE_NAME = "package_name"
 
 
-class KotlinParser(AbstractParser, AbstractParsingCore):
+class KotlinParser(AbstractParser, ParsingMixin):
 
     def __init__(self):
         self._results: Dict[str, AbstractResult] = {}
@@ -157,7 +157,7 @@ class KotlinParser(AbstractParser, AbstractParsingCore):
                 except Exception as some_exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
                     LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
-                    LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
+                    LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
                 analysis.statistics.increment(Statistics.Key.PARSING_HITS)

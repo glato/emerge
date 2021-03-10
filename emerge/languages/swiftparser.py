@@ -12,7 +12,7 @@ import coloredlogs
 import logging
 from pathlib import PosixPath
 
-from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
+from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.statistics import Statistics
@@ -37,7 +37,7 @@ class SwiftParsingKeyword(Enum):
     STOP_BLOCK_COMMENT = "*/"
 
 
-class SwiftParser(AbstractParser, AbstractParsingCore):
+class SwiftParser(AbstractParser, ParsingMixin):
 
     def __init__(self):
         self._results: Dict[str, AbstractResult] = {}
@@ -224,7 +224,7 @@ class SwiftParser(AbstractParser, AbstractParsingCore):
                 except:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
                     LOGGER.warning(f'warning: could not parse result {result=}')
-                    LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
+                    LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
                 if len(parsing_result) > 0:

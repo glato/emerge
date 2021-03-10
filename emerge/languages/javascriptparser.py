@@ -13,7 +13,7 @@ import logging
 from pathlib import PosixPath
 import os
 
-from emerge.languages.abstractparser import AbstractParser, AbstractParsingCore, Parser, CoreParsingKeyword, LanguageType
+from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
 from emerge.abstractresult import AbstractFileResult, AbstractResult, AbstractEntityResult
 from emerge.statistics import Statistics
@@ -35,7 +35,7 @@ class JavaScriptParsingKeyword(Enum):
     STOP_BLOCK_COMMENT = "*/"
 
 
-class JavaScriptParser(AbstractParser, AbstractParsingCore):
+class JavaScriptParser(AbstractParser, ParsingMixin):
 
     def __init__(self):
         self._results: Dict[str, AbstractResult] = {}
@@ -74,8 +74,7 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
-        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
-        relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
+        relative_file_path_to_analysis = self.create_relative_analysis_file_path(analysis.source_directory, full_file_path)
 
         file_result = FileResult.create_file_result(
             analysis=analysis,
@@ -137,7 +136,7 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
             except Exception as some_exception:
                 result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
                 LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
-                LOGGER.warning(f'next tokens: {[obj] + following[:AbstractParsingCore.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
+                LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                 continue
 
             analysis.statistics.increment(Statistics.Key.PARSING_HITS)
@@ -150,29 +149,10 @@ class JavaScriptParser(AbstractParser, AbstractParsingCore):
 
             elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
                 dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
-                dependency = f"{result.relative_analysis_path}/{dependency}"  # adjust dependency to have a relative analysis path
+                dependency = self.create_relative_analysis_path_for_dependency(dependency, result.relative_analysis_path)  # adjust dependency to have a relative analysis path
 
             elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # contains at lease one relative parent element '../'
-                # create the absolute path for the dependency from the result itself and try to resolve it with pathlib
-
-                try:
-                    unresolved_path = f'{result.absolute_dir_path}/{dependency}'
-                    resolved_path = f'{PosixPath(unresolved_path).resolve()}'
-
-                    project_scanning_path = analysis.source_directory
-                    if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:  # add trailing '/' to project scanning path if necessary
-                        project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
-
-                    # if the resolved path is still inside the project path, try to construct a full dependency path
-                    # which is only relative to the project_scanning_path
-                    if project_scanning_path in resolved_path:
-                        resolved_relative_analysis_dependency_path = str(resolved_path).replace(
-                            f"{PosixPath(analysis.source_directory).parent}{CoreParsingKeyword.SLASH.value}", "")
-
-                        dependency = resolved_relative_analysis_dependency_path
-
-                except Exception as some_exception:
-                    pass
+                dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
 
             # verify if the dependency physically exist, then add the remaining suffix
             check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.js"
