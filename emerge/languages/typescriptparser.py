@@ -152,28 +152,26 @@ class TypeScriptParser(AbstractParser, AbstractParsingCore):
                 dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
                 dependency = f"{result.relative_analysis_path}/{dependency}"  # adjust dependency to have a relative analysis path
 
-            elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # e.g. '../../foo.ts': a naive way to get a good/unique dependency path ...
-                # ... first construct the result path + dependency path
-                path = result.absolute_name.replace(os.path.basename(os.path.normpath(result.scanned_file_name)), "")
-                path += dependency
-                posix_path = PosixPath(path)
+            elif CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # contains at lease one relative parent element '../'
+                # create the absolute path for the dependency from the result itself and try to resolve it with pathlib
+
                 try:
-                    # then resolve the full path in a posix way
-                    resolved_posix_path = posix_path.resolve()
+                    unresolved_path = f'{result.absolute_dir_path}/{dependency}'
+                    resolved_path = f'{PosixPath(unresolved_path).resolve()}'
+
                     project_scanning_path = analysis.source_directory
-                    if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:
+                    if project_scanning_path[-1] != CoreParsingKeyword.SLASH.value:  # add trailing '/' to project scanning path if necessary
                         project_scanning_path = f"{project_scanning_path}{CoreParsingKeyword.SLASH.value}"
 
-                    if project_scanning_path in str(resolved_posix_path):
-                        # substract the beginning project source path
-
-                        resolved_relative_analysis_dependency_path = str(resolved_posix_path).replace(
+                    # if the resolved path is still inside the project path, try to construct a full dependency path
+                    # which is only relative to the project_scanning_path
+                    if project_scanning_path in resolved_path:
+                        resolved_relative_analysis_dependency_path = str(resolved_path).replace(
                             f"{PosixPath(analysis.source_directory).parent}{CoreParsingKeyword.SLASH.value}", "")
 
-                        # adjust our new resolved dependency
                         dependency = resolved_relative_analysis_dependency_path
-                        pass
-                except:
+
+                except Exception as some_exception:
                     pass
 
             # verify if the dependency physically exist, then add the remaining suffix

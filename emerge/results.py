@@ -174,7 +174,7 @@ class FileResult(AbstractFileResult, AbstractParsingCore):
                  ):
         self._analysis = anaylsis
         self._scanned_file_name = scanned_file_name
-        self._absolute_dir_path = f"{PosixPath(anaylsis.source_directory).parent}/{absolute_name}"
+        self._absolute_dir_path = PosixPath(f'{ PosixPath(anaylsis.source_directory).parent}/{PosixPath(absolute_name).parent}')
         self._relative_file_path_to_analysis = relative_file_path_to_analysis
         self._relative_analysis_path = PosixPath(relative_file_path_to_analysis).parent
         self._absolute_name = absolute_name
