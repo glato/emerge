@@ -10,7 +10,7 @@ from enum import Enum, unique, auto
 from typing import Dict, List, Generator
 from pathlib import PosixPath
 
-from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
+from emerge.abstractresult import AbstractResult, AbstractEntityResult
 import re
 import coloredlogs
 import logging
@@ -32,6 +32,7 @@ class LanguageType(Enum):
     TYPESCRIPT = auto()
     C = auto()
     CPP = auto()
+    PY = auto()
 
 
 @unique
@@ -46,6 +47,7 @@ class Parser(Enum):
     TYPESCRIPT_PARSER = auto()
     RUBY_PARSER = auto()
     GROOVY_PARSER = auto()
+    PYTHON_PARSER = auto()
 
 
 @unique
@@ -56,6 +58,7 @@ class CoreParsingKeyword(Enum):
     STOP_BLOCK_COMMENT = "stop_block_comment"
     INHERITED_ENTITY_NAME = "inherited_entity_name"
     IMPORT_ENTITY_NAME = "import_entity_name"
+    IMPORT_PATH = "import_path"
     COLON = ":"
     SEMICOLON = ";"
     DOT = "."

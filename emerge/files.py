@@ -18,6 +18,7 @@ from emerge.languages.typescriptparser import TypeScriptParser
 from emerge.languages.kotlinparser import KotlinParser
 from emerge.languages.objcparser import ObjCParser
 from emerge.languages.rubyparser import RubyParser
+from emerge.languages.pyparser import PythonParser
 
 import os
 import shutil
@@ -49,6 +50,7 @@ class LanguageExtension(Enum):
     OBJC = ".m"
     RUBY = ".rb"
     C_HEADER = ".h"
+    PYTHON = ".py"
 
     @staticmethod
     def valid_key(key) -> bool:
@@ -97,6 +99,8 @@ class FileScanMapper:
             return ObjCParser.parser_name()
         if file_extension == LanguageExtension.RUBY.value:
             return RubyParser.parser_name()
+        if file_extension == LanguageExtension.PYTHON.value:
+            return PythonParser.parser_name()
         if file_extension == LanguageExtension.C_HEADER.value:
             if only_permit_languages:
                 if 'objc' in only_permit_languages:
