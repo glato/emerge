@@ -89,7 +89,7 @@ class PythonParser(AbstractParser, ParsingMixin):
             display_name=file_name,
             module_name="",
             scanned_by=self.parser_name(),
-            scanned_language=LanguageType.C,
+            scanned_language=LanguageType.PY,
             scanned_tokens=scanned_tokens
         )
 
