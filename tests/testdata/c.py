@@ -1,7 +1,7 @@
 # Borrowed for testing with real test data from the linux kernel source.
 # https://github.com/torvalds/linux
 
-C_TEST_FILES = {"file1.c": """"
+C_TEST_FILES = {"file1.c": """
 // SPDX-License-Identifier: GPL-2.0-or-later
 /* 
  * Cryptographic API.

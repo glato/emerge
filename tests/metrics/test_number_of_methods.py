@@ -21,6 +21,7 @@ from emerge.languages.kotlinparser import KotlinParser
 from emerge.languages.objcparser import ObjCParser
 from emerge.languages.rubyparser import RubyParser
 from emerge.languages.swiftparser import SwiftParser
+from emerge.languages.pyparser import PythonParser
 from emerge.languages.abstractparser import AbstractParser
 
 from emerge.analysis import Analysis
@@ -37,6 +38,7 @@ from tests.testdata.kotlin import KOTLIN_TEST_FILES
 from tests.testdata.objc import OBJC_TEST_FILES
 from tests.testdata.ruby import RUBY_TEST_FILES
 from tests.testdata.swift import SWIFT_TEST_FILES
+from tests.testdata.py import PYTHON_TEST_FILES
 
 from emerge.analyzer import Analyzer
 
@@ -58,7 +60,8 @@ class NumberOfMethodsTestCase(unittest.TestCase):
             KotlinParser.parser_name(): KOTLIN_TEST_FILES,
             ObjCParser.parser_name(): OBJC_TEST_FILES,
             RubyParser.parser_name(): RUBY_TEST_FILES,
-            SwiftParser.parser_name(): SWIFT_TEST_FILES
+            SwiftParser.parser_name(): SWIFT_TEST_FILES,
+            PythonParser.parser_name(): PYTHON_TEST_FILES
         }
 
         self.parsers: Dict[str, AbstractParser] = {
@@ -71,7 +74,8 @@ class NumberOfMethodsTestCase(unittest.TestCase):
             KotlinParser.parser_name(): KotlinParser(),
             ObjCParser.parser_name(): ObjCParser(),
             RubyParser.parser_name(): RubyParser(),
-            SwiftParser.parser_name(): SwiftParser()
+            SwiftParser.parser_name(): SwiftParser(),
+            PythonParser.parser_name(): PythonParser()
         }
 
         self.analysis = Analysis()

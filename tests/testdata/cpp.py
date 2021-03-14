@@ -1,7 +1,7 @@
 # Borrowed for testing with real test data from the swift-project.
 # https://github.com/apple/swift
 
-CPP_TEST_FILES = {"file1.cpp": """"
+CPP_TEST_FILES = {"file1.cpp": """
 //===--- ConcreteDeclRef.cpp - Reference to a concrete decl ---------------===//
 //
 // This source file is part of the Swift.org open source project

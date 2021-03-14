@@ -1,7 +1,7 @@
 # Borrowed for testing with real test data from the nextflow-project.
 # https://github.com/nextflow-io/nextflow
 
-GROOVY_TEST_FILES = {"file1.groovy": """"
+GROOVY_TEST_FILES = {"file1.groovy": """
 /*
  * Copyright 2013-2019, Centre for Genomic Regulation (CRG)
  *
@@ -222,7 +222,8 @@ class CopyMoveHelper {
     }
 
 }
-""", "file2.groovy": """"/*
+""", "file2.groovy": """
+/*
  * Copyright 2013-2019, Centre for Genomic Regulation (CRG)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

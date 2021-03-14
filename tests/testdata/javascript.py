@@ -1,7 +1,7 @@
 # Borrowed for testing with real test data from the React project.
 # https://github.com/facebook/react
 
-JAVASCRIPT_TEST_FILES = {"file1.js": """"
+JAVASCRIPT_TEST_FILES = {"file1.js": """
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
