@@ -129,6 +129,7 @@ class PythonParser(AbstractParser, ParsingMixin):
                     source_import_lines.append(line)
                 line = PythonParsingKeyword.EMPTY.value
 
+        # now iterate line by line are try to parse and resolve the dependencies
         for line in source_import_lines:
 
             relative_import = False
@@ -139,7 +140,6 @@ class PythonParser(AbstractParser, ParsingMixin):
             expression_to_match = None
             multiple_imports_from_relative_current_dir = False
             multiple_imports_from_relative_parent_dir = False
-
             multiple_dependencies = []
 
             valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value +
@@ -147,6 +147,7 @@ class PythonParser(AbstractParser, ParsingMixin):
             valid_name_comma_seperated_imports = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value +
                                                          CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value + CoreParsingKeyword.COMMA.value + " ")
 
+            # case 'from . import <dependencies>'
             if PythonParsingKeyword.RELATIVE_FROM_CURRENT_DIR.value in line:
                 multiple_imports_from_relative_current_dir = True
                 expression_to_match = pp.Keyword(PythonParsingKeyword.FROM.value) + \
@@ -154,12 +155,15 @@ class PythonParser(AbstractParser, ParsingMixin):
                     pp.Keyword(PythonParsingKeyword.IMPORT.value) + \
                     pp.OneOrMore(valid_name_comma_seperated_imports.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value))
 
+            # case 'from .. import <dependencies>'
             elif PythonParsingKeyword.RELATIVE_FROM_PARENT_DIR.value in line:
                 multiple_imports_from_relative_parent_dir = True
                 expression_to_match = pp.Keyword(PythonParsingKeyword.FROM.value) + \
                     pp.Keyword(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value) + \
                     pp.Keyword(PythonParsingKeyword.IMPORT.value) + \
                     pp.OneOrMore(valid_name_comma_seperated_imports.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value))
+
+            # all other cases e.g. 'import <dependency>' or 'from foo.bar import <dependency>
             else:
                 expression_to_match = (pp.Keyword(PythonParsingKeyword.IMPORT.value) | pp.Keyword(PythonParsingKeyword.FROM.value)) + \
                     valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value) + \
@@ -168,6 +172,7 @@ class PythonParser(AbstractParser, ParsingMixin):
             try:
                 parsing_result = expression_to_match.parseString(line)
 
+                # if there are multiple dependencies, throw them all in multiple_dependencies
                 if (multiple_imports_from_relative_current_dir or multiple_imports_from_relative_parent_dir) and CoreParsingKeyword.COMMA.value in getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value):
                     multiple_results = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
                     multiple_dependencies = multiple_results.split(',')
@@ -187,6 +192,8 @@ class PythonParser(AbstractParser, ParsingMixin):
             dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
 
             # now try to resolve the dependency
+
+            # case: 'from .. import dependency1, ..., dependencyN
             if multiple_imports_from_relative_parent_dir and not multiple_imports_from_relative_current_dir:
                 for dep in multiple_dependencies:
                     resolved_dep = dep.replace(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value, CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value)
@@ -199,6 +206,7 @@ class PythonParser(AbstractParser, ParsingMixin):
                         result.scanned_import_dependencies.append(resolved_dep)
                         LOGGER.debug(f'adding import: {resolved_dep}')
 
+            # case: 'from . import dependency1, ..., dependencyN
             elif multiple_imports_from_relative_current_dir and not multiple_imports_from_relative_parent_dir:
                 for dep in multiple_dependencies:
                     resolved_dep = self.create_relative_analysis_path_for_dependency(dep, result.relative_analysis_path)
@@ -211,6 +219,7 @@ class PythonParser(AbstractParser, ParsingMixin):
                         result.scanned_import_dependencies.append(resolved_dep)
                         LOGGER.debug(f'adding import: {resolved_dep}')
 
+            # all other cases
             elif not multiple_imports_from_relative_current_dir and not multiple_imports_from_relative_parent_dir:
                 if PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value in dependency:
                     relative_import = True
