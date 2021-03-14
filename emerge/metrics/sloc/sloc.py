@@ -44,6 +44,7 @@ class SLOCCommentType(Enum):
     TYPESCRIPT = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
     C = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
     CPP = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
+    PY = {CommentKeyword.LINE_COMMENT.name: "#", CommentKeyword.START_BLOCK_COMMENT.name: '"""', CommentKeyword.STOP_BLOCK_COMMENT.name: '"""'}
 
 
 class SourceLinesOfCodeMetric(CodeMetric):
@@ -146,3 +147,5 @@ class SourceLinesOfCodeMetric(CodeMetric):
             return SLOCCommentType.RUBY.value
         if result.scanned_language == LanguageType.SWIFT:
             return SLOCCommentType.SWIFT.value
+        if result.scanned_language == LanguageType.PY:
+            return SLOCCommentType.PY.value
