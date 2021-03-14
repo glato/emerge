@@ -6,11 +6,12 @@ Contains the implementation of the Python language parser and a relevant keyword
 # License: MIT
 
 import pyparsing as pp
-from typing import Dict
+from typing import Dict, List
 from enum import Enum, unique
 import coloredlogs
 import logging
 from pathlib import PosixPath
+import os
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
@@ -31,6 +32,12 @@ class PythonParsingKeyword(Enum):
     NEWLINE = '\n'
     EMPTY = ''
     BLANK = ' '
+    PYTHON_IMPORT_PARENT_DIR = ".."
+    PYTHON_IMPORT_CURRENT_DIR = "."
+    PYTHON_UNIT_TEST_BRACKET = ">"
+    RELATIVE_FROM_CURRENT_DIR = "from . "
+    RELATIVE_FROM_PARENT_DIR = "from .. "
+    PY_FILE_EXTENSION = ".py"
 
 
 class PythonParser(AbstractParser, ParsingMixin):
@@ -99,6 +106,7 @@ class PythonParser(AbstractParser, ParsingMixin):
     def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
+    # pylint: disable=too-many-statements
     def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
@@ -117,22 +125,56 @@ class PythonParser(AbstractParser, ParsingMixin):
             else:  # remove the last blank if NEWLINE is found
                 line = line[:-1]
                 # only append relevant lines with 'import'
-                if line is not PythonParsingKeyword.EMPTY.value and PythonParsingKeyword.IMPORT.value in line and line not in source_import_lines:
+                if line is not PythonParsingKeyword.EMPTY.value and PythonParsingKeyword.IMPORT.value in line and PythonParsingKeyword.PYTHON_UNIT_TEST_BRACKET.value not in line and line not in source_import_lines:
                     source_import_lines.append(line)
                 line = PythonParsingKeyword.EMPTY.value
 
         for line in source_import_lines:
 
-            # create parsing expression
+            relative_import = False
+            global_import = True
+            if PythonParsingKeyword.FROM.value in line:
+                global_import = False
+
+            expression_to_match = None
+            multiple_imports_from_relative_current_dir = False
+            multiple_imports_from_relative_parent_dir = False
+
+            multiple_dependencies = []
+
             valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value +
                                  CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
+            valid_name_comma_seperated_imports = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value +
+                                                         CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value + CoreParsingKeyword.COMMA.value + " ")
 
-            expression_to_match = (pp.Keyword(PythonParsingKeyword.IMPORT.value) | pp.Keyword(PythonParsingKeyword.FROM.value)) + \
-                valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value) + \
-                pp.Optional(pp.FollowedBy(pp.Keyword(PythonParsingKeyword.IMPORT.value)))
+            if PythonParsingKeyword.RELATIVE_FROM_CURRENT_DIR.value in line:
+                multiple_imports_from_relative_current_dir = True
+                expression_to_match = pp.Keyword(PythonParsingKeyword.FROM.value) + \
+                    pp.Keyword(PythonParsingKeyword.PYTHON_IMPORT_CURRENT_DIR.value) + \
+                    pp.Keyword(PythonParsingKeyword.IMPORT.value) + \
+                    pp.OneOrMore(valid_name_comma_seperated_imports.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value))
+
+            elif PythonParsingKeyword.RELATIVE_FROM_PARENT_DIR.value in line:
+                multiple_imports_from_relative_parent_dir = True
+                expression_to_match = pp.Keyword(PythonParsingKeyword.FROM.value) + \
+                    pp.Keyword(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value) + \
+                    pp.Keyword(PythonParsingKeyword.IMPORT.value) + \
+                    pp.OneOrMore(valid_name_comma_seperated_imports.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value))
+            else:
+                expression_to_match = (pp.Keyword(PythonParsingKeyword.IMPORT.value) | pp.Keyword(PythonParsingKeyword.FROM.value)) + \
+                    valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value) + \
+                    pp.Optional(pp.FollowedBy(pp.Keyword(PythonParsingKeyword.IMPORT.value)))
 
             try:
                 parsing_result = expression_to_match.parseString(line)
+
+                if (multiple_imports_from_relative_current_dir or multiple_imports_from_relative_parent_dir) and CoreParsingKeyword.COMMA.value in getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value):
+                    multiple_results = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
+                    multiple_dependencies = multiple_results.split(',')
+                    multiple_dependencies = [s.strip() for s in multiple_dependencies]
+                else:
+                    multiple_imports_from_relative_current_dir = False
+                    multiple_imports_from_relative_parent_dir = False
 
             except Exception as some_exception:
                 result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
@@ -143,11 +185,74 @@ class PythonParser(AbstractParser, ParsingMixin):
 
             # ignore any dependency substring from the config ignore list
             dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-            if self._is_dependency_in_ignore_list(dependency, analysis):
-                LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
-            else:
-                result.scanned_import_dependencies.append(dependency)
-                LOGGER.debug(f'adding import: {dependency}')
+
+            # now try to resolve the dependency
+            if multiple_imports_from_relative_parent_dir and not multiple_imports_from_relative_current_dir:
+                for dep in multiple_dependencies:
+                    resolved_dep = dep.replace(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value, CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value)
+
+                    if f'{PythonParsingKeyword.PY_FILE_EXTENSION.value}' not in resolved_dep:
+                        resolved_dep = f'{resolved_dep}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'
+                    if self._is_dependency_in_ignore_list(resolved_dep, analysis):
+                        LOGGER.debug(f'ignoring dependency from {result.unique_name} to {resolved_dep}')
+                    else:
+                        result.scanned_import_dependencies.append(resolved_dep)
+                        LOGGER.debug(f'adding import: {resolved_dep}')
+
+            elif multiple_imports_from_relative_current_dir and not multiple_imports_from_relative_parent_dir:
+                for dep in multiple_dependencies:
+                    resolved_dep = self.create_relative_analysis_path_for_dependency(dep, result.relative_analysis_path)
+
+                    if f'{PythonParsingKeyword.PY_FILE_EXTENSION.value}' not in resolved_dep:
+                        resolved_dep = f'{resolved_dep}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'
+                    if self._is_dependency_in_ignore_list(resolved_dep, analysis):
+                        LOGGER.debug(f'ignoring dependency from {result.unique_name} to {resolved_dep}')
+                    else:
+                        result.scanned_import_dependencies.append(resolved_dep)
+                        LOGGER.debug(f'adding import: {resolved_dep}')
+
+            elif not multiple_imports_from_relative_current_dir and not multiple_imports_from_relative_parent_dir:
+                if PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value in dependency:
+                    relative_import = True
+                    dependency = dependency.replace(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value, CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value)
+
+                if len(dependency) > 0 and CoreParsingKeyword.DOT.value == dependency[0] and CoreParsingKeyword.DOT.value is not dependency[1]:
+                    relative_import = True
+                    dependency = dependency[1:]
+
+                if not global_import and relative_import and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:
+                    dependency = self.create_relative_analysis_path_for_dependency(dependency, result.relative_analysis_path)
+                elif not global_import and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:
+                    posix_dependency = dependency.replace(CoreParsingKeyword.DOT.value, CoreParsingKeyword.SLASH.value)
+                    relative_path = f'{PosixPath(analysis.source_directory).name}/{posix_dependency}'
+
+                    check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{relative_path}"
+                    if os.path.exists(f'{check_dependency_path}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'):
+                        dependency = f'{relative_path}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'
+                    else:
+                        dependency = relative_path
+
+                    if self._is_dependency_in_ignore_list(dependency, analysis):
+                        LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+                    else:
+                        result.scanned_import_dependencies.append(dependency)
+                        LOGGER.debug(f'adding import: {dependency}')
+                    continue
+
+                if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # contains at lease one relative parent element '../'
+                    dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+
+                if not global_import:
+                    dependency = dependency.replace(CoreParsingKeyword.DOT.value, CoreParsingKeyword.SLASH.value)
+
+                if f'{PythonParsingKeyword.PY_FILE_EXTENSION.value}' not in dependency and not global_import:
+                    dependency = f'{dependency}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'
+
+                if self._is_dependency_in_ignore_list(dependency, analysis):
+                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+                else:
+                    result.scanned_import_dependencies.append(dependency)
+                    LOGGER.debug(f'adding import: {dependency}')
 
     def _add_package_name_to_result(self, result: AbstractResult) -> str:
         result.module_name = None
