@@ -7,7 +7,7 @@ emerge
 ![Code size](https://img.shields.io/github/languages/code-size/glato/emerge)
 ![Repo size](https://img.shields.io/github/repo-size/glato/emerge)
 
-emerge is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph) and further export the results in some file formats or even create an **interactive web application** for further exploration. emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
+emerge is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-14-1-screenshot-01.png)
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-14-1-screenshot-02.png)
@@ -22,7 +22,7 @@ emerge is a code analysis tool to gather insights about source code structure, m
 > - to appear by coming out of something or out from behind something
 > - to become known, especially as a result of examining something or asking questions about it
 
-The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given a software project.
+The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given software project.
 
 ## The following features are currently supported by emerge
 
@@ -215,9 +215,9 @@ python emerge.py -c configs/c-template.yaml
 
 ```
 
-👍 **And that's it!**
+## 👍 **And that's it!**
 
-After this your scan output (including your interactive web app) can be found at the directory that you created and set in the config parameter `export` -> `directory`, as seen below.
+After this your scan output (including your interactive web app) can be found at the directory that you created and set in the config parameter `export` -> `directory`, as seen  in the logs above.
 
 A full YAML configuration that contains both file and entity scan has the following format:
 
@@ -321,7 +321,7 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.16.0 supports the following scan types
+## The current version 0.16.1 supports the following scan types
 
 | Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
 |----------|--------|--------|-------|------|------|----|----|------|-------|--------|
@@ -333,6 +333,6 @@ The YAML configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.16.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.16.1) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
