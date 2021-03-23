@@ -54,6 +54,8 @@ class SourceLinesOfCodeMetric(CodeMetric):
         SLOC_IN_FILE = auto()
         AVG_SLOC_IN_ENTITY = auto()
         AVG_SLOC_IN_FILE = auto()
+        TOTAL_SLOC_IN_FILES = auto()
+        TOTAL_SLOC_IN_ENTITIES = auto()
 
     def __init__(self, analysis: Analysis):
         super().__init__(analysis)
@@ -93,7 +95,8 @@ class SourceLinesOfCodeMetric(CodeMetric):
 
             average_sloc_in_file = total_sloc_count / total_files
             self.overall_data[self.Keys.AVG_SLOC_IN_FILE.value] = average_sloc_in_file
-            LOGGER.debug(f'average sloc per file: {average_sloc_in_file}')
+            self.overall_data[self.Keys.TOTAL_SLOC_IN_FILES.value] = total_sloc_count
+            LOGGER.debug(f'total/average sloc per file: {total_sloc_count}/{average_sloc_in_file}')
 
         if len(entity_results) > 0:
             total_sloc_count, total_entities = 0, 0
@@ -103,7 +106,8 @@ class SourceLinesOfCodeMetric(CodeMetric):
 
             average_sloc_in_entity = total_sloc_count / total_entities
             self.overall_data[self.Keys.AVG_SLOC_IN_ENTITY.value] = average_sloc_in_entity
-            LOGGER.debug(f'average sloc per entity: {average_sloc_in_entity}')
+            self.overall_data[self.Keys.TOTAL_SLOC_IN_ENTITIES.value] = total_sloc_count
+            LOGGER.debug(f'average sloc per entity: {total_sloc_count}/{average_sloc_in_entity}')
 
     def _count_sloc(self, list_of_tokens: List[str], line_comment: str, start_block_comment: str, stop_block_comment: str) -> int:
         source = " ".join(list_of_tokens)
@@ -112,12 +116,18 @@ class SourceLinesOfCodeMetric(CodeMetric):
         active_block_comment = False
 
         for line in source_lines:
-            if start_block_comment in line:
+            # starting a block comment
+            if start_block_comment in line and stop_block_comment not in line:
                 active_block_comment = True
                 continue
-            if stop_block_comment in line:
+            # stopping a block comment
+            if start_block_comment not in line and stop_block_comment in line:
                 active_block_comment = False
                 continue
+            # one line block comment
+            if start_block_comment in line and stop_block_comment in line:
+                continue
+            # regular line comment
             if line.strip().startswith(line_comment):
                 continue
 
