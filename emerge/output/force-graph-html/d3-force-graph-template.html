@@ -16,7 +16,7 @@
     <!-- bootstrap js -->
     <script type="text/javascript" src="vendors/bootstrap/js/bootstrap.min.js"></script>
     <!-- d3 js -->
-    <script src="vendors/d3/d3.v5.min.js"></script>
+    <script src="vendors/d3/d3.v6.min.js"></script>
     <!-- exported graph representations as js -->
     <script type="text/javascript" src="resources/js/graph_representations_d3_force_graph.js"></script>
 
@@ -688,8 +688,8 @@
         /**
          * * Zooming and scaling on canvas
          */
-        function zoomed() {
-            transform = d3.event.transform;
+        function zoomed(event) {
+            transform = event.transform;
             simulationUpdate();
         }
 
@@ -777,11 +777,11 @@
                 .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
                 .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
 
-            function dragsubject() {
+            function dragsubject(event) {
 
                 var i,
-                    x = transform.invertX(d3.event.x),
-                    y = transform.invertY(d3.event.y),
+                    x = transform.invertX(event.x),
+                    y = transform.invertY(event.y),
                     dx,
                     dy;
 
@@ -800,25 +800,25 @@
                 }
             }
 
-            function dragstarted() {
-                if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-                d3.event.subject.fx = transform.invertX(d3.event.x);
-                d3.event.subject.fy = transform.invertY(d3.event.y);
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = transform.invertX(event.x);
+                event.subject.fy = transform.invertY(event.y);
             }
 
-            function dragged() {
-                d3.event.subject.fx = transform.invertX(d3.event.x);
-                d3.event.subject.fy = transform.invertY(d3.event.y);
+            function dragged(event) {
+                event.subject.fx = transform.invertX(event.x);
+                event.subject.fy = transform.invertY(event.y);
             }
 
-            function dragended() {
-                if (!d3.event.active) simulation.alphaTarget(0);
-                d3.event.subject.fx = null;
-                d3.event.subject.fy = null;
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
             }
 
-            d3.select("canvas").on("mousemove", function(d) {
-                var p = d3.mouse(this);
+            d3.select("canvas").on("mousemove", (event) => {
+                var p = d3.pointer(event);
                 var invX = transform.invertX(p[0])
                 var invY = transform.invertY(p[1])
 
