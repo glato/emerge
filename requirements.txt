@@ -17,8 +17,8 @@ py==1.9.0
 pycodestyle==2.6.0
 pygraphviz==1.6
 pylint==2.7.1
-pyparsing==2.4.5
-python-louvain==0.14
+pyparsing==2.4.7
+python-louvain==0.15
 PyYAML==5.4
 rope==0.16.0
 six==1.13.0
