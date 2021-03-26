@@ -321,7 +321,7 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.16.1 supports the following scan types
+## The current version 0.16.3 supports the following scan types
 
 | Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
 |----------|--------|--------|-------|------|------|----|----|------|-------|--------|
@@ -333,6 +333,6 @@ The YAML configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.16.1) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.16.3) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
