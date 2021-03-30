@@ -68,12 +68,11 @@ class JavaParserTestCase(unittest.TestCase):
         self.analysis.collect_results_from_parser(self.parser)
         entity_results = self.analysis.entity_results
 
-        self.assertTrue(len(entity_results) == 4)
+        self.assertTrue(len(entity_results) == 3)
 
         result: EntityResult
         for _, result in entity_results.items():
             self.assertTrue(len(result.scanned_tokens) > 0)
-            self.assertTrue(len(result.scanned_import_dependencies) > 0)
             self.assertTrue(result.analysis.analysis_name.strip())
             self.assertTrue(result.entity_name.strip())
             self.assertTrue(result.scanned_file_name.strip())

@@ -1,288 +1,235 @@
-# Borrowed for testing with real test data from the spring boot project.
-# https://github.com/spring-projects/spring-boot
+# Borrowed for testing with real test data from https://github.com/facebook/fresco
 
-JAVA_TEST_FILES = {"file1.java": """
+JAVA_TEST_FILES = {"RetainingDataSourceSupplier.java": """
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
-package org.springframework.boot.context.event;
+package com.facebook.datasource;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ConfigurableApplicationContext;
-
-/**
- * Event published by a {@link SpringApplication} when it fails to start.
- *
- * @author Dave Syer
- * @since 1.0.0
- * @see ApplicationReadyEvent
- */
-@SuppressWarnings("serial")
-public class ApplicationFailedEvent extends SpringApplicationEvent {
-
-	private final ConfigurableApplicationContext context;
-
-	private final Throwable exception;
-
-	/**
-	 * Create a new {@link ApplicationFailedEvent} instance.
-	 * @param application the current application
-	 * @param args the arguments the application was running with
-	 * @param context the context that was being created (maybe null)
-	 * @param exception the exception that caused the error
-	 */
-	public ApplicationFailedEvent(SpringApplication application, String[] args, ConfigurableApplicationContext context,
-			Throwable exception) {
-		super(application, args);
-		this.context = context;
-		this.exception = exception;
-	}
-
-	/**
-	 * Return the application context.
-	 * @return the context
-	 */
-	public ConfigurableApplicationContext getApplicationContext() {
-		return this.context;
-	}
-
-	/**
-	 * Return the exception that caused the failure.
-	 * @return the exception
-	 */
-	public Throwable getException() {
-		return this.exception;
-	}
-
-}
-""", "file2.java": """
-/*
- * Copyright 2012-2019 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package org.springframework.boot.context;
-
-import java.util.ArrayList;
+import com.facebook.common.executors.CallerThreadExecutor;
+import com.facebook.common.internal.Supplier;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.WeakHashMap;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+@NotThreadSafe
+public class RetainingDataSourceSupplier<T> implements Supplier<DataSource<T>> {
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.Ordered;
-import org.springframework.core.PriorityOrdered;
-import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
+  private final Set<RetainingDataSource> mDataSources =
+      Collections.newSetFromMap(new WeakHashMap<RetainingDataSource, Boolean>());
 
-/**
- * {@link ApplicationContextInitializer} to report warnings for common misconfiguration
- * mistakes.
+  private @Nullable Supplier<DataSource<T>> mCurrentDataSourceSupplier = null;
+
+  @Override
+  public DataSource<T> get() {
+    RetainingDataSource dataSource = new RetainingDataSource();
+    dataSource.setSupplier(mCurrentDataSourceSupplier);
+    mDataSources.add(dataSource);
+    return dataSource;
+  }
+
+  public void replaceSupplier(Supplier<DataSource<T>> supplier) {
+    mCurrentDataSourceSupplier = supplier;
+    for (RetainingDataSource dataSource : mDataSources) {
+      if (!dataSource.isClosed()) {
+        dataSource.setSupplier(supplier);
+      }
+    }
+  }
+
+  private static class RetainingDataSource<T> extends AbstractDataSource<T> {
+    @GuardedBy("RetainingDataSource.this")
+    @Nullable
+    private DataSource<T> mDataSource = null;
+
+    public void setSupplier(@Nullable Supplier<DataSource<T>> supplier) {
+      // early return without calling {@code supplier.get()} in case we are closed
+      if (isClosed()) {
+        return;
+      }
+      DataSource<T> oldDataSource;
+      DataSource<T> newDataSource = (supplier != null) ? supplier.get() : null;
+      synchronized (RetainingDataSource.this) {
+        if (isClosed()) {
+          closeSafely(newDataSource);
+          return;
+        } else {
+          oldDataSource = mDataSource;
+          mDataSource = newDataSource;
+        }
+      }
+      if (newDataSource != null) {
+        newDataSource.subscribe(new InternalDataSubscriber(), CallerThreadExecutor.getInstance());
+      }
+      closeSafely(oldDataSource);
+    }
+
+    @Override
+    @Nullable
+    public synchronized T getResult() {
+      return (mDataSource != null) ? mDataSource.getResult() : null;
+    }
+
+    @Override
+    public synchronized boolean hasResult() {
+      return (mDataSource != null) && mDataSource.hasResult();
+    }
+
+    @Override
+    public boolean close() {
+      DataSource<T> dataSource;
+      synchronized (RetainingDataSource.this) {
+        // it's fine to call {@code super.close()} within a synchronized block because we don't
+        // implement {@link #closeResult()}, but perform result closing ourselves.
+        if (!super.close()) {
+          return false;
+        }
+        dataSource = mDataSource;
+        mDataSource = null;
+      }
+      closeSafely(dataSource);
+      return true;
+    }
+
+    private void onDataSourceNewResult(DataSource<T> dataSource) {
+      if (dataSource == mDataSource) {
+        setResult(null, false, dataSource.getExtras());
+      }
+    }
+
+    private void onDataSourceFailed() {
+      // do not propagate failure
+    }
+
+    private void onDatasourceProgress(DataSource<T> dataSource) {
+      if (dataSource == mDataSource) {
+        setProgress(dataSource.getProgress());
+      }
+    }
+
+    private static <T> void closeSafely(DataSource<T> dataSource) {
+      if (dataSource != null) {
+        dataSource.close();
+      }
+    }
+
+    private class InternalDataSubscriber implements DataSubscriber<T> {
+      @Override
+      public void onNewResult(DataSource<T> dataSource) {
+        if (dataSource.hasResult()) {
+          RetainingDataSource.this.onDataSourceNewResult(dataSource);
+        } else if (dataSource.isFinished()) {
+          RetainingDataSource.this.onDataSourceFailed();
+        }
+      }
+
+      @Override
+      public void onFailure(DataSource<T> dataSource) {
+        RetainingDataSource.this.onDataSourceFailed();
+      }
+
+      @Override
+      public void onCancellation(DataSource<T> dataSource) {}
+
+      @Override
+      public void onProgressUpdate(DataSource<T> dataSource) {
+        RetainingDataSource.this.onDatasourceProgress(dataSource);
+      }
+    }
+
+    @Override
+    public boolean hasMultipleResults() {
+      return true;
+    }
+  }
+}
+""", "SimpleDataSource.java": """
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * @author Phillip Webb
- * @since 1.2.0
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
-public class ConfigurationWarningsApplicationContextInitializer
-		implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-	private static final Log logger = LogFactory.getLog(ConfigurationWarningsApplicationContextInitializer.class);
+package com.facebook.datasource;
 
-	@Override
-	public void initialize(ConfigurableApplicationContext context) {
-		context.addBeanFactoryPostProcessor(new ConfigurationWarningsPostProcessor(getChecks()));
-	}
+import com.facebook.common.internal.Preconditions;
+import java.util.Map;
 
-	/**
-	 * Returns the checks that should be applied.
-	 * @return the checks to apply
-	 */
-	protected Check[] getChecks() {
-		return new Check[] { new ComponentScanPackageCheck() };
-	}
+/** Settable {@link DataSource}. */
+public class SimpleDataSource<T> extends AbstractDataSource<T> {
 
-	/**
-	 * {@link BeanDefinitionRegistryPostProcessor} to report warnings.
-	 */
-	protected static final class ConfigurationWarningsPostProcessor
-			implements PriorityOrdered, BeanDefinitionRegistryPostProcessor {
+  private SimpleDataSource() {}
 
-		private Check[] checks;
+  /** Creates a new {@link SimpleDataSource}. */
+  public static <T> SimpleDataSource<T> create() {
+    return new SimpleDataSource<T>();
+  }
 
-		public ConfigurationWarningsPostProcessor(Check[] checks) {
-			this.checks = checks;
-		}
+  /**
+   * Sets the result to {@code value}.
+   *
+   * <p>This method will return {@code true} if the value was successfully set, or {@code false} if
+   * the data source has already been set, failed or closed.
+   *
+   * <p>If the value was successfully set and {@code isLast} is {@code true}, state of the data
+   * source will be set to {@link AbstractDataSource.DataSourceStatus#SUCCESS}.
+   *
+   * <p>This will also notify the subscribers if the value was successfully set.
+   *
+   * @param value the value to be set
+   * @param isLast whether or not the value is last.
+   * @return true if the value was successfully set.
+   */
+  @Override
+  public boolean setResult(T value, boolean isLast, Map<String, Object> extras) {
+    return super.setResult(Preconditions.checkNotNull(value), isLast, extras);
+  }
 
-		@Override
-		public int getOrder() {
-			return Ordered.LOWEST_PRECEDENCE - 1;
-		}
+  /**
+   * Sets the value as the last result.
+   *
+   * <p>See {@link #setResult(T value, boolean isLast)}.
+   */
+  public boolean setResult(T value) {
+    return super.setResult(Preconditions.checkNotNull(value), /* isLast */ true, null);
+  }
 
-		@Override
-		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		}
+  /**
+   * Sets the failure.
+   *
+   * <p>This method will return {@code true} if the failure was successfully set, or {@code false}
+   * if the data source has already been set, failed or closed.
+   *
+   * <p>If the failure was successfully set, state of the data source will be set to {@link
+   * AbstractDataSource.DataSourceStatus#FAILURE}.
+   *
+   * <p>This will also notify the subscribers if the failure was successfully set.
+   *
+   * @param throwable the failure cause to be set.
+   * @return true if the failure was successfully set.
+   */
+  @Override
+  public boolean setFailure(Throwable throwable) {
+    return super.setFailure(Preconditions.checkNotNull(throwable));
+  }
 
-		@Override
-		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-			for (Check check : this.checks) {
-				String message = check.getWarning(registry);
-				if (StringUtils.hasLength(message)) {
-					warn(message);
-				}
-			}
-
-		}
-
-		private void warn(String message) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(String.format("%n%n** WARNING ** : %s%n%n", message));
-			}
-		}
-
-	}
-
-	/**
-	 * A single check that can be applied.
-	 */
-	@FunctionalInterface
-	protected interface Check {
-
-		/**
-		 * Returns a warning if the check fails or {@code null} if there are no problems.
-		 * @param registry the {@link BeanDefinitionRegistry}
-		 * @return a warning message or {@code null}
-		 */
-		String getWarning(BeanDefinitionRegistry registry);
-
-	}
-
-	/**
-	 * {@link Check} for {@code @ComponentScan} on problematic package.
-	 */
-	protected static class ComponentScanPackageCheck implements Check {
-
-		private static final Set<String> PROBLEM_PACKAGES;
-
-		static {
-			Set<String> packages = new HashSet<>();
-			packages.add("org.springframework");
-			packages.add("org");
-			PROBLEM_PACKAGES = Collections.unmodifiableSet(packages);
-		}
-
-		@Override
-		public String getWarning(BeanDefinitionRegistry registry) {
-			Set<String> scannedPackages = getComponentScanningPackages(registry);
-			List<String> problematicPackages = getProblematicPackages(scannedPackages);
-			if (problematicPackages.isEmpty()) {
-				return null;
-			}
-			return "Your ApplicationContext is unlikely to start due to a @ComponentScan of "
-					+ StringUtils.collectionToDelimitedString(problematicPackages, ", ") + ".";
-		}
-
-		protected Set<String> getComponentScanningPackages(BeanDefinitionRegistry registry) {
-			Set<String> packages = new LinkedHashSet<>();
-			String[] names = registry.getBeanDefinitionNames();
-			for (String name : names) {
-				BeanDefinition definition = registry.getBeanDefinition(name);
-				if (definition instanceof AnnotatedBeanDefinition) {
-					AnnotatedBeanDefinition annotatedDefinition = (AnnotatedBeanDefinition) definition;
-					addComponentScanningPackages(packages, annotatedDefinition.getMetadata());
-				}
-			}
-			return packages;
-		}
-
-		private void addComponentScanningPackages(Set<String> packages, AnnotationMetadata metadata) {
-			AnnotationAttributes attributes = AnnotationAttributes
-					.fromMap(metadata.getAnnotationAttributes(ComponentScan.class.getName(), true));
-			if (attributes != null) {
-				addPackages(packages, attributes.getStringArray("value"));
-				addPackages(packages, attributes.getStringArray("basePackages"));
-				addClasses(packages, attributes.getStringArray("basePackageClasses"));
-				if (packages.isEmpty()) {
-					packages.add(ClassUtils.getPackageName(metadata.getClassName()));
-				}
-			}
-		}
-
-		private void addPackages(Set<String> packages, String[] values) {
-			if (values != null) {
-				Collections.addAll(packages, values);
-			}
-		}
-
-		private void addClasses(Set<String> packages, String[] values) {
-			if (values != null) {
-				for (String value : values) {
-					packages.add(ClassUtils.getPackageName(value));
-				}
-			}
-		}
-
-		private List<String> getProblematicPackages(Set<String> scannedPackages) {
-			List<String> problematicPackages = new ArrayList<>();
-			for (String scannedPackage : scannedPackages) {
-				if (isProblematicPackage(scannedPackage)) {
-					problematicPackages.add(getDisplayName(scannedPackage));
-				}
-			}
-			return problematicPackages;
-		}
-
-		private boolean isProblematicPackage(String scannedPackage) {
-			if (scannedPackage == null || scannedPackage.isEmpty()) {
-				return true;
-			}
-			return PROBLEM_PACKAGES.contains(scannedPackage);
-		}
-
-		private String getDisplayName(String scannedPackage) {
-			if (scannedPackage == null || scannedPackage.isEmpty()) {
-				return "the default package";
-			}
-			return "'" + scannedPackage + "'";
-		}
-
-	}
-
+  /**
+   * Sets the progress.
+   *
+   * @param progress the progress in range [0, 1] to be set.
+   * @return true if the progress was successfully set.
+   */
+  @Override
+  public boolean setProgress(float progress) {
+    return super.setProgress(progress);
+  }
 }
 """}
