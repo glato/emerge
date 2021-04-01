@@ -39,6 +39,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
   - Interactive HTML/ web application for interactive, exploratory analysis and data visualization of your project based on graph structures
     - HTML app is based on [Bootstrap](https://getbootstrap.com)
     - Force-directed graph simulation by [D3](https://d3js.org)
+    - The node colors are based on [Louvain modularity](https://github.com/taynaud/python-louvain) with a bit of post-processing to make the graph coloring more deterministic and stable
     - Fast full-screen UI rendering on HTML canvas
     - Visualization of files, entities and given metrics
     - [dark mode support](https://github.com/coliff/dark-mode-switch)
@@ -321,7 +322,7 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.16.3 supports the following scan types
+## The current version 0.17.0 supports the following scan types
 
 | Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
 |----------|--------|--------|-------|------|------|----|----|------|-------|--------|
@@ -333,6 +334,6 @@ The YAML configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.16.3) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.17.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
