@@ -61,7 +61,7 @@ class LouvainModularityMetric(GraphMetric):
 
                 for run in range(optimization_runs):
 
-                    partition_by_louvain = community_louvain.best_partition(undirected_graph)
+                    partition_by_louvain = community_louvain.best_partition(undirected_graph, resolution=1.2)
                     communities_found = max(partition_by_louvain.values()) + 1
                     modularity = community_louvain.modularity(partition_by_louvain, undirected_graph)
 
