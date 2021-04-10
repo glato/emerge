@@ -248,7 +248,7 @@ class PythonParser(AbstractParser, ParsingMixin):
                         LOGGER.debug(f'adding import: {dependency}')
                     continue
 
-                if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # contains at lease one relative parent element '../'
+                if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # contains at least one relative parent element '../'
                     dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
 
                 if not global_import:
