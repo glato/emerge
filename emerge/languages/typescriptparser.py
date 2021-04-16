@@ -15,7 +15,7 @@ import os
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
-from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.statistics import Statistics
 from emerge.logging import Logger
 
@@ -144,35 +144,53 @@ class TypeScriptParser(AbstractParser, ParsingMixin):
 
             # now try to resolve/adjust the dependency to have a unique path
             dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-
-            if CoreParsingKeyword.AT.value in dependency:
-                pass  # let @-dependencies as they are
-
-            elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and TypeScriptParsingKeyword.PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
-                dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
-                dependency = self.create_relative_analysis_path_for_dependency(dependency, result.relative_analysis_path)  # adjust dependency to have a relative analysis path
-
-            elif TypeScriptParsingKeyword.PARENT_DIRECTORY.value in dependency:  # contains at lease one relative parent element '..'
-                dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
-
-            # verify if the dependency physically exist, then add the remaining suffix
-            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.ts"
-            if os.path.exists(check_dependency_path):
-                dependency = f"{dependency}.ts"
-
-            # check if the dependency maybe results from an index.ts import
-            check_dependency_path_for_index_file = f"{ PosixPath(analysis.source_directory).parent}/{dependency}/index.ts"
-            if os.path.exists(check_dependency_path_for_index_file):
-                dependency = f"{dependency}/index.ts"
+            resolved_dependency = self.try_resolve_dependency(dependency, result, analysis)
 
             # ignore any dependency substring from the config ignore list
-            if self._is_dependency_in_ignore_list(dependency, analysis):
-                LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+            if self._is_dependency_in_ignore_list(resolved_dependency, analysis):
+                LOGGER.debug(f'ignoring dependency from {result.unique_name} to {resolved_dependency}')
             else:
-                result.scanned_import_dependencies.append(dependency)
-                LOGGER.debug(f'adding import: {dependency} to {result.unique_name}')
+                result.scanned_import_dependencies.append(resolved_dependency)
+                LOGGER.debug(f'adding import: {resolved_dependency} to {result.unique_name}')
 
-    # pylint: disable=unused-argument
+    def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
+        # check for module identifiers (@)
+        if CoreParsingKeyword.AT.value in dependency:
+            # check if a module identifier with a @scope + subpath combination physically exist, e.g. '@scope/sub/path' (https://nodejs.org/api/modules.html#modules_all_together, LOAD_PACKAGE_EXPORTS)
+            if CoreParsingKeyword.SLASH.value in dependency:
+                subpath = '/'.join(dependency.split('/')[1:])
+                check_package_index_export = f"{analysis.source_directory}/{subpath}/index.ts"
+                check_package_subpath_import = f"{analysis.source_directory}/{subpath}.ts"
+
+                # check if there is a package index .ts file
+                if os.path.exists(check_package_index_export):
+                    dependency = self.create_relative_analysis_file_path(analysis.source_directory, check_package_index_export)
+                # check if the subpath exists as a .ts file
+                if os.path.exists(check_package_subpath_import):
+                    dependency = self.create_relative_analysis_file_path(analysis.source_directory, check_package_subpath_import)
+
+            pass  # otherwise let the module @-dependency as it is
+
+        elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and TypeScriptParsingKeyword.PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
+            dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
+            dependency = self.create_relative_analysis_path_for_dependency(dependency, result.relative_analysis_path)  # adjust dependency to have a relative analysis path
+
+        elif TypeScriptParsingKeyword.PARENT_DIRECTORY.value in dependency:  # contains at lease one relative parent element '..'
+            dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+
+        # verify if the dependency physically exist, then add the remaining suffix
+        check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.ts"
+        if os.path.exists(check_dependency_path):
+            dependency = f"{dependency}.ts"
+
+        # check if the dependency maybe results from an index.ts import
+        check_dependency_path_for_index_file = f"{ PosixPath(analysis.source_directory).parent}/{dependency}/index.ts"
+        if os.path.exists(check_dependency_path_for_index_file):
+            dependency = f"{dependency}/index.ts"
+
+        return dependency
+
+        # pylint: disable=unused-argument
     def _add_package_name_to_result(self, result: AbstractResult) -> str:
         LOGGER.warning(f'currently not supported in {self.parser_name}')
 
