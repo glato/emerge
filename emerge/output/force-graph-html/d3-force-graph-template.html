@@ -17,6 +17,8 @@
     <script type="text/javascript" src="vendors/bootstrap/js/bootstrap.min.js"></script>
     <!-- d3 js -->
     <script src="vendors/d3/d3.v6.min.js"></script>
+    <!-- Hull.js -->
+    <script type="text/javascript" src="vendors/hull/hull.js"></script>
     <!-- exported graph representations as js -->
     <script type="text/javascript" src="resources/js/graph_representations_d3_force_graph.js"></script>
 
@@ -44,7 +46,8 @@
             position: relative;
         }
         
-        #inputNodeSearchLabel {
+        #inputNodeSearchLabel,
+        #clusterHullLabel {
             font-size: 10px;
             margin-bottom: 2px;
             padding-top: 4px;
@@ -284,6 +287,10 @@
                     </div>
                 </div>
 
+                <div id="clusterHullMenu">
+                    <!-- cluster hull selection / injected by javascript -->
+                </div>
+
             </div>
 
             <!-- Modal -->
@@ -438,6 +445,8 @@
         const height = window.innerHeight * 2;
         const graphWidth = window.innerWidth * 2;
 
+        const maxClusterHulls = 10
+
         var nodeLabelsEnabled = false
 
         var currentTranslation = {
@@ -472,6 +481,8 @@
 
         var graphData = {}
         var currentGraph = ''
+
+        let clusterMap = {}
 
         var statistics
         var overall_metric_results
@@ -661,6 +672,85 @@
         }
 
         /**
+         * * Rendering concave hulls of clusters.
+         */
+        function setupGraphClustersById() {
+            clusterMap = {}
+
+            currentGraph.nodes.forEach(function(node, i) {
+                let nodeClusterId = 0
+
+                if (node.hasOwnProperty('metric_louvain_modularity_in_file')) {
+                    nodeClusterId = node.metric_louvain_modularity_in_file
+                } else if (node.hasOwnProperty('metric_louvain_modularity_in_entity')) {
+                    nodeClusterId = node.metric_louvain_modularity_in_entity
+                }
+
+                nodeClusterId = nodeClusterId.toString()
+
+                if (nodeClusterId in clusterMap) {
+                    clusterMap[nodeClusterId].push(node)
+                } else {
+                    clusterMap[nodeClusterId] = []
+                    clusterMap[nodeClusterId].push(node)
+                }
+            })
+
+            // console.log(clusterMap)
+        }
+
+        function createClusterHullMenu() {
+
+            // check if there is at least one cluster
+            if ("0" in clusterMap) {
+
+                // build menu
+                let clusterMenuHtml = "<label id=\"clusterHullLabel\" for=\"clusterHullContainer\">Hover/select cluster hulls</label> \
+                                        <div id=\"clusterHullContainer\" class=\"container\"> \
+                                        <div class=\"row\">"
+
+                // insert SVG circles
+                let iteration = 0
+                Object.keys(clusterMap).forEach(function(key) {
+
+                    if (iteration < maxClusterHulls) {
+                        let firstNode = clusterMap[key][0]
+                        let color = nodeColorByModularity(firstNode)
+
+                        let svgElement = "<svg height=\"16px\" width=\"16px\" viewBox=\"0 0 18 18\"><circle cx=\"4\" cy=\"10\" r=\"4\" \
+                                stroke=\"black\" stroke-width=\"1\" fill=\""
+                        svgElement += color
+                        svgElement += "\" /></svg>"
+
+                        clusterMenuHtml += svgElement
+                    }
+                    iteration += 1
+                });
+
+                // finish menu and append to div
+                clusterMenuHtml += "</div></div>"
+                d3.select("#clusterHullMenu").html(clusterMenuHtml)
+            }
+        }
+
+        function getPointArrayForClusterId(id) {
+            let pointArray = []
+            let clusterId = id.toString()
+
+            if (clusterId in clusterMap) {
+                clusterMap[clusterId].forEach(function(node, i) {
+                    pointArray.push([node.x, node.y])
+                })
+            }
+            return pointArray
+        }
+
+        function getHullFromPointArray(pointArray) {
+            let hullArray = hull(pointArray, 60)
+            return hullArray
+        }
+
+        /**
          * * Translations on canvas
          */
         function translateCanvas(direction) {
@@ -749,6 +839,8 @@
                 }
             });
 
+            setupGraphClustersById();
+            createClusterHullMenu();
             createMetricsMenuEntries();
             addToolTipsToMetricEntries();
             enableSearchInput();
@@ -991,6 +1083,23 @@
 
                         drawNodeToolTip(closeNode.id, closeNode.x + 14, closeNode.y - 7, closeNode.metrics)
                     }
+
+                    let pointArray = getPointArrayForClusterId(0)
+                    let hullArray = getHullFromPointArray(pointArray)
+
+                    context.fillStyle = hexToRGB(color('#aa33ff'), 0.3)
+                    context.beginPath();
+
+                    let firstPoint = hullArray[0]
+                    context.moveTo(firstPoint[0], firstPoint[1]);
+
+                    hullArray.forEach(function(arrayElement, i) {
+                        context.lineTo(arrayElement[0], arrayElement[1]);
+                    })
+
+                    context.closePath();
+                    context.fill();
+
                 }
             });
 
