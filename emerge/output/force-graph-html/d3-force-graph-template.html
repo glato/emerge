@@ -446,6 +446,8 @@
         const graphWidth = window.innerWidth * 2;
 
         const maxClusterHulls = 10
+        let selectedClusterHullIds = []
+        let hoveredClusterHullId = undefined
 
         var nodeLabelsEnabled = false
 
@@ -699,11 +701,49 @@
             // console.log(clusterMap)
         }
 
-        function createClusterHullMenu() {
+        function onMouseOverHullMenuNode(clusterId) {
+            if (!selectedClusterHullIds.includes(clusterId)) {
+                addHighlightToSVGCircle(clusterId)
+            }
+            hoveredClusterHullId = clusterId
+            simulationUpdate()
+        }
 
+        function onMouseOutHullMenuNode(clusterId) {
+            if (!selectedClusterHullIds.includes(clusterId)) {
+                removeHighlightFromSVGCircle(clusterId)
+            }
+            hoveredClusterHullId = undefined
+            simulationUpdate()
+        }
+
+        function addHighlightToSVGCircle(clusterId) {
+            let hullNodeSVG = $("#clusterHullNodeSVGCircle-" + clusterId)
+            hullNodeSVG.attr('stroke', 'yellow')
+            hullNodeSVG.attr('stroke-width', '2')
+        }
+
+        function removeHighlightFromSVGCircle(clusterId) {
+            let hullNodeSVG = $("#clusterHullNodeSVGCircle-" + clusterId)
+            hullNodeSVG.attr('stroke', 'black')
+            hullNodeSVG.attr('stroke-width', '1')
+        }
+
+        function onClickHullMenuNode(clusterId) {
+            if (selectedClusterHullIds.includes(clusterId)) {
+                removeItemAll(selectedClusterHullIds, clusterId)
+                removeHighlightFromSVGCircle(clusterId)
+            } else {
+                selectedClusterHullIds.push(clusterId)
+                addHighlightToSVGCircle(clusterId)
+            }
+            console.log(selectedClusterHullIds)
+            simulationUpdate()
+        }
+
+        function createClusterHullMenu() {
             // check if there is at least one cluster
             if ("0" in clusterMap) {
-
                 // build menu
                 let clusterMenuHtml = "<label id=\"clusterHullLabel\" for=\"clusterHullContainer\">Hover/select cluster hulls</label> \
                                         <div id=\"clusterHullContainer\" class=\"container\"> \
@@ -717,11 +757,10 @@
                         let firstNode = clusterMap[key][0]
                         let color = nodeColorByModularity(firstNode)
 
-                        let svgElement = "<svg height=\"16px\" width=\"16px\" viewBox=\"0 0 18 18\"><circle cx=\"4\" cy=\"10\" r=\"4\" \
+                        let svgElement = "<svg onmouseover=\"onMouseOverHullMenuNode(" + key + ")\" onmouseout=\"onMouseOutHullMenuNode(" + key + ")\" onclick=\"onClickHullMenuNode(" + key + ")\" height=\"16px\" width=\"16px\" viewBox=\"0 0 18 18\"><circle id=\"clusterHullNodeSVGCircle-" + key + "\" cx=\"5\" cy=\"10\" r=\"4\" \
                                 stroke=\"black\" stroke-width=\"1\" fill=\""
                         svgElement += color
                         svgElement += "\" /></svg>"
-
                         clusterMenuHtml += svgElement
                     }
                     iteration += 1
@@ -1084,27 +1123,73 @@
                         drawNodeToolTip(closeNode.id, closeNode.x + 14, closeNode.y - 7, closeNode.metrics)
                     }
 
-                    let pointArray = getPointArrayForClusterId(0)
-                    let hullArray = getHullFromPointArray(pointArray)
+                    drawHulls(context)
 
-                    context.fillStyle = hexToRGB(color('#aa33ff'), 0.3)
-                    context.beginPath();
+                    // let pointArray = getPointArrayForClusterId(0)
+                    // let hullArray = getHullFromPointArray(pointArray)
 
-                    let firstPoint = hullArray[0]
-                    context.moveTo(firstPoint[0], firstPoint[1]);
+                    // context.fillStyle = hexToRGB(color('#aa33ff'), 0.3)
+                    // context.beginPath();
 
-                    hullArray.forEach(function(arrayElement, i) {
-                        context.lineTo(arrayElement[0], arrayElement[1]);
-                    })
+                    // let firstPoint = hullArray[0]
+                    // context.moveTo(firstPoint[0], firstPoint[1]);
 
-                    context.closePath();
-                    context.fill();
+                    // hullArray.forEach(function(arrayElement, i) {
+                    //     context.lineTo(arrayElement[0], arrayElement[1]);
+                    // })
+
+                    // context.closePath();
+                    // context.fill();
 
                 }
             });
 
             context.restore();
         }
+
+
+        function drawHulls(context) {
+
+            if (hoveredClusterHullId !== undefined) {
+                let pointArray = getPointArrayForClusterId(hoveredClusterHullId)
+                let hullArray = getHullFromPointArray(pointArray)
+                let firstNodeInCluster = clusterMap[hoveredClusterHullId][0]
+                context.fillStyle = nodeColorByModularity(firstNodeInCluster, 0.2)
+
+                context.beginPath();
+
+                let firstPoint = hullArray[0]
+                context.moveTo(firstPoint[0], firstPoint[1]);
+
+                hullArray.forEach(function(arrayElement, i) {
+                    context.lineTo(arrayElement[0], arrayElement[1]);
+                })
+
+                context.closePath();
+                context.fill();
+            }
+
+            selectedClusterHullIds.forEach(clusterId => {
+                let pointArray = getPointArrayForClusterId(clusterId)
+                let hullArray = getHullFromPointArray(pointArray)
+                let firstNodeInCluster = clusterMap[clusterId][0]
+                context.fillStyle = nodeColorByModularity(firstNodeInCluster, 0.2)
+
+                context.beginPath();
+
+                let firstPoint = hullArray[0]
+                context.moveTo(firstPoint[0], firstPoint[1]);
+
+                hullArray.forEach(function(arrayElement, i) {
+                    context.lineTo(arrayElement[0], arrayElement[1]);
+                })
+
+                context.closePath();
+                context.fill();
+            })
+
+        }
+
 
         /**
          * * Handling of data structures
