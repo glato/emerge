@@ -985,6 +985,8 @@
             context.translate(transform.x, transform.y);
             context.scale(transform.k, transform.k);
 
+            drawHulls(context)
+
             // draw edges
             currentGraph.links.forEach(function(d) {
 
@@ -1109,6 +1111,7 @@
                 context.fill();
 
                 if (i == currentGraph.nodes.length - 1) { // dont call this to often due to performance
+
                     if (closeNode) {
                         context.beginPath();
                         drawNode(closeNode)
@@ -1122,74 +1125,43 @@
 
                         drawNodeToolTip(closeNode.id, closeNode.x + 14, closeNode.y - 7, closeNode.metrics)
                     }
-
-                    drawHulls(context)
-
-                    // let pointArray = getPointArrayForClusterId(0)
-                    // let hullArray = getHullFromPointArray(pointArray)
-
-                    // context.fillStyle = hexToRGB(color('#aa33ff'), 0.3)
-                    // context.beginPath();
-
-                    // let firstPoint = hullArray[0]
-                    // context.moveTo(firstPoint[0], firstPoint[1]);
-
-                    // hullArray.forEach(function(arrayElement, i) {
-                    //     context.lineTo(arrayElement[0], arrayElement[1]);
-                    // })
-
-                    // context.closePath();
-                    // context.fill();
-
                 }
             });
 
             context.restore();
         }
 
+        function drawHull(context, clusterId) {
+            let pointArray = getPointArrayForClusterId(clusterId)
+            let hullArray = getHullFromPointArray(pointArray)
+            let firstNodeInCluster = clusterMap[clusterId][0]
+            context.fillStyle = nodeColorByModularity(firstNodeInCluster, 0.2)
+
+            context.beginPath();
+
+            let firstPoint = hullArray[0]
+            context.moveTo(firstPoint[0], firstPoint[1]);
+
+            hullArray.forEach(function(arrayElement, i) {
+                context.lineTo(arrayElement[0], arrayElement[1]);
+            })
+
+            context.closePath();
+            context.fill();
+        }
 
         function drawHulls(context) {
 
+            // draw a hull if someone hovers ofer a hull menu cluster node 
             if (hoveredClusterHullId !== undefined) {
-                let pointArray = getPointArrayForClusterId(hoveredClusterHullId)
-                let hullArray = getHullFromPointArray(pointArray)
-                let firstNodeInCluster = clusterMap[hoveredClusterHullId][0]
-                context.fillStyle = nodeColorByModularity(firstNodeInCluster, 0.2)
-
-                context.beginPath();
-
-                let firstPoint = hullArray[0]
-                context.moveTo(firstPoint[0], firstPoint[1]);
-
-                hullArray.forEach(function(arrayElement, i) {
-                    context.lineTo(arrayElement[0], arrayElement[1]);
-                })
-
-                context.closePath();
-                context.fill();
+                drawHull(context, hoveredClusterHullId)
             }
 
+            // draw every hull was was selected by a mouse click before 
             selectedClusterHullIds.forEach(clusterId => {
-                let pointArray = getPointArrayForClusterId(clusterId)
-                let hullArray = getHullFromPointArray(pointArray)
-                let firstNodeInCluster = clusterMap[clusterId][0]
-                context.fillStyle = nodeColorByModularity(firstNodeInCluster, 0.2)
-
-                context.beginPath();
-
-                let firstPoint = hullArray[0]
-                context.moveTo(firstPoint[0], firstPoint[1]);
-
-                hullArray.forEach(function(arrayElement, i) {
-                    context.lineTo(arrayElement[0], arrayElement[1]);
-                })
-
-                context.closePath();
-                context.fill();
+                drawHull(context, clusterId)
             })
-
         }
-
 
         /**
          * * Handling of data structures
