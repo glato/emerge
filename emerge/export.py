@@ -6,6 +6,7 @@ Contains all classes related to exporters, e.g. GraphExporter.
 # License: MIT
 
 from typing import Dict, Any
+from collections import OrderedDict
 
 from emerge.logging import Logger
 
@@ -234,16 +235,19 @@ class D3Exporter:
     def __init__(self):
         ...
 
+    # pylint: disable=too-many-statements
     @staticmethod
     def export_d3_force_directed_graph(graph_representations, statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], analysis_name, export_dir):
         """Exports all given graph representations to a JavaScript syntax ready to be used within a D3 force graph simulation."""
 
         d3_js_string = ''
+
         graph_representation: GraphRepresentation
         for _, graph_representation in graph_representations.items():
 
             graph = graph_representation.digraph
             data = json_graph.node_link_data(graph)
+
             d3_js_string += 'const ' + graph_representation.graph_type.name.lower() + ' = ' + json.dumps(data)
             json_statistics = {}
             json_metrics = {}
@@ -270,6 +274,109 @@ class D3Exporter:
                 d3_js_string += '\n'
                 d3_js_string += 'const ' + graph_representation.graph_type.name.lower() + '_overall_metric_results = '
                 d3_js_string += json.dumps(json_metrics)
+
+            # add cluster map of nodes
+            cluster_map = {}
+
+            total_sloc = 0
+
+            for node in data['nodes']:
+                node_cluster_id = 0
+
+                if 'metric_louvain-modularity-in-file' in node:
+                    node_cluster_id = node['metric_louvain-modularity-in-file']
+                elif 'metric_louvain-modularity-in-entity' in node:
+                    node_cluster_id = node['metric_louvain-modularity-in-entity']
+
+                if 'metric_sloc-in-file' in node:
+                    total_sloc += node['metric_sloc-in-file']
+                elif 'metric_sloc-in-entity' in node:
+                    total_sloc += node['metric_sloc-in-entity']
+
+                node_cluster_id = node_cluster_id
+
+                if node_cluster_id in cluster_map:
+                    cluster_map[node_cluster_id].append(node)
+                else:
+                    cluster_map[node_cluster_id] = []
+                    cluster_map[node_cluster_id].append(node)
+
+            # sort cluster map (since it is sorted by key in the js frontend)
+            cluster_map = OrderedDict(sorted(cluster_map.items()))
+
+            # add cluster metrics map
+            cluster_metrics_map = {}
+
+            for cluster_id, _ in cluster_map.items():
+                cluster_nodes = cluster_map[cluster_id]
+
+                # define cluster key/metric names
+                # TODO: move this somewhere to a global cluster metric enum
+                sloc_in_cluster = 0.0
+                sloc_proportion_of_total = 0.0
+                avg_cluster_fan_in = 0.0
+                cluster_fan_in = 0.0
+                avg_cluster_fan_out = 0.0
+                cluster_fan_out = 0.0
+                avg_cluster_methods = 0.0
+                cluster_methods = 0.0
+                nodes_in_cluster = 0.0
+
+                for node in cluster_nodes:
+                    nodes_in_cluster += 1
+
+                    if cluster_id not in cluster_metrics_map:
+                        cluster_metrics_map[cluster_id] = {}
+
+                    # sloc
+                    if 'metric_sloc-in-file' in node:
+                        sloc_in_cluster += node['metric_sloc-in-file']
+                    elif 'metric_sloc-in-entity' in node:
+                        sloc_in_cluster += node['metric_sloc-in-entity']
+
+                    # fan-in
+                    if 'metric_fan-in-dependency-graph' in node:
+                        cluster_fan_in += node['metric_fan-in-dependency-graph']
+                    elif 'metric_fan-in-inheritance-graph' in node:
+                        cluster_fan_in += node['metric_fan-in-inheritance-graph']
+                    elif 'metric_fan-in-complete-graph' in node:
+                        cluster_fan_in += node['metric_fan-in-complete-graph']
+
+                    # fan-out
+                    if 'metric_fan-out-dependency-graph' in node:
+                        cluster_fan_out += node['metric_fan-out-dependency-graph']
+                    elif 'metric_fan-out-inheritance-graph' in node:
+                        cluster_fan_out += node['metric_fan-out-inheritance-graph']
+                    elif 'metric_fan-out-complete-graph' in node:
+                        cluster_fan_out += node['metric_fan-out-complete-graph']
+
+                    # number of methods
+                    if 'metric_number-of-methods-in-file' in node:
+                        cluster_methods += node['metric_number-of-methods-in-file']
+                    elif 'metric_number-of-methods-in-entity' in node:
+                        cluster_methods += node['metric_number-of-methods-in-entity']
+
+                # now add all cluster metrics
+                cluster_metrics_map[cluster_id]['nodes_in_cluster'] = str(int(nodes_in_cluster))
+                cluster_metrics_map[cluster_id]['sloc_in_cluster'] = str(int(sloc_in_cluster))
+
+                if total_sloc > 0:
+                    sloc_proportion_of_total = (sloc_in_cluster / total_sloc) * 100
+                    cluster_metrics_map[cluster_id]['% of total sloc'] = format(sloc_proportion_of_total, '.2f')
+
+                if nodes_in_cluster > 0:
+                    avg_cluster_fan_in = cluster_fan_in / nodes_in_cluster
+                    cluster_metrics_map[cluster_id]['avg_cluster_fan_in'] = format(avg_cluster_fan_in, '.2f')
+
+                    avg_cluster_fan_out = cluster_fan_out / nodes_in_cluster
+                    cluster_metrics_map[cluster_id]['avg_cluster_fan_out'] = format(avg_cluster_fan_out, '.2f')
+
+                    avg_cluster_methods = cluster_methods / nodes_in_cluster
+                    cluster_metrics_map[cluster_id]['avg_cluster_methods'] = format(avg_cluster_methods, '.2f')
+
+            d3_js_string += '\n'
+            d3_js_string += 'const ' + graph_representation.graph_type.name.lower() + '_cluster_metrics_map = '
+            d3_js_string += json.dumps(cluster_metrics_map)
 
             d3_js_string += '\n\n'
 

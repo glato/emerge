@@ -682,7 +682,6 @@
         /**
          * * Rendering concave hulls of clusters.
          */
-        // TODO: move this calculation to python, export only the data structure
         function setupGraphClustersById() {
             clusterMap = {}
 
@@ -706,42 +705,6 @@
             })
 
             // console.log(clusterMap)
-        }
-
-        // TODO: move this calculation to python, export only the data structure
-        function setupClusterMetrics() {
-            clusterMetricsMap = {}
-
-            let iteration = 0
-            Object.keys(clusterMap).forEach(function(clusterId) {
-                if (iteration < maxClusterHulls) {
-
-                    let nodesInCluster = clusterMap[clusterId]
-
-                    let clusterMetrics = {}
-                    nodesInCluster.forEach(function(node) {
-
-                        let nodeMetrics = {}
-                        if (node.hasOwnProperty('metrics')) {
-                            nodeMetrics = node['metrics']
-
-                            Object.keys(nodeMetrics).forEach(function(nodeMetric) {
-
-                                if (!(clusterId in clusterMetricsMap)) {
-                                    clusterMetricsMap[clusterId] = {}
-                                }
-
-                                if (nodeMetric in clusterMetricsMap[clusterId]) {
-                                    clusterMetricsMap[clusterId][nodeMetric] += nodeMetrics[nodeMetric]
-                                } else {
-                                    clusterMetricsMap[clusterId][nodeMetric] = nodeMetrics[nodeMetric]
-                                }
-                            })
-                        }
-                    })
-                }
-            })
-            console.log(clusterMetricsMap)
         }
 
         function onMouseOverHullMenuNode(clusterId) {
@@ -823,8 +786,9 @@
 
                         Object.keys(clusterMetrics).forEach(function(clusterMetric) {
                             let metricPrettyName = clusterMetric.replace(/_/gi, " ").replace(/metric/gi, "")
-                            clusterToolTipDescription += "<b>" + metricPrettyName + "</b>: " + clusterMetrics[clusterMetric] + "<br>"
+                            clusterToolTipDescription += metricPrettyName + ": " + "<b>" + clusterMetrics[clusterMetric] + "</b>" + "<br>"
                         })
+
                         $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('title', clusterToolTipDescription)
                         $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-html', 'true')
                         $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-placement', 'bottom')
@@ -922,6 +886,7 @@
             currentGraph = JSON.parse(JSON.stringify(graphData[graphType]['graph']))
             statistics = graphData[graphType]['statistics']
             overall_metric_results = graphData[graphType]['overall_metric_results']
+            clusterMetricsMap = graphData[graphType]['cluster_metrics_map']
 
             createStatistics();
             createOverallMetricResults();
@@ -941,8 +906,6 @@
             });
 
             setupGraphClustersById();
-            setupClusterMetrics();
-
             createClusterHullMenu();
             createMetricsMenuEntries();
             addToolTipsToMetricEntries();
@@ -1237,6 +1200,7 @@
                 graphData['file_result_dependency_graph']['statistics'] = file_result_dependency_graph_statistics
                 graphData['file_result_dependency_graph']['overall_metric_results'] =
                     file_result_dependency_graph_overall_metric_results
+                graphData['file_result_dependency_graph']['cluster_metrics_map'] = file_result_dependency_graph_cluster_metrics_map
                 currentGraphType = 'file_result_dependency_graph'
             }
 
@@ -1246,6 +1210,7 @@
                 graphData['entity_result_dependency_graph']['statistics'] = entity_result_dependency_graph_statistics
                 graphData['entity_result_dependency_graph']['overall_metric_results'] =
                     entity_result_dependency_graph_overall_metric_results
+                graphData['entity_result_dependency_graph']['cluster_metrics_map'] = entity_result_dependency_graph_cluster_metrics_map
                 currentGraphType = 'entity_result_dependency_graph'
             }
 
@@ -1255,6 +1220,7 @@
                 graphData['entity_result_inheritance_graph']['statistics'] = entity_result_inheritance_graph_statistics
                 graphData['entity_result_inheritance_graph']['overall_metric_results'] =
                     entity_result_inheritance_graph_overall_metric_results
+                graphData['entity_result_inheritance_graph']['cluster_metrics_map'] = entity_result_inheritance_graph_cluster_metrics_map
             }
 
             if (typeof entity_result_complete_graph !== 'undefined') {
@@ -1263,6 +1229,7 @@
                 graphData['entity_result_complete_graph']['statistics'] = entity_result_complete_graph_statistics
                 graphData['entity_result_complete_graph']['overall_metric_results'] =
                     entity_result_complete_graph_overall_metric_results
+                graphData['entity_result_complete_graph']['cluster_metrics_map'] = entity_result_complete_graph_cluster_metrics_map
             }
 
             if (typeof filesystem_graph !== 'undefined') {
@@ -1270,6 +1237,7 @@
                 graphData['filesystem_graph']['graph'] = filesystem_graph
                 graphData['filesystem_graph']['statistics'] = filesystem_graph_statistics
                 graphData['filesystem_graph']['overall_metric_results'] = filesystem_graph_overall_metric_results
+                graphData['filesystem_graph']['cluster_metrics_map'] = filesystem_graph_cluster_metrics_map
             }
         }
 
