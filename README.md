@@ -9,11 +9,10 @@ emerge
 
 emerge is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-14-1-screenshot-01.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-14-1-screenshot-02.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-16-0-screenshot-03.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-14-1-screenshot-04.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-14-1-screenshot-05.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-01.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-02.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-03.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-04.png)
 
 ## Goals of this project
 
@@ -44,6 +43,8 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - Visualization of files, entities and given metrics
     - [dark mode support](https://github.com/coliff/dark-mode-switch)
     - Reactive visual live search of files/ entities (e.g. classes)
+    - [Concave hull](https://github.com/AndriiHeonia/hull) visualization of single clusters
+    - Display of cluster metrics to facilitate comparability
     - Interactivity given by translation, zooming, dragging and hovering over nodes
   - Tabular console output
   - Tabular file output
@@ -322,7 +323,7 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.17.2 supports the following scan types
+## The current version 0.18.0 supports the following scan types
 
 | Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
 |----------|--------|--------|-------|------|------|----|----|------|-------|--------|
@@ -334,6 +335,6 @@ The YAML configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.17.2) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.18.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
