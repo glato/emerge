@@ -29,12 +29,13 @@ If I missed someone or gave wrong credit, please contact me and I'll update this
 - jquery (https://jquery.com)
 - popper.js https://popper.js.org
 - dark-mode-switch.js (https://github.com/coliff/dark-mode-switch)
+- Hull.js (https://github.com/AndriiHeonia/hull)
 
 Further, the project uses the following libraries/ packages that needs to be installed with pip (containt in the requirements.txt):
 
 ```
 wheel==0.32.2
-astroid==2.3.3
+astroid==2.5.0
 attrs==19.3.0
 autopep8==1.5.4
 click==7.1.2
@@ -48,13 +49,13 @@ lazy-object-proxy==1.4.3
 networkx==2.4
 numpy==1.20.0
 prettytable==0.7.2
-py==1.9.0
+py==1.10.0
 pycodestyle==2.6.0
 pygraphviz==1.6
-pylint==2.4.4
-pyparsing==2.4.5
-python-louvain==0.14
-PyYAML==5.2
+pylint==2.7.1
+pyparsing==2.4.7
+python-louvain==0.15
+PyYAML==5.4
 rope==0.16.0
 six==1.13.0
 tabulate==0.8.7
