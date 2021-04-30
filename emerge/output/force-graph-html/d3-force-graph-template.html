@@ -36,6 +36,11 @@
             background-color: white;
             color: black;
             font-size: smaller;
+            min-width: 220px;
+        }
+        
+        .bs-tooltip-bottom {
+            margin-top: 6px;
         }
         
         .badge {
@@ -485,6 +490,7 @@
         var currentGraph = ''
 
         let clusterMap = {}
+        let clusterMetricsMap = {}
 
         var statistics
         var overall_metric_results
@@ -676,6 +682,7 @@
         /**
          * * Rendering concave hulls of clusters.
          */
+        // TODO: move this calculation to python, export only the data structure
         function setupGraphClustersById() {
             clusterMap = {}
 
@@ -699,6 +706,42 @@
             })
 
             // console.log(clusterMap)
+        }
+
+        // TODO: move this calculation to python, export only the data structure
+        function setupClusterMetrics() {
+            clusterMetricsMap = {}
+
+            let iteration = 0
+            Object.keys(clusterMap).forEach(function(clusterId) {
+                if (iteration < maxClusterHulls) {
+
+                    let nodesInCluster = clusterMap[clusterId]
+
+                    let clusterMetrics = {}
+                    nodesInCluster.forEach(function(node) {
+
+                        let nodeMetrics = {}
+                        if (node.hasOwnProperty('metrics')) {
+                            nodeMetrics = node['metrics']
+
+                            Object.keys(nodeMetrics).forEach(function(nodeMetric) {
+
+                                if (!(clusterId in clusterMetricsMap)) {
+                                    clusterMetricsMap[clusterId] = {}
+                                }
+
+                                if (nodeMetric in clusterMetricsMap[clusterId]) {
+                                    clusterMetricsMap[clusterId][nodeMetric] += nodeMetrics[nodeMetric]
+                                } else {
+                                    clusterMetricsMap[clusterId][nodeMetric] = nodeMetrics[nodeMetric]
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+            console.log(clusterMetricsMap)
         }
 
         function onMouseOverHullMenuNode(clusterId) {
@@ -769,6 +812,25 @@
                 // finish menu and append to div
                 clusterMenuHtml += "</div></div>"
                 d3.select("#clusterHullMenu").html(clusterMenuHtml)
+
+                // add tooltips to cluster hull nodes
+                iteration = 0
+                Object.keys(clusterMap).forEach(function(clusterId) {
+                    if (iteration < maxClusterHulls) {
+
+                        let clusterToolTipDescription = "<u>Cluster metrics</u><br>"
+                        let clusterMetrics = clusterMetricsMap[clusterId]
+
+                        Object.keys(clusterMetrics).forEach(function(clusterMetric) {
+                            let metricPrettyName = clusterMetric.replace(/_/gi, " ").replace(/metric/gi, "")
+                            clusterToolTipDescription += "<b>" + metricPrettyName + "</b>: " + clusterMetrics[clusterMetric] + "<br>"
+                        })
+                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('title', clusterToolTipDescription)
+                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-html', 'true')
+                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-placement', 'bottom')
+                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).tooltip();
+                    }
+                })
             }
         }
 
@@ -879,6 +941,8 @@
             });
 
             setupGraphClustersById();
+            setupClusterMetrics();
+
             createClusterHullMenu();
             createMetricsMenuEntries();
             addToolTipsToMetricEntries();
