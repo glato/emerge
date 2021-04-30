@@ -784,6 +784,7 @@
                         let clusterToolTipDescription = "<u>Cluster metrics</u><br>"
                         let clusterMetrics = clusterMetricsMap[clusterId]
 
+                        // add all cluster metrics that we can find
                         Object.keys(clusterMetrics).forEach(function(clusterMetric) {
                             let metricPrettyName = clusterMetric.replace(/_/gi, " ").replace(/metric/gi, "")
                             clusterToolTipDescription += metricPrettyName + ": " + "<b>" + clusterMetrics[clusterMetric] + "</b>" + "<br>"
@@ -810,6 +811,7 @@
             return pointArray
         }
 
+        // calculate hull
         function getHullFromPointArray(pointArray) {
             let hullArray = hull(pointArray, 60)
             return hullArray
@@ -1012,6 +1014,7 @@
             context.translate(transform.x, transform.y);
             context.scale(transform.k, transform.k);
 
+            // this is pretty cpu hungry
             drawHulls(context)
 
             // draw edges
@@ -1158,6 +1161,7 @@
             context.restore();
         }
 
+        // draw a single cluster hull as a polygon 
         function drawHull(context, clusterId) {
             let pointArray = getPointArrayForClusterId(clusterId)
             let hullArray = getHullFromPointArray(pointArray)
@@ -1177,6 +1181,7 @@
             context.fill();
         }
 
+        // draw all required cluster hulls (selected/hovered nodes from the menu)
         function drawHulls(context) {
 
             // draw a hull if someone hovers ofer a hull menu cluster node 

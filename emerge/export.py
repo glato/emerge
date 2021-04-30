@@ -278,8 +278,10 @@ class D3Exporter:
             # add cluster map of nodes
             cluster_map = {}
 
+            # count total sloc since we need it to calculate cluster proportions
             total_sloc = 0
 
+            # now loop over all nodes and create a cluster map helper structure
             for node in data['nodes']:
                 node_cluster_id = 0
 
@@ -307,6 +309,7 @@ class D3Exporter:
             # add cluster metrics map
             cluster_metrics_map = {}
 
+            # eventually create all cluster metrics
             for cluster_id, _ in cluster_map.items():
                 cluster_nodes = cluster_map[cluster_id]
 
