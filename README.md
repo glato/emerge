@@ -13,6 +13,7 @@ emerge is a code analysis tool to gather insights about source code structure, m
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-02.png)
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-03.png)
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-04.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-05.png)
 
 ## Goals of this project
 
