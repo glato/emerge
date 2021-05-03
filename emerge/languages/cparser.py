@@ -132,7 +132,7 @@ class CParser(AbstractParser, ParsingMixin):
                 # ignore any dependency substring from the config ignore list
                 dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
 
-                # try to resolve dependency
+                # try to resolve the dependency
                 resolved_dependency = self.try_resolve_dependency(dependency, result, analysis)
 
                 if self._is_dependency_in_ignore_list(resolved_dependency, analysis):
@@ -142,11 +142,10 @@ class CParser(AbstractParser, ParsingMixin):
                     LOGGER.debug(f'adding import: {resolved_dependency}')
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
-        if CoreParsingKeyword.DOT.value in dependency:
-            resolved_dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
-            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{resolved_dependency}"
-            if os.path.exists(check_dependency_path):
-                dependency = resolved_dependency
+        resolved_dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+        check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{resolved_dependency}"
+        if os.path.exists(check_dependency_path):
+            dependency = resolved_dependency
         return dependency
 
     def _add_package_name_to_result(self, result: AbstractResult) -> str:
