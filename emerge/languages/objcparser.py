@@ -129,20 +129,21 @@ class ObjCParser(AbstractParser, ParsingMixin):
                 # ignore any dependency substring from the config ignore list
                 dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
 
-                if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency and CoreParsingKeyword.SLASH.value not in dependency and '.h' in dependency:
+                # try to resolve the dependency
+                resolved_dependency = self.try_resolve_dependency(dependency, result, analysis)
 
-                    result: AbstractFileResult
-                    check_dependency_path = f'{ PosixPath(analysis.source_directory).parent }/{result.relative_analysis_path}/{dependency}'
-                    if os.path.exists(check_dependency_path):
-                        dependency = f'{result.relative_analysis_path}/{dependency}'
-
-                # TODO: else -> try to resolve the path for all other cases
-
-                if self._is_dependency_in_ignore_list(dependency, analysis):
-                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+                if self._is_dependency_in_ignore_list(resolved_dependency, analysis):
+                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {resolved_dependency}')
                 else:
-                    result.scanned_import_dependencies.append(dependency)
-                    LOGGER.debug(f'adding import: {dependency}')
+                    result.scanned_import_dependencies.append(resolved_dependency)
+                    LOGGER.debug(f'adding import: {resolved_dependency}')
+
+    def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
+        resolved_dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+        check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{resolved_dependency}"
+        if os.path.exists(check_dependency_path):
+            dependency = resolved_dependency
+        return dependency
 
 
 if __name__ == "__main__":
