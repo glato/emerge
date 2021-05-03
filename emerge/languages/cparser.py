@@ -11,10 +11,11 @@ from enum import Enum, unique
 import coloredlogs
 import logging
 from pathlib import PosixPath
+import os
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
-from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.logging import Logger
 from emerge.statistics import Statistics
 
@@ -110,7 +111,7 @@ class CParser(AbstractParser, ParsingMixin):
                 read_ahead_string = self.create_read_ahead_string(obj, following)
 
                 include_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value + CoreParsingKeyword.SLASH.value +
-                                       CoreParsingKeyword.DOUBLE_QUOTE.value + CoreParsingKeyword.UNDERSCORE.value)
+                                       CoreParsingKeyword.DOUBLE_QUOTE.value + CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value)
 
                 expression_to_match = pp.Keyword(CParsingKeyword.INCLUDE.value) + \
                     pp.ZeroOrMore(pp.Suppress(CoreParsingKeyword.OPENING_ANGLE_BRACKET.value) |
@@ -130,11 +131,23 @@ class CParser(AbstractParser, ParsingMixin):
 
                 # ignore any dependency substring from the config ignore list
                 dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-                if self._is_dependency_in_ignore_list(dependency, analysis):
-                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+
+                # try to resolve dependency
+                resolved_dependency = self.try_resolve_dependency(dependency, result, analysis)
+
+                if self._is_dependency_in_ignore_list(resolved_dependency, analysis):
+                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {resolved_dependency}')
                 else:
-                    result.scanned_import_dependencies.append(dependency)
-                    LOGGER.debug(f'adding import: {dependency}')
+                    result.scanned_import_dependencies.append(resolved_dependency)
+                    LOGGER.debug(f'adding import: {resolved_dependency}')
+
+    def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
+        if CoreParsingKeyword.DOT.value in dependency:
+            resolved_dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{resolved_dependency}"
+            if os.path.exists(check_dependency_path):
+                dependency = resolved_dependency
+        return dependency
 
     def _add_package_name_to_result(self, result: AbstractResult) -> str:
         result.module_name = None
