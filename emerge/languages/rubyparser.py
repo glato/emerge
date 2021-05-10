@@ -11,10 +11,11 @@ from enum import Enum, unique
 import coloredlogs
 import logging
 from pathlib import PosixPath
+import os
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
-from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.statistics import Statistics
 from emerge.logging import Logger
 
@@ -30,6 +31,7 @@ class RubyParsingKeyword(Enum):
     START_BLOCK_COMMENT = "=begin"
     STOP_BLOCK_COMMENT = "=end"
     REQUIRE = "require"
+    REQUIRE_RELATIVE = "require_relative"  # Ruby >= 1.9
 
 
 class RubyParser(AbstractParser, ParsingMixin):
@@ -106,14 +108,14 @@ class RubyParser(AbstractParser, ParsingMixin):
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
-            if obj == RubyParsingKeyword.REQUIRE.value:
+            if obj == RubyParsingKeyword.REQUIRE.value or obj == RubyParsingKeyword.REQUIRE_RELATIVE.value:
                 read_ahead_string = self.create_read_ahead_string(obj, following)
 
                 import_name = pp.Word(pp.alphanums + CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.SLASH.value + CoreParsingKeyword.DOT.value)
                 ignore_between_require_and_import_name = pp.Word(pp.alphanums + CoreParsingKeyword.UNDERSCORE.value +
                                                                  CoreParsingKeyword.DOT.value + CoreParsingKeyword.OPENING_ROUND_BRACKET.value)
 
-                expression_to_match = pp.Keyword(RubyParsingKeyword.REQUIRE.value) + (
+                expression_to_match = (pp.Keyword(RubyParsingKeyword.REQUIRE.value) | pp.Keyword(RubyParsingKeyword.REQUIRE_RELATIVE.value)) + (
 
                     (pp.Keyword(CoreParsingKeyword.SINGLE_QUOTE.value) +
                      import_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value) +
@@ -140,11 +142,59 @@ class RubyParser(AbstractParser, ParsingMixin):
 
                 # ignore any dependency substring from the config ignore list
                 dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-                if self._is_dependency_in_ignore_list(dependency, analysis):
-                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
+
+                # try to resolve the dependency
+                resolved_dependency = self.try_resolve_dependency(dependency, result, analysis)
+
+                if self._is_dependency_in_ignore_list(resolved_dependency, analysis):
+                    LOGGER.debug(f'ignoring dependency from {result.unique_name} to {resolved_dependency}')
                 else:
-                    result.scanned_import_dependencies.append(dependency)
-                    LOGGER.debug(f'adding import: {dependency}')
+                    result.scanned_import_dependencies.append(resolved_dependency)
+                    LOGGER.debug(f'adding import: {resolved_dependency}')
+
+    def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
+
+        successfully_resolved_dependency = False
+
+        # resolve in pure POSIX way
+        resolved_posix_dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+        if '.rb' not in resolved_posix_dependency:
+            resolved_posix_dependency = f"{resolved_posix_dependency}.rb"
+
+        check_dependency_path = f"{PosixPath(analysis.source_directory).parent}/{resolved_posix_dependency}"
+        if os.path.exists(check_dependency_path):
+            dependency = resolved_posix_dependency
+            successfully_resolved_dependency = True
+
+        if not successfully_resolved_dependency:
+            # otherwise try to resolve it as a non-POSIX dependency, i.e. where "../" imports from the current directory "./"
+            non_posix_dependency = ""
+            resolved_non_posix_dependency = ""
+
+            # resolve/check by reducing only the first ".." to "."
+            if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:
+                non_posix_dependency = dependency.replace(CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value, CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, 1)
+                resolved_non_posix_dependency = self.resolve_relative_dependency_path(non_posix_dependency, result.absolute_dir_path, analysis.source_directory)
+                if '.rb' not in resolved_non_posix_dependency:
+                    resolved_non_posix_dependency = f"{resolved_non_posix_dependency}.rb"
+
+                check_dependency_path = f"{PosixPath(analysis.source_directory).parent}/{resolved_non_posix_dependency}"
+                if os.path.exists(check_dependency_path):
+                    dependency = resolved_non_posix_dependency
+                    successfully_resolved_dependency = True
+
+        # as a last step, try to check if the dependency can be found in a local "lib" folder
+        if not successfully_resolved_dependency:
+
+            resolved_lib_dependency = self.resolve_relative_dependency_path(f"lib/{dependency}.rb", analysis.source_directory, analysis.source_directory)
+            # f"{PosixPath(analysis.source_directory)}/lib/{dependency}.rb"
+            check_resolved_lib_dependency_path = f"{PosixPath(analysis.source_directory).parent}/{resolved_lib_dependency}"
+
+            if os.path.exists(check_resolved_lib_dependency_path):
+                dependency = resolved_lib_dependency
+                successfully_resolved_dependency = True
+
+        return dependency
 
 
 if __name__ == "__main__":
