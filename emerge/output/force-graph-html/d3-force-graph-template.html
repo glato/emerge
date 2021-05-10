@@ -384,6 +384,13 @@
             $('#buttonShowOverallStatistics').blur();
         });
 
+        // cancel the node search by pressing the escape key
+        $(document).keyup(function(e) {
+            if (e.key === "Escape") {
+                cancelNodeSearch()
+            }
+        });
+
         function setDarkMode(mode) {
             if (mode == true) {
                 darkMode = true
@@ -1326,6 +1333,14 @@
          * * Create/update the HTML/Bootstrap UI
          */
 
+        function cancelNodeSearch() {
+            $('#inputNodeSearch').val('')
+            $('#inputNodeSearchLabel').text('Search inactive')
+            searchString = ""
+            isSearching = false
+            simulationUpdate()
+        }
+
         function enableSearchInput() {
             $('#inputNodeSearchLabel').text('Search inactive')
             $('#inputNodeSearch').on('keyup change', function() {
@@ -1344,11 +1359,7 @@
             })
 
             $('#inputNodeSearchCancel').on('click', function() {
-                $('#inputNodeSearch').val('')
-                $('#inputNodeSearchLabel').text('Search inactive')
-                searchString = ""
-                isSearching = false
-                simulationUpdate()
+                cancelNodeSearch()
             })
         }
 
