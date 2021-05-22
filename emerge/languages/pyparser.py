@@ -225,7 +225,7 @@ class PythonParser(AbstractParser, ParsingMixin):
                     relative_import = True
                     dependency = dependency.replace(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value, CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value)
 
-                if len(dependency) > 0 and CoreParsingKeyword.DOT.value == dependency[0] and CoreParsingKeyword.DOT.value is not dependency[1]:
+                if len(dependency) > 1 and CoreParsingKeyword.DOT.value == dependency[0] and CoreParsingKeyword.DOT.value is not dependency[1]:
                     relative_import = True
                     dependency = dependency[1:]
 
@@ -233,7 +233,11 @@ class PythonParser(AbstractParser, ParsingMixin):
                     dependency = self.create_relative_analysis_path_for_dependency(dependency, result.relative_analysis_path)
                 elif not global_import and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:
                     posix_dependency = dependency.replace(CoreParsingKeyword.DOT.value, CoreParsingKeyword.SLASH.value)
-                    relative_path = f'{PosixPath(analysis.source_directory).name}/{posix_dependency}'
+
+                    if analysis.source_directory == CoreParsingKeyword.DOT.value:
+                        relative_path = posix_dependency
+                    else:
+                        relative_path = f'{PosixPath(analysis.source_directory).name}/{posix_dependency}'
 
                     check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{relative_path}"
                     if os.path.exists(f'{check_dependency_path}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'):
