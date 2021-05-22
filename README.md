@@ -55,7 +55,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 At this time there is no simple installation by using pip (tbd), so the following steps should guide you how to install this tool and get it running.
 
-### **1. Clone this repository**
+### **1.** Clone this repository
 
 ```
 git clone https://github.com/glato/emerge.git
@@ -67,7 +67,8 @@ git clone https://github.com/glato/emerge.git
 brew install graphviz
 ```
 
-### **2.2** (*macOS*) Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
+### **2.2** (*macOS*) Create a virtual environment
+Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
 
 ```
 cd emerge
@@ -75,7 +76,8 @@ pip3 install virtualenv
 virtualenv -p python3 venv
 ```
 
-### **2.** (*ubuntu*) Install required packages and create a Python 3 virtual environment (optionally within the project structure)
+### **2.** (*ubuntu*) Create a virtual environment
+Install required packages and create a Python 3 virtual environment (optionally within the project structure)
 
 ```
 apt-get install python3-venv python3-dev graphviz graphviz-dev
@@ -89,13 +91,15 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### **4.** (*macOS*) Install all required dependencies for the project with pip
+### **4.** (*macOS*) Install all dependencies
+Install all required dependencies for the project with pip
 
 ```
 pip install -r requirements.txt
 ```
 
-### **4.** (*ubuntu*) Install the wheel package, after that install all required dependencies for the project with pip
+### **4.** (*ubuntu*) Install all dependencies
+Install the wheel package, after that install all required dependencies for the project with pip
 
 ```
 pip install wheel
@@ -125,7 +129,8 @@ optional arguments:
   -s, --silent          run silently without any console output
 ```
 
-### **7.** You're ready to go 😱, let's quickly try to run emerge on its own codebase
+### **7.** You're ready to go 😱
+Let's quickly try to run emerge on its own codebase
 
 ```
 python emerge.py -c configs/emerge.yaml
@@ -178,7 +183,8 @@ This should produce a similar output:
 ...   analysis I ✅ total runtime of analysis: 00:00:00 + 786 ms
 ```
 
-### **8.** Now just copy the above mentioned `file://` path to any modern web browser and interactively expore the emerge codebase 😉
+### **8.** Start your web app
+Now just copy the above mentioned `file://` path to any modern web browser and interactively expore the emerge codebase 😉
 
 And now let's make this more interesting ...
 
@@ -186,7 +192,8 @@ And now let's make this more interesting ...
 
 If you wand to use emerge on other projects, you can simple copy or customize one of the existing configuration templates from the `emerge/configs` directory.
 
-### **9.** For a quick run, it should be enough to adjust `source_directory`, `directory` in `export`.
+### **9.** Scan a real project
+For a quick run, it should be enough to adjust `source_directory`, `directory` in `export`.
 
 ```yaml
 ---
@@ -217,7 +224,8 @@ analyses:
   - tabular_console_overall
   - d3
 ```
-### **10.** Running EMERGE with a specific YAML configuration (e.g. a customized `config/c-template.yaml`)
+### **10.** Run emerge with a specific yaml configuration
+After customizing a present config (e.g. `config/c-template.yaml`) or creating your own, just run emerge again with this new config
 
 ```bash
 python emerge.py -c configs/c-template.yaml
@@ -263,7 +271,7 @@ analyses:
   - d3
 ```
 
-The YAML configuration is basically defined at the following levels:
+The yaml configuration is basically defined at the following levels:
 
 ## project level
 
