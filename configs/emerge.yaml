@@ -1,0 +1,27 @@
+---
+project_name: emerge
+loglevel: info
+analyses:
+- analysis_name: self-check
+  source_directory: .
+  only_permit_languages:
+  - py
+  only_permit_file_extensions:
+  - .py
+  ignore_directories_containing:
+  - .git
+  - venv
+  - tests
+  - .vscode
+  ignore_files_containing:
+  - __init__.py
+  file_scan:
+  - number_of_methods
+  - source_lines_of_code
+  - dependency_graph
+  - louvain_modularity
+  - fan_in_out
+  export:
+  - directory: ./export/emerge
+  - tabular_console_overall
+  - d3
