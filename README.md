@@ -55,19 +55,19 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 At this time there is no simple installation by using pip (tbd), so the following steps should guide you how to install this tool and get it running.
 
-**1.** Clone this repository
+### **1. Clone this repository**
 
 ```
 git clone https://github.com/glato/emerge.git
 ```
 
-**2.1** (*macOS*) Install the `graphviz` package first
+### **2.1** (*macOS*) Install the `graphviz` package first
 
 ```
 brew install graphviz
 ```
 
-**2.2** (*macOS*) Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
+### **2.2** (*macOS*) Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
 
 ```
 cd emerge
@@ -75,7 +75,7 @@ pip3 install virtualenv
 virtualenv -p python3 venv
 ```
 
-**2.** (*ubuntu*) Install required packages and create a Python 3 virtual environment (optionally within the project structure)
+### **2.** (*ubuntu*) Install required packages and create a Python 3 virtual environment (optionally within the project structure)
 
 ```
 apt-get install python3-venv python3-dev graphviz graphviz-dev
@@ -83,32 +83,32 @@ cd emerge
 python3 -m venv venv
 ```
 
-**3.** Before using/working with the tool, activate the virtual environment
+### **3.** Before using/working with the tool, activate the virtual environment
 
 ```
 source venv/bin/activate
 ```
 
-**4.** (*macOS*) Install all required dependencies for the project with pip
+### **4.** (*macOS*) Install all required dependencies for the project with pip
 
 ```
 pip install -r requirements.txt
 ```
 
-**4.** (*ubuntu*) Install the wheel package, after that install all required dependencies for the project with pip
+### **4.** (*ubuntu*) Install the wheel package, after that install all required dependencies for the project with pip
 
 ```
 pip install wheel
 pip install -r requirements.txt
 ```
 
-**5.** Running unit tests from the command line
+### **5.** Running unit tests from the command line
 
 ```
 python run_tests.py
 ```
 
-**6.** Running EMERGE as a standalone tool
+### **6.** Running EMERGE as a standalone tool
 
 ```
 python emerge.py 
@@ -125,7 +125,68 @@ optional arguments:
   -s, --silent          run silently without any console output
 ```
 
-**7.** Create a YAML configuration for your scan or copy/adjust a template example from the configs directory. The template examples in `emerge/configs` should be mostly self-documenting. For a quick run, it's enough to adjust `source_directory` and `directory` in `export`.
+### **7.** You're ready to go 😱, let's quickly try to run emerge on its own codebase
+
+```
+python emerge.py -c configs/emerge.yaml
+```
+
+This should produce a similar output:
+
+```
+...   analysis I 👉 starting to analyze emerge
+...   analysis I ⏩ performing analysis 1/1: self-check
+...   analysis I 👉 starting to create filesystem graph in self-check
+...   analysis I ⏩ starting scan at directory: .
+...   ...
+...   analysis I 👉 the following statistics were collected in self-check
++-------------------------------------+-------------------+
+|                      statistic name | value             |
++-------------------------------------+-------------------+
+|                    scanning_runtime | 00:00:00 + 61 ms  |
+|                       scanned_files | 32                |
+|                       skipped_files | 176               |
+|                        parsing_hits | 313               |
+|                      parsing_misses | 141               |
+|              extracted_file_results | 32                |
+|       file_results_creation_runtime | 00:00:00 + 538 ms |
+|    number-of-methods-metric-runtime | 00:00:00 + 4 ms   |
+| source-lines-of-code-metric-runtime | 00:00:00 + 11 ms  |
+|   louvain-modularity-metric-runtime | 00:00:00 + 161 ms |
+|           fan-in-out-metric-runtime | 00:00:00 + 4 ms   |
+|                       total_runtime | 00:00:00 + 786 ms |
++-------------------------------------+-------------------+
+...   analysis I 👉 the following overall metrics were collected in self-check
++----------------------------------------------+----------------------------+
+|                                  metric name | value                      |
++----------------------------------------------+----------------------------+
+|                avg-number-of-methods-in-file | 13.0                       |
+|                             avg-sloc-in-file | 151.41                     |
+|                          total-sloc-in-files | 4845                       |
+|         louvain-communities-dependency-graph | 3                          |
+|          louvain-modularity-dependency-graph | 0.21                       |
+| louvain-biggest-communities-dependency-graph | 0.49, 0.46, 0.05, 0.0, 0.0 |
+|                  avg-fan-in-dependency-graph | 5.55                       |
+|                 avg-fan-out-dependency-graph | 5.55                       |
+|                  max-fan-in-dependency-graph | 29                         |
+|             max-fan-in-name-dependency-graph | typing                     |
+|                 max-fan-out-dependency-graph | 19                         |
+|            max-fan-out-name-dependency-graph | emerge/appear.py           |
++----------------------------------------------+----------------------------+
+...   analysis I ✅ all your generated/exported data can be found here: /Volumes/projects/private/github/emerge/export/emerge
+...   analysis I ✅ copy the following path to your browser and start your web app: file:///Users/user1/github/emerge/export/emerge/force-graph-html/d3-force-graph-template.html
+...   analysis I ✅ total runtime of analysis: 00:00:00 + 786 ms
+```
+
+### **8.** Now just copy the above mentioned `file://` path to any modern web browser and interactively expore the emerge codebase 😉
+
+And now let's make this more interesting ...
+
+## Further configuration (using emerge on other projects)
+
+If you wand to use emerge on other projects, you can simple copy or customize one of the existing configuration templates from the `emerge/configs` directory.
+
+### **9.** For a quick run, it should be enough to adjust `source_directory`, `directory` in `export`.
 
 ```yaml
 ---
@@ -156,71 +217,14 @@ analyses:
   - tabular_console_overall
   - d3
 ```
+### **10.** Running EMERGE with a specific YAML configuration (e.g. a customized `config/c-template.yaml`)
 
-**8.** Running EMERGE with a specific YAML configuration (e.g. a customized `emerge/config/c-template.yaml`)
-
-```
+```bash
 python emerge.py -c configs/c-template.yaml
 ```
 
-... which should produce a similar output:
 
-```
-...   analysis I 👉 starting to analyze c-example-project
-...   analysis I ⏩ performing analysis 1/1: check_c_files
-...   analysis I 👉 starting token extraction for file results in check_c_files
-...   analysis I ⏩ starting scan at directory: .../github/linux-5.8.5/crypto
-...
-...   analysis I ✅ scanning complete
-...   analysis I 👉 starting code metric calculation for analysis check_c_files
-...   analysis I ⏩ calculating metric results for: number of methods metric
-...   analysis I ⏩ calculating metric results for: source lines of code metric
-...   analysis I ✅ done calculating code metric results
-...   analysis I 👉 starting graph metric calculation for analysis check_c_files
-...   analysis I ⏩ calculating metric results for: louvain modularity metric
-...   analysis I ⏩ calculating metric results for: fan in out metric
-...   analysis I ✅ done calculating graph metric results
-...     emerge I ✅ successfully copied output to /Users/user1/emerge/project/export/force-graph-html
-...   analysis I 👉 the following statistics were collected in check_c_files
-+-------------------------------------+-------------------+
-|                      statistic name | value             |
-+-------------------------------------+-------------------+
-|                        parsing_hits | 1196              |
-|                    scanning_runtime | 00:00:06 + 424 ms |
-|                       scanned_files | 163               |
-|                       skipped_files | 16                |
-|              extracted_file_results | 163               |
-|    number-of-methods-metric-runtime | 00:00:40 + 331 ms |
-| source-lines-of-code-metric-runtime | 00:00:00 + 99 ms  |
-|   louvain-modularity-metric-runtime | 00:00:04 + 229 ms |
-|           fan-in-out-metric-runtime | 00:00:00 + 18 ms  |
-+-------------------------------------+-------------------+
-...   analysis I 👉 the following overall metrics were collected in check_c_files
-+----------------------------------------------+------------------------------+
-|                                  metric name | value                        |
-+----------------------------------------------+------------------------------+
-|                avg-number-of-methods-in-file | 17.91                        |
-|                             avg-sloc-in-file | 224.44                       |
-|         louvain-communities-dependency-graph | 11                           |
-|          louvain-modularity-dependency-graph | 0.44                         |
-| louvain-biggest-communities-dependency-graph | 0.24, 0.19, 0.14, 0.13, 0.11 |
-|                  avg-fan-in-dependency-graph | 3.53                         |
-|                 avg-fan-out-dependency-graph | 3.53                         |
-|                  max-fan-in-dependency-graph | 132                          |
-|             max-fan-in-name-dependency-graph | linux/module.h               |
-|                 max-fan-out-dependency-graph | 18                           |
-|            max-fan-out-name-dependency-graph | testmgr.c                    |
-+----------------------------------------------+------------------------------+
-...  analysis I ✅ all your generated/exported data can be found here: /Users/user1/emerge/project/export
-...   analysis I ✅ you can browse your interactive web app at: file:///Users/user1/emerge/project/export/force-graph-html/d3-force-graph-template.html
-...   analysis I ✅ calculated and collected metric data
-...     emerge I ✅ total runtime: 00:00:35 + 876 ms
-
-```
-
-## 👍 **And that's it!**
-
-After this your scan output (including your interactive web app) can be found at the directory that you created and set in the config parameter `export` -> `directory`, as seen  in the logs above.
+After the scan, your scan output (including your interactive web app) can be found at the directory that you created and set in the config parameter `export` -> `directory`, as seen in the logs above.
 
 A full YAML configuration that contains both file and entity scan has the following format:
 
@@ -324,7 +328,7 @@ The YAML configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.18.1 supports the following scan types
+## The current version 0.18.2 supports the following scan types
 
 | Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
 |----------|--------|--------|-------|------|------|----|----|------|-------|--------|
@@ -336,6 +340,6 @@ The YAML configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.18.1) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.18.2) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
