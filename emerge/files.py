@@ -120,10 +120,11 @@ class FileManager:
 
         origin_output_subpath = "/output"
         origin_force_graph_subpath = "/force-graph-html"
-        origin_script_dir = os.getcwd()
-        origin_emerge_subpath = "/emerge"
 
-        origin_complete_path = origin_script_dir + origin_emerge_subpath + origin_output_subpath + origin_force_graph_subpath
+        # get the full path of emerge.py / https://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
+        origin_emerge_base_path = os.path.dirname(os.path.realpath(__file__))
+
+        origin_complete_path = origin_emerge_base_path + origin_output_subpath + origin_force_graph_subpath
         target_complete_path = target_export_path + origin_force_graph_subpath
 
         if os.path.isdir(target_complete_path):
