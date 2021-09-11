@@ -433,6 +433,18 @@ class Analysis:
 
             for file_name in files:
                 absolute_path_to_file = os.path.join(root, file_name)
+
+                # watch out for symlinks
+                if os.path.islink(absolute_path_to_file):
+                    LOGGER.debug(f'possible symlink found: {absolute_path_to_file}')
+                    absolute_path_to_file_resolved_symlink = os.path.realpath(absolute_path_to_file)
+                    if os.path.exists(absolute_path_to_file_resolved_symlink):
+                        absolute_path_to_file = absolute_path_to_file_resolved_symlink
+                        LOGGER.debug(f'could resolve symlink {absolute_path_to_file} to {absolute_path_to_file_resolved_symlink}')
+                    else:
+                        LOGGER.warning(f'ignoring unresolvable symlink {absolute_path_to_file}')
+                        continue
+
                 file_name, file_extension = os.path.splitext(absolute_path_to_file)
 
                 # create relative analysis path to exactly match the same path of nodes in other graphs (and get their metrics)
