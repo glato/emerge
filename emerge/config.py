@@ -549,13 +549,13 @@ class YamlLoader:
 
     def _load_yaml_from_config_file_content(self):
         try:
-            self._yaml = yaml.load(self._config_file_content, Loader=yaml.FullLoader)
+            self._yaml = yaml.load(self._config_file_content, Loader=yaml.SafeLoader)
         except yaml.YAMLError as exc:
             LOGGER.error(exc)
 
     def _load_yaml_from_schema_file_content(self):
         try:
-            self._schema = yaml.load(self._schema_file_content, Loader=yaml.FullLoader)
+            self._schema = yaml.load(self._schema_file_content, Loader=yaml.SafeLoader)
         except yaml.YAMLError as exc:
             LOGGER.error(exc)
 
