@@ -630,10 +630,10 @@
 
                 context.beginPath();
 
-                // render outer circle if node was selected
+                //render outer circle if node was selected
                 if (d.id.toLowerCase() in selectedNodesMap) {
                     context.arc(d.x, d.y, d.radius + 2.0, 0, TWO_TIMES_PI);
-                    context.fillStyle = activeSelectionColor
+                    context.fillStyle = '#FF0000' //activeSelectionColor
                     drawNodeLabel(d.id, d.x + 14, d.y - 7)
                     context.fill();
                 }
@@ -641,8 +641,8 @@
                 context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI, true);
 
                 if (fadeUnselectedNodes == true) {
-                    context.fillStyle = nodeColorByModularity(d, 0.2)
-                    context.strokeStyle = hexToRGB(nodeStrokeStyle, 0.2)
+                    context.strokeStyle = nodeStrokeStyle
+                    context.fillStyle = hexToRGB(nodeStrokeStyle, 0.2)
                     context.stroke();
 
                     if (nodeLabelsEnabled) {
@@ -704,16 +704,17 @@
                             drawNodeLabel(d.id, d.x + 14, d.y - 7)
                             context.fillStyle = nodeColorByModularity(d)
 
-                            if (nodeLabelsEnabled) {
-                                context.fillStyle = currentActiveNodeLabelColor;
-                                drawNodeLabel(d.id, d.x + 14, d.y - 7)
-                                context.fillStyle = nodeColorByModularity(d)
-                            }
-
                         } else { // node is not connected
-                            context.fillStyle = nodeColorByModularity(d, 0.2)
-                            context.strokeStyle = hexToRGB(nodeStrokeStyle, 0.2)
-                            context.stroke();
+
+                            if (d.id.toLowerCase() in selectedNodesMap) {
+                                context.strokeStyle = nodeStrokeStyle
+                                context.fillStyle = nodeColorByModularity(d)
+                                context.stroke();
+                            } else { 
+                                context.strokeStyle = hexToRGB(nodeStrokeStyle, 0.2)
+                                context.fillStyle = nodeColorByModularity(d, 0.2)
+                                context.stroke();
+                            }
 
                             if (nodeLabelsEnabled) {
                                 context.fillStyle = currentPassiveNodeLabelColor;
@@ -724,7 +725,7 @@
                     }
 
                 } // else not fade away unselected nodes
- 
+
                 context.fill();
 
                 if (i == currentGraph.nodes.length - 1) { // dont call this to often due to performance
