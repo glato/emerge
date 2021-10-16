@@ -14,6 +14,7 @@ emerge is a code analysis tool to gather insights about source code structure, m
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-08.png)
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-09.png)
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-10.png)
+![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-19-0-screenshot-01.png)
 
 ## Goals of this project
 
@@ -44,6 +45,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - Visualization of files, entities and given metrics
     - [dark mode support](https://github.com/coliff/dark-mode-switch)
     - Reactive visual live search of files/ entities (e.g. classes)
+    - Selection and highlighting of individual nodes
     - [Concave hull](https://github.com/AndriiHeonia/hull) visualization of single clusters
     - Display of cluster metrics to facilitate comparability
     - Interactivity given by translation, zooming, dragging and hovering over nodes
@@ -185,6 +187,12 @@ This should produce a similar output:
 
 ### **8.** Start your web app
 Now just copy the above mentioned `file://` path to any modern web browser and interactively expore the emerge codebase 😉
+
+#### **8.1** Currently emerge offers the following keyboard shortcuts in the interactive web app:
+
+- ℹ️ Hovering over a node and pressing the key `s` to select and highlight or deselect a specific node
+- ℹ️ Resetting the currently active node selection by pressing the `r` key
+- ℹ️ Fading all unselected nodes to have a more highlighted visualization of you currenty selected nodes by pressing the `f` key
 
 And now let's make this more interesting ...
 
@@ -336,7 +344,7 @@ The yaml configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.18.4 supports the following scan types
+## The current version 0.19.0 supports the following scan types
 
 | Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
 |----------|--------|--------|-------|------|------|----|----|------|-------|--------|
@@ -348,6 +356,6 @@ The yaml configuration is basically defined at the following levels:
 
 ## Further development
 
-- *Disclaimer*: The current version (0.18.4) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- *Disclaimer*: The current version (0.19.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
