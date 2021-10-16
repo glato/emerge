@@ -8,6 +8,7 @@ venv/*
 **.swp
 
 configs/my
+export/**
 
 # User-specific stuff
 .idea/**/workspace.xml

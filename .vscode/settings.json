@@ -1,5 +1,9 @@
 {
-    "python.pythonPath": "/usr/local/bin/python3",
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": true,
+    "python.testing.pytestEnabled": false,
     "python.testing.unittestArgs": [
         "-v",
         "-s",
@@ -7,7 +11,6 @@
         "-p",
         "test_*.py"
     ],
-    "python.testing.pytestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
-    "python.testing.unittestEnabled": true
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true
 }
