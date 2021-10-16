@@ -54,7 +54,7 @@
         #inputNodeSearchLabel,
         #selectNodesLabel,
         #resetSelectionLabel,
-        #fadeAwayUnselectedNodesLabel,
+        #fadeUnselectedNodesLabel,
         #clusterHullLabel {
             font-size: 10px;
             margin-bottom: 2px;
@@ -281,7 +281,7 @@
 
                 <label id="selectNodesLabel"><b>s</b> select/unselect hovered nodes</label>
                 <label id="resetSelectionLabel"><b>r</b> reset currently selected nodes</label>
-                <label id="fadeAwayUnselectedNodesLabel"><b>r</b>fade away unselected nodes</label>
+                <label id="fadeUnselectedNodesLabel"><b>f</b> fade unselected nodes</label>
 
                 <label id="inputNodeSearchLabel" for="inputNodeSearch">0 nodes found</label>
                 <div class="input-group input-group-sm">
@@ -364,6 +364,8 @@
         const toolTipMetricItemTextColor = hexToRGB("#333333", 0.7);
         const toolTipMetricItemBoxColor = hexToRGB("#333333", 1.0);
         const toolTipMetricItemBoxFillColor = hexToRGB("#f7f7f7", 1.0);
+
+        const activeSelectionColor = '#FF0000'
 
         /**
          * * Math constants
@@ -448,7 +450,7 @@
         }
 
         let selectedNodesMap = {}
-        let fadeAwayUnselectedNodes = false
+        let fadeUnselectedNodes = false
         let currentActiveNodeLabelColor = activeNodeLabelColor
         let currentPassiveNodeLabelColor = passiveNodeLabelColor
 
@@ -573,54 +575,53 @@
                 context.moveTo(d.source.x, d.source.y);
                 context.lineTo(d.target.x, d.target.y);
 
-                if (fadeAwayUnselectedNodes == true) {
-                    // TODO
-                } else {
+                if (closeNode == null) { // not hovering over any node
+                    if (isSearching == false) { // not searching                     
+                        context.fillStyle = context.strokeStyle = nodeSourceColor = nodeColorByModularity(d.source, 0.7)
 
-                    if (closeNode == null) { // not hovering over any node
-                        if (isSearching == false) { // not searching                     
-                            context.fillStyle = context.strokeStyle = nodeSourceColor = nodeColorByModularity(d.source, 0.7)
+                    } else { // node search is active
 
-                        } else { // node search is active
-
-                            if ((d.target.id.toLowerCase().includes(searchString)) && (d.source.id.toLowerCase().includes(searchString))) { // the edge is between two nodes that are included in the search
-                                context.strokeStyle = currentActiveEdgeColor
-                                context.fillStyle = currentActiveEdgeColor
-
-                            } else { // the edge is not connected to a node which is included in the search
-                                context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
-                            }
-                        }
-
-                    } else  {
-                        if ((d.target.id == closeNode.id) || (d.source.id == closeNode.id)) { // there is an edge that contains our hovered node
+                        if ((d.target.id.toLowerCase().includes(searchString)) && (d.source.id.toLowerCase().includes(searchString))) { // the edge is between two nodes that are included in the search
                             context.strokeStyle = currentActiveEdgeColor
                             context.fillStyle = currentActiveEdgeColor
 
-                        } else { // node is not included in the edge
-                            context.fillStyle = context.strokeStyle = nodeColorByModularity(d.source, 0.2)
-                        }   
+                        } else { // the edge is not connected to a node which is included in the search
+                            context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
+                        }
                     }
 
-                    //highlight edge if the corresponding nodes are selected
-                    if (d.source.id.toLowerCase() in selectedNodesMap && d.target.id.toLowerCase() in selectedNodesMap) {
-                        context.strokeStyle = '#FF0000'
+                } else  {
+                    if ((d.target.id == closeNode.id) || (d.source.id == closeNode.id)) { // there is an edge that contains our hovered node
+                        context.strokeStyle = currentActiveEdgeColor
                         context.fillStyle = currentActiveEdgeColor
-                        context.lineWidth = 2.0;
-                    } else {
-                        context.lineWidth = 1.0;
-                    }
 
-                    context.stroke();
-
-                    if (closeNode != null && ((d.target.id == closeNode.id) || (d.source.id == closeNode.id))) { // draw an arrow if there is an edge that contains our hovered node
-                        drawArrowhead(context, d.source, d.target, 5)
-                    } else if (isSearching && ((d.target.id.toLowerCase().includes(searchString)) && (d.source.id.toLowerCase().includes(searchString)))) { // draw an arrow if searching is enabled and there's an egde between searched nodes
-                        drawArrowhead(context, d.source, d.target, 5)
-                    } else if (d.source.id.toLowerCase() in selectedNodesMap && d.target.id.toLowerCase() in selectedNodesMap) {
-                        drawArrowhead(context, d.source, d.target, 5)
-                    }                    
+                    } else { // node is not included in the edge
+                        context.fillStyle = context.strokeStyle = nodeColorByModularity(d.source, 0.2)
+                    }   
                 }
+
+                // highlight edge if the corresponding nodes are selected
+                if (d.source.id.toLowerCase() in selectedNodesMap && d.target.id.toLowerCase() in selectedNodesMap) {
+                    context.strokeStyle = activeSelectionColor
+                    context.fillStyle = currentActiveEdgeColor
+                    context.lineWidth = 2.0;
+                } else {
+                    if (fadeUnselectedNodes == true) { // also fade away non-relevant egdes
+                        context.fillStyle = context.strokeStyle = nodeColorByModularity(d.source, 0.2)
+                    } 
+                    context.lineWidth = 1.0;
+                }
+
+                context.stroke();
+
+                if (closeNode != null && ((d.target.id == closeNode.id) || (d.source.id == closeNode.id))) { // draw an arrow if there is an edge that contains our hovered node
+                    drawArrowhead(context, d.source, d.target, 5)
+                } else if (isSearching && ((d.target.id.toLowerCase().includes(searchString)) && (d.source.id.toLowerCase().includes(searchString)))) { // draw an arrow if searching is enabled and there's an egde between searched nodes
+                    drawArrowhead(context, d.source, d.target, 5)
+                } else if (d.source.id.toLowerCase() in selectedNodesMap && d.target.id.toLowerCase() in selectedNodesMap) {
+                    drawArrowhead(context, d.source, d.target, 5)
+                }                    
+                
             });
         }
 
@@ -631,15 +632,15 @@
 
                 // render outer circle if node was selected
                 if (d.id.toLowerCase() in selectedNodesMap) {
-                    context.fillStyle = '#FF0000'
-                    drawNodeLabel(d.id, d.x + 14, d.y - 7)
                     context.arc(d.x, d.y, d.radius + 2.0, 0, TWO_TIMES_PI);
+                    context.fillStyle = activeSelectionColor
+                    drawNodeLabel(d.id, d.x + 14, d.y - 7)
                     context.fill();
                 }
 
                 context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI, true);
 
-                if (fadeAwayUnselectedNodes == true) {
+                if (fadeUnselectedNodes == true) {
                     context.fillStyle = nodeColorByModularity(d, 0.2)
                     context.strokeStyle = hexToRGB(nodeStrokeStyle, 0.2)
                     context.stroke();
@@ -1392,11 +1393,11 @@
         // setup keyboard shortcut keys for node selection
         // 's' key: select/unselect node
         // 'r' key: reset current selection
-        // 'f' key: fade away unselected nodes
+        // 'f' key: fade unselected nodes
         function enableNodeSelection() {
             let keySelectUnselect = 's'
             let keyResetCurrentSelection = 'r'
-            let keyFadeAwayUnselectedNodes = 'f'
+            let keyFadeUnselectedNodes = 'f'
 
             d3.select('body')
                 .on("keydown", function(event) { 
@@ -1416,9 +1417,13 @@
                         simulationUpdate()
                     }
 
-                    if (event.key == keyFadeAwayUnselectedNodes) {
-                        fadeAwayUnselectedNodes = !fadeAwayUnselectedNodes
-                        console.log(fadeAwayUnselectedNodes)
+                    if (event.key == keyFadeUnselectedNodes) {
+                        fadeUnselectedNodes = !fadeUnselectedNodes
+                        if (fadeUnselectedNodes == true) {
+                            $('#fadeUnselectedNodesLabel').html('<b>f</b> <span style=\"color:#FFFF99\"><b>fading unselected nodes</b></span>')
+                        } else {
+                            $('#fadeUnselectedNodesLabel').html('<b>f</b> fade unselected nodes')
+                        }
                         simulationUpdate()
                     }
             });
