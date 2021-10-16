@@ -654,7 +654,6 @@
                 } else {
 
                     if (closeNode == null) { // not hovering over any node
-
                         if (isSearching == false) {
 
                             context.fillStyle = nodeColorByModularity(d)
@@ -705,7 +704,6 @@
                             drawNodeLabel(d.id, d.x + 14, d.y - 7)
                             context.fillStyle = nodeColorByModularity(d)
 
-
                             if (nodeLabelsEnabled) {
                                 context.fillStyle = currentActiveNodeLabelColor;
                                 drawNodeLabel(d.id, d.x + 14, d.y - 7)
@@ -735,9 +733,13 @@
                         context.beginPath();
                         drawNode(closeNode)
 
-                        context.fillStyle = nodeColorByModularity(closeNode)
+                        if (closeNode.id.toLowerCase() in selectedNodesMap) {
+                            context.fillStyle = activeSelectionColor
+                        } else {
+                            context.fillStyle = nodeColorByModularity(closeNode)
+                        }
+                        
                         context.fill();
-
                         context.strokeStyle = "#000000";
                         context.lineWidth = 1.0;
                         context.stroke();
@@ -1420,7 +1422,7 @@
                     if (event.key == keyFadeUnselectedNodes) {
                         fadeUnselectedNodes = !fadeUnselectedNodes
                         if (fadeUnselectedNodes == true) {
-                            $('#fadeUnselectedNodesLabel').html('<b>f</b> <span style=\"color:#FFFF99\"><b>fading unselected nodes</b></span>')
+                            $('#fadeUnselectedNodesLabel').html('<b>f fading unselected nodes</b>')
                         } else {
                             $('#fadeUnselectedNodesLabel').html('<b>f</b> fade unselected nodes')
                         }
