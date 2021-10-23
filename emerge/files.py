@@ -39,18 +39,20 @@ class FileScanType(Enum):
 
 @unique
 class LanguageExtension(Enum):
-    JAVA = ".java"
-    SWIFT = ".swift"
-    C = ".c"
-    CPP = ".cpp"
-    GROOVY = ".groovy"
-    JAVASCRIPT = ".js"
-    TYPESCRIPT = ".ts"
-    KOTLIN = ".kt"
-    OBJC = ".m"
-    RUBY = ".rb"
-    C_HEADER = ".h"
-    PYTHON = ".py"
+    JAVA = '.java'
+    SWIFT = '.swift'
+    C = '.c'
+    CPP = '.cpp'
+    GROOVY = '.groovy'
+    JAVASCRIPT = '.js'
+    JSX = '.jsx'
+    TYPESCRIPT = '.ts'
+    TSX = '.tsx'
+    KOTLIN = '.kt'
+    OBJC = '.m'
+    RUBY = '.rb'
+    C_HEADER = '.h'
+    PYTHON = '.py'
 
     @staticmethod
     def valid_key(key) -> bool:
@@ -89,9 +91,9 @@ class FileScanMapper:
             return CPPParser.parser_name()
         if file_extension == LanguageExtension.GROOVY.value:
             return GroovyParser.parser_name()
-        if file_extension == LanguageExtension.JAVASCRIPT.value:
+        if file_extension == LanguageExtension.JAVASCRIPT.value or file_extension == LanguageExtension.JSX.value:
             return JavaScriptParser.parser_name()
-        if file_extension == LanguageExtension.TYPESCRIPT.value:
+        if file_extension == LanguageExtension.TYPESCRIPT.value or file_extension == LanguageExtension.TSX.value:
             return TypeScriptParser.parser_name()
         if file_extension == LanguageExtension.KOTLIN.value:
             return KotlinParser.parser_name()

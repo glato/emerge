@@ -181,7 +181,7 @@ This should produce a similar output:
 |            max-fan-out-name-dependency-graph | emerge/appear.py           |
 +----------------------------------------------+----------------------------+
 ...   analysis I ✅ all your generated/exported data can be found here: /Volumes/projects/private/github/emerge/export/emerge
-...   analysis I ✅ copy the following path to your browser and start your web app: file:///Users/user1/github/emerge/export/emerge/force-graph-html/d3-force-graph-template.html
+...   analysis I ✅ copy the following path to your browser and start your web app: 👉 file:///Users/user1/github/emerge/export/emerge/force-graph-html/d3-force-graph-template.html
 ...   analysis I ✅ total runtime of analysis: 00:00:00 + 786 ms
 ```
 
@@ -344,18 +344,37 @@ The yaml configuration is basically defined at the following levels:
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 
-## The current version 0.19.0 supports the following scan types
+## Supported scan types and file extensions
 
+Emerge supports the following scan types per language:
 | Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
 |----------|--------|--------|-------|------|------|----|----|------|-------|--------|
 | Files    | ✅     | ✅     | ✅     | ✅   | ✅    | ✅ | ✅ | ✅    | ✅    | ✅     |
 | Entities | ✅     | ✅     | ✅     | ✅   | ❌    | ❌ | ❌ | ❌    | ❌    | ❌     |
 |          |        |        |       |      |      |    |    |      |       |        |
 
-- Parsing of further entity types for more languages is planned for further development. [Contributions](CONTRIBUTING.md) are welcome 👍
+whereas a `file_scan` simply calculates metrics and maps nodes within graph structures to scanned files and an `entity_scan` tries to extract more fine-grained entities from files e.g. classes or structs.
+
+The following file extensions can be recognized by emerge:
+
+| file extension            | language parser |
+|---------------------------|-----------------|
+| `.java`                   | Java |
+| `.swift`                  | Swift |
+| `.c` / `.h`               | C |
+| `.cpp` / `.h`             | C++ |
+| `.groovy`                 | Groovy |
+| `.js` / `.jsx`            | JavaScript |
+| `.ts` / `.tsx`            | TypeScript |
+| `.k`                      | Kotlin |
+| `.m` / `.h`               | Objective-C |
+| `.rb`                     | Ruby |
+| `.py`                     | Python |
+
 
 ## Further development
 
-- *Disclaimer*: The current version (0.19.0) is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
-- Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help 👍. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
+- *Disclaimer*: The current version is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- Parsing of further entity types for more languages is planned for further development. [Contributions](CONTRIBUTING.md) are welcome 👍
+- Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 
