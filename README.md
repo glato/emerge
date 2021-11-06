@@ -190,9 +190,9 @@ Now just copy the above mentioned `file://` path to any modern web browser and i
 
 #### **8.1** Currently emerge offers the following keyboard shortcuts in the interactive web app:
 
-- ℹ️ Hovering over a node and pressing the key `s` to select and highlight or deselect a specific node
-- ℹ️ Resetting the currently active node selection by pressing the `r` key
-- ℹ️ Fading all unselected nodes to have a more highlighted visualization of you currenty selected nodes by pressing the `f` key
+- ℹ️ Hovering over a node and pressing ⬆️ + `s` to select and highlight or deselect a specific node
+- ℹ️ Resetting the currently active node selection by pressing ⬆️ +  `r`
+- ℹ️ Fading all unselected nodes to have a more highlighted visualization of you currenty selected nodes by pressing ⬆️ + `f`
 
 And now let's make this more interesting ...
 

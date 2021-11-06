@@ -58,6 +58,8 @@ class Analysis:
         self.ignore_directories_containing: List = []
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
+        self.replace_dependency_substrings_available: bool = False
+        self.replace_dependency_substrings: Dict[str, str] = {}
 
         self.results: Dict[str, AbstractResult] = {}
 

@@ -7,7 +7,7 @@ Contains all abstract parsing classes and relevant enums.
 
 from abc import ABC, abstractmethod
 from enum import Enum, unique, auto
-from typing import Dict, List, Generator
+from typing import Dict, List, Generator, Optional, Tuple
 from pathlib import PosixPath
 
 from emerge.abstractresult import AbstractResult, AbstractEntityResult
@@ -114,6 +114,21 @@ class ParsingMixin(ABC):
     @staticmethod
     def create_relative_analysis_path_for_dependency(dependency: str, relative_analysis_path: str) -> str:
         return f"{relative_analysis_path}/{dependency}"
+
+    @staticmethod
+    def any_mapping_key_in_string(string: str, mapping: Dict [str, str]) -> Optional[Tuple]:
+        for k, v in mapping.items():
+            if k in string:
+                return k, v
+        return None
+
+    @staticmethod
+    def replace_substring_if_any_mapping_key_in_string_exists(string: str, mapping: Dict[str, str]) -> str:
+        exists = ParsingMixin.any_mapping_key_in_string(string, mapping)
+        if exists is not None:
+            k, v = exists
+            return string.replace(k, v) 
+        return string
 
     @staticmethod
     def create_relative_analysis_file_path(analysis_source_directory: str, full_file_path: str) -> str:

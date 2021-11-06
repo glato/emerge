@@ -154,6 +154,13 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
                 LOGGER.debug(f'adding import: {resolved_dependency} to {result.unique_name}')
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
+        # check if there are any configured dependency substrings to be replaced directly, e.g. '@scope/sub/path' -> src/sub/path
+        if analysis.replace_dependency_substrings_available == True:
+            renamed_dependency = self.replace_substring_if_any_mapping_key_in_string_exists(dependency, analysis.replace_dependency_substrings)
+            if renamed_dependency != dependency:
+                LOGGER.info(f'renamed dependency: {dependency} -> {renamed_dependency}')
+                dependency = renamed_dependency
+
         # check for module identifiers (@)
         if CoreParsingKeyword.AT.value in dependency:
             # check if a module identifier with a @scope + subpath combination physically exist, e.g. '@scope/sub/path' (https://nodejs.org/api/modules.html#modules_all_together, LOAD_PACKAGE_EXPORTS)

@@ -64,6 +64,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     IGNORE_DIRECTORIES_CONTAINING = auto()
     IGNORE_FILES_CONTAINING = auto()
     IGNORE_DEPENDENCIES_CONTAINING = auto()
+    REPLACE_DEPENDENCY_SUBSTRINGS = auto()
     FILE_SCAN = auto()
     ENTITY_SCAN = auto()
     EXPORT = auto()
@@ -253,16 +254,6 @@ class Configuration:
             self._invalid_yaml_config(yaml_config)
             return False
 
-        # check if there are any invalid keys in the yaml_config
-        flat_yaml_config = list(self.iterate_all(yaml_config, "key"))
-        all_config_keys = [x.lower() for x in self.all_constant_names_from_config_enums()]
-
-        for key in flat_yaml_config:
-            if not key in all_config_keys:
-                LOGGER.error(f'invalid key found in yaml config: {key}')
-                self._invalid_yaml_config(yaml_config)
-                return False
-
         # config must have a project name
         if ConfigKeyProject.PROJECT_NAME.name.lower() not in yaml_config:
             self._invalid_yaml_config(yaml_config)
@@ -394,6 +385,14 @@ class Configuration:
             if ConfigKeyAnalysis.IGNORE_DEPENDENCIES_CONTAINING.name.lower() in analysis_dict:
                 for ignored_dependency in analysis_dict[ConfigKeyAnalysis.IGNORE_DEPENDENCIES_CONTAINING.name.lower()]:
                     analysis.ignore_dependencies_containing.append(ignored_dependency)
+
+            # add replace dependency substring mappings
+            if ConfigKeyAnalysis.REPLACE_DEPENDENCY_SUBSTRINGS.name.lower() in analysis_dict:
+                for mapping in analysis_dict[ConfigKeyAnalysis.REPLACE_DEPENDENCY_SUBSTRINGS.name.lower()]:
+                    for dependency_substring, replaced_dependency_substring in mapping.items():
+                        if analysis.replace_dependency_substrings_available == False:
+                            analysis.replace_dependency_substrings_available = True
+                        analysis.replace_dependency_substrings[dependency_substring] = replaced_dependency_substring
 
             # load metrics from analysis
             if ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis_dict:
