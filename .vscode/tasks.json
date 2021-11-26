@@ -6,7 +6,7 @@
         {     
             "label": "debug emerge default",
             "type": "shell",
-            "command": "venv/bin/python emerge.py -c configs/emerge.yaml" ,
+            "command": "python emerge.py -c configs/emerge.yaml" ,
             "presentation": {
                 "reveal": "never",
                 "panel": "shared"

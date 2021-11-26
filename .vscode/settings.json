@@ -11,6 +11,12 @@
         "-p",
         "test_*.py"
     ],
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true
+
+
+    "workbench.colorCustomizations": {
+        "errorLens.errorBackground": "#e4545417"
+    },
+
+    "errorLens.followCursor": "allLines",
+    
 }
