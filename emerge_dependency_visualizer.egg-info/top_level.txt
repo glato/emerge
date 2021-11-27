@@ -1,9 +1,0 @@
-
-core
-emerge
-faninout
-languages
-metrics
-modulaity
-numberofmethods
-sloc

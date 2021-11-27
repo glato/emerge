@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="emerge-dependency-visualizer",
-    version="0.20.25",
+    version="0.20.32",
     description="Visualize source code structure and dependencies in an interactive d3 application",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -52,17 +52,16 @@ setup(
         "wrapt==1.11.2"
     ],
     package_dir={
-        "": ".",
+        "": "emerge",
         "emerge": "./emerge",
-        "core": "./emerge/core",
-        "languages": "./emerge/core/languages",
-        "metrics": "./emerge/core/metrics",
-        "faninout": "./emerge/core/metrics/faninout",
-        "modulaity": "./emerge/core/metrics/modularity",
-        "numberofmethods": "./emerge/core/metrics/numberofmethods",
-        "sloc": "./emerge/core/metrics/sloc"
+        "emerge/languages": "./emerge/languages",
+        "emerge/metrics": "./emerge/metrics",
+        "emerge/metrics/faninout": "./emerge/metrics/faninout",
+        "emerge/metrics/modularity": "./emerge/metrics/modularity",
+        "emerge/metrics/numberofmethods": "./emerge/metrics/numberofmethods",
+        "emerge/metrics/sloc": "./emerge/metrics/sloc"
     },
-    packages=['', 'emerge', 'core', 'languages', 'metrics', 'faninout', 'modulaity', 'numberofmethods', 'sloc'],
+    packages=['', 'emerge', 'emerge.languages', 'emerge.metrics', 'emerge.metrics.faninout', 'emerge.metrics.modularity', 'emerge.metrics.numberofmethods', 'emerge.metrics.sloc'],
     include_package_data=True,
     entry_points={
         "console_scripts": [

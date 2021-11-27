@@ -4,12 +4,11 @@ Simple wrapper to start emerge as a standalone tool.
 
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
-
-import core.appear
+import appear
 
 
 def run():
-    emerge = core.appear.Emerge()
+    emerge = appear.Emerge()
     emerge.start()
 
 
