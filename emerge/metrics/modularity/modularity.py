@@ -13,13 +13,13 @@ import coloredlogs
 from networkx import DiGraph
 import community as community_louvain
 
-from abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
-from log import Logger
-from graph import GraphRepresentation, GraphType
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
+from emerge.log import Logger
+from emerge.graph import GraphRepresentation, GraphType
 
 # enums and superclass of the given metric
-from metrics.abstractmetric import EnumLowerKebabCase
-from metrics.metrics import GraphMetric
+from emerge.metrics.abstractmetric import EnumLowerKebabCase
+from emerge.metrics.metrics import GraphMetric
 
 
 LOGGER = Logger(logging.getLogger('metrics'))

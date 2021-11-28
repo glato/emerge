@@ -17,13 +17,10 @@ import coloredlogs
 import networkx as nx
 from networkx.readwrite import json_graph
 from networkx.drawing.nx_agraph import write_dot
-# from networkx.readwrite import json_graph
-
 from prettytable import PrettyTable
 
-from graph import GraphRepresentation
-
-from log import Logger
+from emerge.graph import GraphRepresentation
+from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('analysis'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

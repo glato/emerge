@@ -15,19 +15,19 @@ import logging
 
 import coloredlogs
 
-from languages.javaparser import JavaParser
-from languages.swiftparser import SwiftParser
-from languages.cparser import CParser
-from languages.cppparser import CPPParser
-from languages.groovyparser import GroovyParser
-from languages.javascriptparser import JavaScriptParser
-from languages.typescriptparser import TypeScriptParser
-from languages.kotlinparser import KotlinParser
-from languages.objcparser import ObjCParser
-from languages.rubyparser import RubyParser
-from languages.pyparser import PythonParser
+from emerge.languages.javaparser import JavaParser
+from emerge.languages.swiftparser import SwiftParser
+from emerge.languages.cparser import CParser
+from emerge.languages.cppparser import CPPParser
+from emerge.languages.groovyparser import GroovyParser
+from emerge.languages.javascriptparser import JavaScriptParser
+from emerge.languages.typescriptparser import TypeScriptParser
+from emerge.languages.kotlinparser import KotlinParser
+from emerge.languages.objcparser import ObjCParser
+from emerge.languages.rubyparser import RubyParser
+from emerge.languages.pyparser import PythonParser
 
-from log import Logger
+from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

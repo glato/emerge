@@ -10,29 +10,29 @@ import logging
 
 import coloredlogs
 
-from languages.abstractparser import AbstractParser
-from languages.javaparser import JavaParser
-from languages.swiftparser import SwiftParser
-from languages.cparser import CParser
-from languages.cppparser import CPPParser
-from languages.groovyparser import GroovyParser
-from languages.javascriptparser import JavaScriptParser
-from languages.typescriptparser import TypeScriptParser
-from languages.kotlinparser import KotlinParser
-from languages.objcparser import ObjCParser
-from languages.rubyparser import RubyParser
-from languages.pyparser import PythonParser
+from emerge.languages.abstractparser import AbstractParser
+from emerge.languages.javaparser import JavaParser
+from emerge.languages.swiftparser import SwiftParser
+from emerge.languages.cparser import CParser
+from emerge.languages.cppparser import CPPParser
+from emerge.languages.groovyparser import GroovyParser
+from emerge.languages.javascriptparser import JavaScriptParser
+from emerge.languages.typescriptparser import TypeScriptParser
+from emerge.languages.kotlinparser import KotlinParser
+from emerge.languages.objcparser import ObjCParser
+from emerge.languages.rubyparser import RubyParser
+from emerge.languages.pyparser import PythonParser
 
-from config import Configuration
-from analyzer import Analyzer
-from abstractresult import AbstractResult
-from log import Logger, LogLevel
+from emerge.config import Configuration
+from emerge.analyzer import Analyzer
+from emerge.abstractresult import AbstractResult
+from emerge.log import Logger, LogLevel
 
 LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 __version__ = '0.20.32'
-__updated__ = '2021-11-27 12:06:37'
+__updated__ = '2021-11-28 19:03:27'
 
 
 class Emerge:

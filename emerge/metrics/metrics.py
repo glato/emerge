@@ -8,11 +8,11 @@ Defines concrete metrics based on the abstract interfaces to share/hide common c
 from typing import Any, Dict
 
 # interfaces for inputs
-from abstractresult import AbstractResult
-from graph import GraphRepresentation, GraphType
-from core import camel_to_kebab_case, camel_case_to_words
+from emerge.abstractresult import AbstractResult
+from emerge.graph import GraphRepresentation, GraphType
+from emerge.core import camel_to_kebab_case, camel_case_to_words
 
-from .abstractmetric import AbstractGraphMetric, AbstractCodeMetric
+from emerge.metrics.abstractmetric import AbstractGraphMetric, AbstractCodeMetric
 
 
 class GraphMetric(AbstractGraphMetric):

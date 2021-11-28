@@ -10,21 +10,20 @@ import logging
 from datetime import datetime, timedelta
 import os
 from pathlib import Path, PosixPath
-
 import coloredlogs
 
-from languages.abstractparser import AbstractResult, AbstractParser, LanguageType
-from metrics.abstractmetric import AbstractMetric, AbstractCodeMetric, AbstractGraphMetric, MetricResultFilter
+from emerge.languages.abstractparser import AbstractResult, AbstractParser, LanguageType
+from emerge.metrics.abstractmetric import AbstractMetric, AbstractCodeMetric, AbstractGraphMetric, MetricResultFilter
 
-from files import FileManager
-from abstractresult import AbstractEntityResult, AbstractFileResult
-from graph import GraphRepresentation, GraphType, FileSystemNode, FileSystemNodeType
-from stats import Statistics
-from log import Logger
-from core import format_timedelta
-from files import truncate_directory, LanguageExtension
+from emerge.files import FileManager
+from emerge.abstractresult import AbstractEntityResult, AbstractFileResult
+from emerge.graph import GraphRepresentation, GraphType, FileSystemNode, FileSystemNodeType
+from emerge.stats import Statistics
+from emerge.log import Logger
+from emerge.core import format_timedelta
+from emerge.files import truncate_directory, LanguageExtension
 
-from export import GraphExporter, TableExporter, JSONExporter, DOTExporter, D3Exporter
+from emerge.export import GraphExporter, TableExporter, JSONExporter, DOTExporter, D3Exporter
 
 
 LOGGER = Logger(logging.getLogger('analysis'))

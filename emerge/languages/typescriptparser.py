@@ -14,11 +14,11 @@ import os
 import pyparsing as pp
 import coloredlogs
 
-from languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
-from results import FileResult
-from abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
-from stats import Statistics
-from log import Logger
+from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
+from emerge.results import FileResult
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
+from emerge.stats import Statistics
+from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('parser'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

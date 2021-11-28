@@ -52,8 +52,7 @@ setup(
         "wrapt==1.11.2"
     ],
     package_dir={
-        "": "emerge",
-        "emerge": "./emerge",
+        "emerge": "emerge",
         "emerge/languages": "./emerge/languages",
         "emerge/metrics": "./emerge/metrics",
         "emerge/metrics/faninout": "./emerge/metrics/faninout",
@@ -65,7 +64,7 @@ setup(
     include_package_data=True,
     entry_points={
         "console_scripts": [
-            "emerge = emerge.emerge:run"
+            "emerge = emerge.main:run"
         ]
     },
 )

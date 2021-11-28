@@ -1,6 +1,7 @@
 recursive-include emerge *
 recursive-include export *
-recursive-include configs *
+include configs/*
+include output/*
 recursive-include tests *
 include CREDITS.md
 include README.md

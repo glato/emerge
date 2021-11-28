@@ -11,16 +11,16 @@ import logging
 
 import coloredlogs
 
-from languages.abstractparser import LanguageType
+from emerge.languages.abstractparser import LanguageType
 
 # interfaces for inputs
-from analysis import Analysis
-from abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
-from log import Logger
+from emerge.analysis import Analysis
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
+from emerge.log import Logger
 
 # enums and interface/type of the given metric
-from metrics.abstractmetric import EnumLowerKebabCase
-from metrics.metrics import CodeMetric
+from emerge.metrics.abstractmetric import EnumLowerKebabCase
+from emerge.metrics.metrics import CodeMetric
 
 
 LOGGER = Logger(logging.getLogger('metrics'))

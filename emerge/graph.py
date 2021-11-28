@@ -14,8 +14,8 @@ import coloredlogs
 import networkx as nx
 from networkx import DiGraph
 
-from abstractresult import AbstractFileResult, AbstractEntityResult
-from log import Logger
+from emerge.abstractresult import AbstractFileResult, AbstractEntityResult
+from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('graph'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

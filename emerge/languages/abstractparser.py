@@ -14,8 +14,8 @@ from typing import Dict, List, Generator, Optional, Tuple
 from pathlib import PosixPath
 import coloredlogs
 
-from abstractresult import AbstractResult, AbstractEntityResult
-from log import Logger
+from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('parser'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

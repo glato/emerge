@@ -7,6 +7,7 @@ Contains the implementation of the Python language parser and a relevant keyword
 
 from typing import Dict
 from enum import Enum, unique
+
 import logging
 from pathlib import PosixPath
 import os
@@ -14,11 +15,11 @@ import os
 import coloredlogs
 import pyparsing as pp
 
-from languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
-from results import FileResult
-from abstractresult import AbstractResult, AbstractEntityResult
-from log import Logger
-from stats import Statistics
+from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
+from emerge.results import FileResult
+from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from emerge.log import Logger
+from emerge.stats import Statistics
 
 LOGGER = Logger(logging.getLogger('parser'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

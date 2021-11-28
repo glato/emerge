@@ -13,11 +13,11 @@ from pathlib import PosixPath
 import pyparsing as pp
 import coloredlogs
 
-from languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
-from results import FileResult
-from abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
-from log import Logger
-from stats import Statistics
+from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
+from emerge.results import FileResult
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
+from emerge.log import Logger
+from emerge.stats import Statistics
 
 LOGGER = Logger(logging.getLogger('parser'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

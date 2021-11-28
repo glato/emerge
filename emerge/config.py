@@ -15,14 +15,14 @@ import yaml
 
 import coloredlogs
 
-from metrics.numberofmethods.numberofmethods import NumberOfMethodsMetric
-from metrics.sloc.sloc import SourceLinesOfCodeMetric
-from metrics.faninout.faninout import FanInOutMetric
-from metrics.modularity.modularity import LouvainModularityMetric
+from emerge.metrics.numberofmethods.numberofmethods import NumberOfMethodsMetric
+from emerge.metrics.sloc.sloc import SourceLinesOfCodeMetric
+from emerge.metrics.faninout.faninout import FanInOutMetric
+from emerge.metrics.modularity.modularity import LouvainModularityMetric
 
-from graph import GraphType
-from log import Logger
-from analysis import Analysis
+from emerge.graph import GraphType
+from emerge.log import Logger
+from emerge.analysis import Analysis
 
 
 LOGGER = Logger(logging.getLogger('config'))

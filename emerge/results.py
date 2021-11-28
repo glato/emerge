@@ -10,10 +10,10 @@ from pathlib import PosixPath
 import logging
 import coloredlogs
 
-from languages.abstractparser import ParsingMixin, CoreParsingKeyword, LanguageType
-from abstractresult import AbstractFileResult, AbstractEntityResult
-from log import Logger
-from stats import Statistics
+from emerge.languages.abstractparser import ParsingMixin, CoreParsingKeyword, LanguageType
+from emerge.abstractresult import AbstractFileResult, AbstractEntityResult
+from emerge.log import Logger
+from emerge.stats import Statistics
 
 LOGGER = Logger(logging.getLogger('parser'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

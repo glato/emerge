@@ -9,7 +9,8 @@ from typing import Dict, Any
 from enum import Enum, unique, auto
 import logging
 import coloredlogs
-from log import Logger
+
+from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('analysis'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)

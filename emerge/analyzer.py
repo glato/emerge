@@ -13,16 +13,16 @@ from pathlib import Path
 from datetime import datetime
 import coloredlogs
 
-from metrics.abstractmetric import AbstractCodeMetric, AbstractGraphMetric, AbstractMetric
-from languages.abstractparser import AbstractParser
+from emerge.metrics.abstractmetric import AbstractCodeMetric, AbstractGraphMetric, AbstractMetric
+from emerge.languages.abstractparser import AbstractParser
 
-from graph import GraphType, FileSystemNode, FileSystemNodeType
-from config import Configuration
-from analysis import Analysis
-from stats import Statistics
-from files import FileScanMapper
-from log import Logger
-from core import format_timedelta
+from emerge.graph import GraphType, FileSystemNode, FileSystemNodeType
+from emerge.config import Configuration
+from emerge.analysis import Analysis
+from emerge.stats import Statistics
+from emerge.files import FileScanMapper
+from emerge.log import Logger
+from emerge.core import format_timedelta
 
 LOGGER = Logger(logging.getLogger('analysis'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
