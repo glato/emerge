@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="emerge-dependency-visualizer",
-    version="0.20.32",
+    version="0.20.33",
     description="Visualize source code structure and dependencies in an interactive d3 application",
     long_description=README,
     long_description_content_type="text/markdown",

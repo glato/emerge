@@ -7,8 +7,11 @@ venv/*
 **.swp
 **.swp
 
-configs/my
-export/**
+emerge/configs/my
+emerge/export/**
+build/**
+emerge_dependency_visualizer.egg-info/**
+dist/**
 
 # User-specific stuff
 .idea/**/workspace.xml

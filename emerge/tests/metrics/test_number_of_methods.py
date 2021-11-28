@@ -5,11 +5,10 @@ All unit tests that are related to the number of methods metric.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from emerge.languages.cppparser import CPPParser
 import unittest
 from typing import Dict
-import coloredlogs
 import logging
+import coloredlogs
 
 from emerge.languages.cparser import CParser
 from emerge.languages.cppparser import CPPParser
@@ -25,6 +24,7 @@ from emerge.languages.pyparser import PythonParser
 from emerge.languages.abstractparser import AbstractParser
 
 from emerge.analysis import Analysis
+from emerge.analyzer import Analyzer
 from emerge.metrics.numberofmethods.numberofmethods import NumberOfMethodsMetric
 from emerge.results import FileResult
 
@@ -40,7 +40,6 @@ from tests.testdata.ruby import RUBY_TEST_FILES
 from tests.testdata.swift import SWIFT_TEST_FILES
 from tests.testdata.py import PYTHON_TEST_FILES
 
-from emerge.analyzer import Analyzer
 
 LOGGER = logging.getLogger('TESTS')
 coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')

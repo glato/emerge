@@ -22,6 +22,6 @@ analyses:
   - louvain_modularity
   - fan_in_out
   export:
-  - directory: ./export/emerge
+  - directory: ./emerge/export/emerge
   - tabular_console_overall
   - d3

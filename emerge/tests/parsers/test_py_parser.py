@@ -7,8 +7,8 @@ All unit tests that are related to PythonParser.
 
 import unittest
 from typing import Dict
-import coloredlogs
 import logging
+import coloredlogs
 
 from emerge.languages.pyparser import PythonParser
 from emerge.results import FileResult

@@ -2,11 +2,9 @@ recursive-include emerge *
 recursive-include export *
 include configs/*
 include output/*
-recursive-include tests *
-include CREDITS.md
-include README.md
-include requirements.txt
+recursive-include tests/*
 
+recursive-exclude emerge_dependency_visualizer.egg-info *
 recursive-exclude .git *
 recursive-exclude venv *
 recursive-exclude .github *

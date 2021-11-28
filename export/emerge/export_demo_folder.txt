@@ -1,1 +1,0 @@
-Just a small stub file for the emerge self-check

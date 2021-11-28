@@ -7,7 +7,7 @@
     "python.testing.unittestArgs": [
         "-v",
         "-s",
-        "./tests",
+        "./emerge",
         "-p",
         "test_*.py"
     ],
