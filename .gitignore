@@ -11,6 +11,7 @@ emerge/configs/my
 emerge/export/**
 build/**
 emerge_dependency_visualizer.egg-info/**
+emerge_viz.egg-info/**
 dist/**
 
 # User-specific stuff

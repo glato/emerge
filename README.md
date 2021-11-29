@@ -7,7 +7,7 @@ emerge
 ![Code size](https://img.shields.io/github/languages/code-size/glato/emerge)
 ![Repo size](https://img.shields.io/github/repo-size/glato/emerge)
 
-emerge is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
+**emerge** (or **emerge-viz**) is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-06.png)
 ![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-0-18-0-screenshot-07.png)
@@ -55,7 +55,19 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 ## How to install and use emerge
 
-At this time there is no simple installation by using pip (tbd), so the following steps should guide you how to install this tool and get it running.
+Basically there are two ways to install emerge. If you're familiar with `pip` (recommend `pyenv`, `virtualenv` and `virtualenvwrapper`) you can simply install the latest version of emerge by
+
+```
+pip install emerge-viz
+```
+and then simply execute it with
+
+```
+emerge-viz
+```
+
+Otherwise you can clone this repo and install it by following this instruction:
+
 
 ### **1.** Clone this repository
 
@@ -120,7 +132,7 @@ python run_tests.py
 python emerge.py 
 usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-s]
 
-Welcome to emerge x.y.z (yyyy-mm-dd hh:mm:ss).
+👍 Welcome to emerge x.y.z (yyyy-mm-dd hh:mm:ss).
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -301,6 +313,7 @@ The yaml configuration is basically defined at the following levels:
 | `only_permit_languages`          | possible values include: java, kotlin, objc, swift, ruby, groovy, javascript, c - explicitly prevents any other language from scanning besides the one you set here |
 | `only_permit_file_extensions`    | explicitly permit the following file extensions you set here, e.g. `.java` |
 | `ignore_dependencies_containing` | ignore every dependency included in this list of substrings, e.g. `java.util` |
+| `replace_dependency_substrings`  | replace substrings within a full dependency path, e.g. `- "@foo": src/foo` will replace any `@foo` alias by `src/foo` |
 | `file_scan`                      | perform a file scan, contains the metrics that should be applied on every source file |
 | `entity_scan`                    | perform an entity scan, contains the metrics that should be applied on every entity (e.g. on every class) |
 | `export`                         | contains any export formats that should be create as output |
@@ -346,35 +359,26 @@ The yaml configuration is basically defined at the following levels:
 
 ## Supported scan types and file extensions
 
-Emerge supports the following scan types per language:
-| Parsing  | Groovy | Java | Kotlin | Swift | Ruby | JS | TS | ObjC | C/C++ | Python |
-|----------|--------|--------|-------|------|------|----|----|------|-------|--------|
-| Files    | ✅     | ✅     | ✅     | ✅   | ✅    | ✅ | ✅ | ✅    | ✅    | ✅     |
-| Entities | ✅     | ✅     | ✅     | ✅   | ❌    | ❌ | ❌ | ❌    | ❌    | ❌     |
-|          |        |        |       |      |      |    |    |      |       |        |
+Emerge supports the following file extensions and scan types per language, whereas a `file_scan` simply calculates metrics and maps nodes within graph structures to scanned files and an `entity_scan` tries to extract more fine-grained entities from files e.g. classes or structs.
 
-whereas a `file_scan` simply calculates metrics and maps nodes within graph structures to scanned files and an `entity_scan` tries to extract more fine-grained entities from files e.g. classes or structs.
-
-The following file extensions can be recognized by emerge:
-
-| file extension            | language parser |
-|---------------------------|-----------------|
-| `.java`                   | Java |
-| `.swift`                  | Swift |
-| `.c` / `.h`               | C |
-| `.cpp` / `.h`             | C++ |
-| `.groovy`                 | Groovy |
-| `.js` / `.jsx`            | JavaScript |
-| `.ts` / `.tsx`            | TypeScript |
-| `.k`                      | Kotlin |
-| `.m` / `.h`               | Objective-C |
-| `.rb`                     | Ruby |
-| `.py`                     | Python |
+| File extension            | Language parser | Files | Entities
+|---------------------------|-----------------|-------|---------
+| `.java`                   | Java            | ✅ | ✅
+| `.swift`                  | Swift           | ✅ | ✅
+| `.c` / `.h`               | C               | ✅ | ❌
+| `.cpp` / `.h`             | C++             | ✅ | ❌
+| `.groovy`                 | Groovy          | ✅ | ✅
+| `.js` / `.jsx`            | JavaScript      | ✅ | ❌
+| `.ts` / `.tsx`            | TypeScript      | ✅ | ❌
+| `.k`                      | Kotlin          | ✅ | ✅
+| `.m` / `.h`               | Objective-C     | ✅ | ❌
+| `.rb`                     | Ruby            | ✅ | ❌
+| `.py`                     | Python          | ✅ | ❌
 
 
 ## Further development
 
-- *Disclaimer*: The current version is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
-- Parsing of further entity types for more languages is planned for further development. [Contributions](CONTRIBUTING.md) are welcome 👍
+- **Disclaimer**: The current version is not yet stable, probably still has some 🐞 and is probably not yet suited for productive usage.
+- Parsing of further entity types for more languages is planned for further development. [Contributions](CONTRIBUTING.md) are very welcome.
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
 

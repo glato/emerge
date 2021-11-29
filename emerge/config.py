@@ -125,7 +125,7 @@ class Configuration:
 
     def _setup_argparse_with_arguments(self) -> None:
         """Setup command line arguments."""
-        self.arg_parser = argparse.ArgumentParser(description=f'Welcome to emerge {self.version}.')
+        self.arg_parser = argparse.ArgumentParser(description='👍 Welcome to ' + '\033[94m' + 'emerge' + f'\033[0m {self.version}.')
         self.arg_parser.add_argument('-c', '--config', dest='yamlconfig', help='set yaml config file')
         self.arg_parser.add_argument('-v', '--verbose', dest='verbose', help='set logging level to INFO', action='store_true')
         self.arg_parser.add_argument('-d', '--debug', dest='debug', help='set logging level to DEBUG', action='store_true')

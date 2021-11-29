@@ -9,8 +9,8 @@ README = (HERE / "README.md").read_text()
 
 # This call to setup() does all the work
 setup(
-    name="emerge-dependency-visualizer",
-    version="0.20.33",
+    name="emerge-viz",
+    version="0.20.0",
     description="Visualize source code structure and dependencies in an interactive d3 application",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -24,9 +24,9 @@ setup(
         "Programming Language :: Python :: 3.7",
     ],
     install_requires=[
-        "astroid==2.5.0",
+        # "astroid==2.5.0",
         "attrs==19.3.0",
-        "autopep8==1.5.4",
+        # "autopep8==1.5.4",
         "click==7.1.2",
         "colorama==0.4.3",
         "coloredlogs==10.0",
