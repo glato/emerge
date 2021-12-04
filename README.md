@@ -23,7 +23,11 @@ emerge
 > - to appear by coming out of something or out from behind something
 > - to become known, especially as a result of examining something or asking questions about it
 
-The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given software project.
+&nbsp;
+
+The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given software project by using an exploratory approach.
+
+&nbsp;
 
 ## The following features are currently supported by emerge
 
