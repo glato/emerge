@@ -120,10 +120,10 @@ class FileScanMapper:
 class FileManager:
     @staticmethod
     def copy_force_graph_template_to_export_dir(target_export_path: str):
-        """Performs a recursive copy of the HTML/d3 template located in /output/force-graph-html to a given export path."""
+        """Performs a recursive copy of the HTML/d3 template located in /output/html to a given export path."""
 
         origin_output_subpath = "/output"
-        origin_force_graph_subpath = "/force-graph-html"
+        origin_force_graph_subpath = "/html"
 
         # get the full path of emerge.py / https://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
         origin_emerge_base_path = os.path.dirname(os.path.realpath(__file__))

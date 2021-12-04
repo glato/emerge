@@ -313,7 +313,7 @@ The yaml configuration is basically defined at the following levels:
 | `only_permit_languages`          | possible values include: java, kotlin, objc, swift, ruby, groovy, javascript, c - explicitly prevents any other language from scanning besides the one you set here |
 | `only_permit_file_extensions`    | explicitly permit the following file extensions you set here, e.g. `.java` |
 | `ignore_dependencies_containing` | ignore every dependency included in this list of substrings, e.g. `java.util` |
-| `replace_dependency_substrings`  | replace substrings within a full dependency path, e.g. `- "@foo": src/foo` will replace any `@foo` alias by `src/foo` |
+| `import_aliases`  | define import aliases, i.e. replace substrings within a full dependency path, e.g. `- "@foo": src/foo` will replace any `@foo` alias by `src/foo` |
 | `file_scan`                      | perform a file scan, contains the metrics that should be applied on every source file |
 | `entity_scan`                    | perform an entity scan, contains the metrics that should be applied on every entity (e.g. on every class) |
 | `export`                         | contains any export formats that should be create as output |

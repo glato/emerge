@@ -4,7 +4,10 @@ include configs/*
 include output/*
 recursive-include tests/*
 
-recursive-exclude emerge_dependency_visualizer.egg-info *
+include README.md
+exclude MANIFEST.in
+
+recursive-exclude *.egg-info
 recursive-exclude .git *
 recursive-exclude venv *
 recursive-exclude .github *

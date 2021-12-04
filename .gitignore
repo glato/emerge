@@ -13,6 +13,9 @@ build/**
 emerge_dependency_visualizer.egg-info/**
 emerge_viz.egg-info/**
 dist/**
+.mypy_cache/**
+.pytest_cache/**
+
 
 # User-specific stuff
 .idea/**/workspace.xml

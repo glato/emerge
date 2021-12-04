@@ -390,7 +390,7 @@ class D3Exporter:
 
         d3_js_string += "const analysis_name = '" + analysis_name + "'"
 
-        target_force_graph_subpath = "/force-graph-html"
+        target_force_graph_subpath = "/html"
         target_graph_subpath = "/resources/js"
         target_export_file_path = export_dir + target_force_graph_subpath + target_graph_subpath + \
             '/' + 'graph_representations' + '_d3_force_graph' + '.js'

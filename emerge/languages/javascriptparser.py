@@ -156,8 +156,8 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
         # check if there are any configured dependency substrings to be replaced directly, e.g. '@scope/sub/path' -> src/sub/path
-        if analysis.replace_dependency_substrings_available == True:
-            renamed_dependency = self.replace_substring_if_any_mapping_key_in_string_exists(dependency, analysis.replace_dependency_substrings)
+        if analysis.import_aliases_available == True:
+            renamed_dependency = self.replace_substring_if_any_mapping_key_in_string_exists(dependency, analysis.import_aliases)
             if renamed_dependency != dependency:
                 LOGGER.info(f'renamed dependency: {dependency} -> {renamed_dependency}')
                 dependency = renamed_dependency

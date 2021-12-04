@@ -66,7 +66,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     IGNORE_DIRECTORIES_CONTAINING = auto()
     IGNORE_FILES_CONTAINING = auto()
     IGNORE_DEPENDENCIES_CONTAINING = auto()
-    REPLACE_DEPENDENCY_SUBSTRINGS = auto()
+    IMPORT_ALIASES = auto()
     FILE_SCAN = auto()
     ENTITY_SCAN = auto()
     EXPORT = auto()
@@ -125,7 +125,7 @@ class Configuration:
 
     def _setup_argparse_with_arguments(self) -> None:
         """Setup command line arguments."""
-        self.arg_parser = argparse.ArgumentParser(description='👍 Welcome to ' + '\033[94m' + 'emerge' + f'\033[0m {self.version}.')
+        self.arg_parser = argparse.ArgumentParser(description='🔎 Welcome to emerge' + f'\033[0m {self.version}.')
         self.arg_parser.add_argument('-c', '--config', dest='yamlconfig', help='set yaml config file')
         self.arg_parser.add_argument('-v', '--verbose', dest='verbose', help='set logging level to INFO', action='store_true')
         self.arg_parser.add_argument('-d', '--debug', dest='debug', help='set logging level to DEBUG', action='store_true')
@@ -389,12 +389,12 @@ class Configuration:
                     analysis.ignore_dependencies_containing.append(ignored_dependency)
 
             # add replace dependency substring mappings
-            if ConfigKeyAnalysis.REPLACE_DEPENDENCY_SUBSTRINGS.name.lower() in analysis_dict:
-                for mapping in analysis_dict[ConfigKeyAnalysis.REPLACE_DEPENDENCY_SUBSTRINGS.name.lower()]:
+            if ConfigKeyAnalysis.IMPORT_ALIASES.name.lower() in analysis_dict:
+                for mapping in analysis_dict[ConfigKeyAnalysis.IMPORT_ALIASES.name.lower()]:
                     for dependency_substring, replaced_dependency_substring in mapping.items():
-                        if analysis.replace_dependency_substrings_available == False:
-                            analysis.replace_dependency_substrings_available = True
-                        analysis.replace_dependency_substrings[dependency_substring] = replaced_dependency_substring
+                        if analysis.import_aliases_available == False:
+                            analysis.import_aliases_available = True
+                        analysis.import_aliases[dependency_substring] = replaced_dependency_substring
 
             # load metrics from analysis
             if ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis_dict:

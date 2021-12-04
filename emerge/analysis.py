@@ -59,8 +59,8 @@ class Analysis:
         self.ignore_directories_containing: List = []
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
-        self.replace_dependency_substrings_available: bool = False
-        self.replace_dependency_substrings: Dict[str, str] = {}
+        self.import_aliases_available: bool = False
+        self.import_aliases: Dict[str, str] = {}
 
         self.results: Dict[str, AbstractResult] = {}
 
@@ -272,7 +272,7 @@ class Analysis:
 
         LOGGER.info_done(f'all your generated/exported data can be found here: {resolved_export_path}')
         if self.export_d3:
-            LOGGER.info_done(f'copy the following path to your browser and start your web app: 👉 file://{resolved_export_path}/force-graph-html/d3-force-graph-template.html')
+            LOGGER.info_done(f'copy the following path to your browser and start your web app: 👉 file://{resolved_export_path}/html/emerge.html')
 
     @property
     def entity_results(self) -> Dict[str, AbstractEntityResult]:
