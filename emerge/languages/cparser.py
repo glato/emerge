@@ -59,6 +59,10 @@ class CParser(AbstractParser, ParsingMixin):
     def parser_name(cls) -> str:
         return Parser.C_PARSER.name
 
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.C.name
+
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results

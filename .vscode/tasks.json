@@ -25,6 +25,27 @@
             }  
         },
         {     
+            "label": "debug emerge add config",
+            "type": "shell",
+            "command": "python emerge.py -a OBJC" ,
+            "presentation": {
+                "reveal": "never",
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "python",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(.+):(\\d+):(\\d+):(\\w+):(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }  
+        },
+        {     
             "label": "debug emerge no arguments",
             "type": "shell",
             "command": "python emerge.py" ,

@@ -59,6 +59,10 @@ class CPPParser(AbstractParser, ParsingMixin):
     def parser_name(cls) -> str:
         return Parser.CPP_PARSER.name
 
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.CPP.name
+
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results

@@ -61,6 +61,10 @@ class JavaParser(AbstractParser, ParsingMixin):
     def parser_name(cls) -> str:
         return Parser.JAVA_PARSER.name
 
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.JAVA.name
+
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results

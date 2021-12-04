@@ -16,6 +16,17 @@
             ]
         },
         {
+            "name": "Run emerge add config",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-a",
+                "OBJC"
+            ]
+        },
+        {
             "name": "Run emerge without arguments",
             "type": "python",
             "request": "launch",

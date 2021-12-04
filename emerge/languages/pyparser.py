@@ -67,6 +67,10 @@ class PythonParser(AbstractParser, ParsingMixin):
     def parser_name(cls) -> str:
         return Parser.PYTHON_PARSER.name
 
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.PY.name
+
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results

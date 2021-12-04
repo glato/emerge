@@ -257,6 +257,11 @@ class AbstractParser(ParsingMixin, ABC):
     def parser_name(cls) -> str:
         ...
 
+    @classmethod
+    @abstractmethod
+    def language_type(cls) -> str:
+        ...
+
     @abstractmethod
     def generate_entity_results_from_analysis(self, analysis) -> None:
         ...

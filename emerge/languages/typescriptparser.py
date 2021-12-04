@@ -63,6 +63,10 @@ class TypeScriptParser(AbstractParser, ParsingMixin):
     def parser_name(cls) -> str:
         return Parser.TYPESCRIPT_PARSER.name
 
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.TYPESCRIPT.name
+    
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results

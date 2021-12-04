@@ -61,6 +61,10 @@ class KotlinParser(AbstractParser, ParsingMixin):
     def parser_name(cls) -> str:
         return Parser.KOTLIN_PARSER.name
 
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.KOTLIN.name
+
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results

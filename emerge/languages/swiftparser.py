@@ -47,6 +47,10 @@ class SwiftParser(AbstractParser, ParsingMixin):
     def parser_name(cls) -> str:
         return Parser.SWIFT_PARSER.name
 
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.SWIFT.name
+    
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results

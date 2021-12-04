@@ -61,6 +61,10 @@ class RubyParser(AbstractParser, ParsingMixin):
     @classmethod
     def parser_name(cls) -> str:
         return Parser.RUBY_PARSER.name
+    
+    @classmethod
+    def language_type(cls) -> str:
+        return LanguageType.RUBY.name
 
     @property
     def results(self) -> Dict[str, AbstractResult]:

@@ -32,7 +32,7 @@ LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 __version__ = '0.20.0'
-__updated__ = '2021-12-04 10:34:39'
+__updated__ = '2021-12-04 20:40:34'
 
 
 class Emerge:
@@ -56,6 +56,9 @@ class Emerge:
             RubyParser.parser_name(): RubyParser(),
             PythonParser.parser_name(): PythonParser()
         }
+
+        self.config.supported_languages = [x.language_type() for x in self._parsers.values()]
+        self.config.setup_commang_line_arguments()
         self.set_log_level(LogLevel.ERROR)
 
     def parse_args(self):
