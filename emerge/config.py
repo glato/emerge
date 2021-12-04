@@ -13,8 +13,8 @@ import os
 import argparse
 import re
 import pathlib
-import yaml
 import shutil
+import yaml
 
 import coloredlogs
 
@@ -122,19 +122,18 @@ class Configuration:
         self.version = version
         self.arg_parser = None
         self.supported_languages = List[str]
-        
 
     def _get_own__dict__(self):
         return self.__dict__
 
     def setup_commang_line_arguments(self) -> None:
         """Setup command line arguments."""
-        self.arg_parser = argparse.ArgumentParser(description='🔎 Welcome to emerge' + f'\033[0m {self.version}.')
+        self.arg_parser = argparse.ArgumentParser(description='🔎 Welcome to emerge' + f'{self.version} 🔎')
         self.arg_parser.add_argument('-c', '--config', dest='yamlconfig', help='set yaml config file')
         self.arg_parser.add_argument('-v', '--verbose', dest='verbose', help='set logging level to INFO', action='store_true')
         self.arg_parser.add_argument('-d', '--debug', dest='debug', help='set logging level to DEBUG', action='store_true')
         self.arg_parser.add_argument('-e', '--error', dest='error', help='set logging level to ERROR', action='store_true')
-        self.arg_parser.add_argument('-a', '--add-config', dest='addconfig', help='add a new config from a language template [' + ", ".join(self.supported_languages) + ']')
+        self.arg_parser.add_argument('-a', '--add-config', dest='language', help='add a new config from a template, where LANGUAGE is one of [' + ", ".join(self.supported_languages) + ']')
 
     def _options_for_value(self, value: str) -> Optional[List]:
         """Checks if a configuration value has options and returns them.
@@ -163,20 +162,22 @@ class Configuration:
             self.arg_parser.print_help()
             return
 
-        if args.addconfig:
+        if args.language:
             here = pathlib.Path(__file__).parent
-            config_file = here.joinpath('configs/' + args.addconfig.lower() + "-template.yaml")
+            config_file = here.joinpath('configs/' + args.language.lower() + "-template.yaml")
             if config_file.exists() is True:
-                target_file = pathlib.Path(os.getcwd()).joinpath(args.addconfig.lower() + "-template.yaml")
+                target_file = pathlib.Path(os.getcwd()).joinpath(args.language.lower() + "-template.yaml")
 
                 if target_file.exists() is True:
-                    print('error: file already exists: ' + str(target_file))
+                    print('❌ file already exists: ' + str(target_file))
                     return
                 try:
                     shutil.copyfile(config_file, target_file)
-                    print('created config file from template: ' + str(target_file))
+                    print('✅ created config file from template: ' + str(target_file))
                 except OSError as error:
                     LOGGER.error(f'{error}')
+            else:
+                print('❌ could not find the config template: ' + str(config_file))
             return
 
         if not args.yamlconfig:
