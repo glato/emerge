@@ -1,5 +1,5 @@
 emerge
-======
+===
 
 ![GitHub license](https://img.shields.io/github/license/glato/emerge)
 ![GitHub tag version](https://img.shields.io/github/v/tag/glato/emerge)
@@ -26,6 +26,7 @@ emerge
 The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given software project.
 
 ## The following features are currently supported by emerge
+___
 
 - File scan support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`
 - Basic entity scan/extraction (e.g. classes) for the following languages: `Groovy`, `Java`, `Kotlin`, `Swift`
@@ -53,35 +54,129 @@ The main goal of this project is to create a free/ open source tool, that can ea
   - Tabular file output
   - JSON file output
 
-## How to install and use emerge
+&nbsp;
 
-Basically there are two ways to install emerge. If you're familiar with `pip` (recommend `pyenv`, `virtualenv` and `virtualenvwrapper`) you can simply install the latest version of emerge by
+## How to install and use emerge as a user
+___
 
+Basically there are two ways to install emerge. If you're familiar with `pip` (a virtual environment by using `pyenv`, `virtualenv` and `virtualenvwrapper` is recommended, but not needed) you can simply install the latest version of emerge with the following few steps.
+
+### 1️⃣ ~ Install emerge with pip
+---
 ```
 pip install emerge-viz
 ```
-and then simply execute it with
+and then simply execute it like this
 
 ```
-emerge-viz
+(emerge) user@host ~ % emerge
+usage: emerge [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
+
+🔎 Welcome to emerge 1.0.0 (2021-12-04 20:40:34)
+
+options:
+  -h, --help            show this help message and exit
+  -c YAMLCONFIG, --config YAMLCONFIG
+                        set yaml config file
+  -v, --verbose         set logging level to INFO
+  -d, --debug           set logging level to DEBUG
+  -e, --error           set logging level to ERROR
+  -a LANGUAGE, --add-config LANGUAGE
+                        add a new config from a template, where LANGUAGE is one of [JAVA, SWIFT, C, CPP, GROOVY, JAVASCRIPT,
+                        TYPESCRIPT, KOTLIN, OBJC, RUBY, PY]
 ```
 
-Otherwise you can clone this repo and install it by following this instruction:
+### 2️⃣ ~ Create and adjust project configuration
+---
+You can create a simple project config adhoc from the command line and then simply adjust the necessary source/export paths
 
+```
+(emerge) user@host tmp % pwd
+/Users/grzegorz.lato/tmp
+(emerge) user@host tmp % emerge -a java
+✅ created config file from template: /Users/user1/tmp/java-template.yaml
+```
 
-### **1.** Clone this repository
+and then simply adjust the necessary paths (`analyses/source_directory` and `export/directory`):
 
+```
+(emerge) user@host tmp % cat java-template.yaml 
+---
+project_name: java_project_example
+loglevel: info
+analyses:
+- analysis_name: full java check
+  source_directory: /Users/user1/emerge/project/source
+  only_permit_languages:
+  - java
+  only_permit_file_extensions:
+  - .java
+  file_scan:
+  - number_of_methods
+  - source_lines_of_code
+  - dependency_graph
+  - fan_in_out
+  - louvain_modularity
+  entity_scan:
+  - dependency_graph
+  - source_lines_of_code
+  - number_of_methods
+  - fan_in_out
+  - louvain_modularity
+  export:
+  - directory: /Users/user1/emerge/project/export
+  - graphml
+  - dot
+  - json
+  - tabular_file
+  - tabular_console_overall
+  - d3
+(emerge) grzegorz.lato@C02DN06QMD6V tmp %
+```
+
+### 3️⃣ ~ Start a scan
+---
+After this you can simply start a scan by
+
+```
+(emerge) grzegorz.lato@C02DN06QMD6V tmp % emerge -c java-template.yaml
+2021-12-04 21:18:15   analysis I 👉 starting to analyze java_project_example
+2021-12-04 21:18:15   analysis I ⏩ performing analysis 1/1: full java check
+2021-12-04 21:18:15   analysis I 👉 starting to create filesystem graph in full java check
+2021-12-04 21:18:15   analysis I ⏩ starting scan at directory: ...
+...
+...
+...
+2021-12-04 21:18:27   analysis I ✅ all your generated/exported data can be found here: /Users/user1/tmp/java
+2021-12-04 21:18:27   analysis I ✅ copy the following path to your browser and start your web app: 👉 file:///Users/user1/tmp/java/html/emerge.html
+2021-12-04 21:18:27   analysis I ✅ total runtime of analysis: 00:00:10 + 154 ms
+```
+
+### 4️⃣ ~ Start your web app
+---
+Now just copy the above mentioned `file://` path to any modern web browser and interactively expore your configured codebase 😉
+
+&nbsp;
+
+## How to install and use emerge from source (e.g. for development)
+___
+
+You can clone this repository and install it by following this instruction:
+
+### 1️⃣ ~ Clone this repository
+---
 ```
 git clone https://github.com/glato/emerge.git
 ```
 
-### **2.1** (*macOS*) Install the `graphviz` package first
-
+### 2️⃣.1️⃣ ~ (*macOS*) Install the `graphviz` package first
+---
 ```
 brew install graphviz
 ```
 
-### **2.2** (*macOS*) Create a virtual environment
+### 2️⃣.2️⃣ ~ (*macOS*) Create a virtual environment
+---
 Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
 
 ```
@@ -90,7 +185,8 @@ pip3 install virtualenv
 virtualenv -p python3 venv
 ```
 
-### **2.** (*ubuntu*) Create a virtual environment
+### 2️⃣ ~ (*ubuntu*) Create a virtual environment
+---
 Install required packages and create a Python 3 virtual environment (optionally within the project structure)
 
 ```
@@ -99,20 +195,21 @@ cd emerge
 python3 -m venv venv
 ```
 
-### **3.** Before using/working with the tool, activate the virtual environment
-
+### 3️⃣ ~ Before using/working with the tool, activate the virtual environment
+---
 ```
 source venv/bin/activate
 ```
 
-### **4.** (*macOS*) Install all dependencies
+### 4️⃣ ~ (*macOS*) Install all dependencies
+---
 Install all required dependencies for the project with pip
 
 ```
 pip install -r requirements.txt
 ```
 
-### **4.** (*ubuntu*) Install all dependencies
+### 4️⃣ ~ (*ubuntu*) Install all dependencies
 Install the wheel package, after that install all required dependencies for the project with pip
 
 ```
@@ -120,30 +217,34 @@ pip install wheel
 pip install -r requirements.txt
 ```
 
-### **5.** Running unit tests from the command line
-
+### 5️⃣ ~ Running unit tests from the command line
+---
 ```
-python run_tests.py
+python emerge/tests/run_tests.py
 ```
 
-### **6.** Running EMERGE as a standalone tool
-
+### 6️⃣ ~ Running `emerge` as a standalone tool
+---
 ```
-python emerge.py 
-usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-s]
+(emerge) user@host emerge % python emerge.py 
+usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
 
-👍 Welcome to emerge x.y.z (yyyy-mm-dd hh:mm:ss).
+🔎 Welcome to emerge 1.0.0 (2021-12-04 20:40:34)
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -c YAMLCONFIG, --config YAMLCONFIG
                         set yaml config file
   -v, --verbose         set logging level to INFO
   -d, --debug           set logging level to DEBUG
-  -s, --silent          run silently without any console output
+  -e, --error           set logging level to ERROR
+  -a LANGUAGE, --add-config LANGUAGE
+                        add a new config from a template, where LANGUAGE is one of [JAVA, SWIFT, C, CPP, GROOVY, JAVASCRIPT,
+                        TYPESCRIPT, KOTLIN, OBJC, RUBY, PY]
 ```
 
-### **7.** You're ready to go 😱
+### 7️⃣ ~ You're ready to go
+---
 Let's quickly try to run emerge on its own codebase
 
 ```
@@ -192,12 +293,13 @@ This should produce a similar output:
 |                 max-fan-out-dependency-graph | 19                         |
 |            max-fan-out-name-dependency-graph | emerge/appear.py           |
 +----------------------------------------------+----------------------------+
-...   analysis I ✅ all your generated/exported data can be found here: /Volumes/projects/private/github/emerge/export/emerge
-...   analysis I ✅ copy the following path to your browser and start your web app: 👉 file:///Users/user1/github/emerge/export/emerge/force-graph-html/d3-force-graph-template.html
+...   analysis I ✅ all your generated/exported data can be found here: /Users/user1/tmp/python
+...   analysis I ✅ copy the following path to your browser and start your web app: 👉 file:///Users/user1/tmp/python/html/emerge.html
 ...   analysis I ✅ total runtime of analysis: 00:00:00 + 786 ms
 ```
 
-### **8.** Start your web app
+### 8️⃣ ~ Start your web app
+---
 Now just copy the above mentioned `file://` path to any modern web browser and interactively expore the emerge codebase 😉
 
 #### **8.1** Currently emerge offers the following keyboard shortcuts in the interactive web app:
@@ -208,11 +310,15 @@ Now just copy the above mentioned `file://` path to any modern web browser and i
 
 And now let's make this more interesting ...
 
+&nbsp;
+
 ## Further configuration (using emerge on other projects)
+---
 
 If you wand to use emerge on other projects, you can simple copy or customize one of the existing configuration templates from the `emerge/configs` directory.
 
-### **9.** Scan a real project
+### 9️⃣ ~ Scan a real project
+---
 For a quick run, it should be enough to adjust `source_directory`, `directory` in `export`.
 
 ```yaml
@@ -244,13 +350,13 @@ analyses:
   - tabular_console_overall
   - d3
 ```
-### **10.** Run emerge with a specific yaml configuration
+### 1️⃣0️⃣ ~ Run emerge with a specific yaml configuration
+---
 After customizing a present config (e.g. `config/c-template.yaml`) or creating your own, just run emerge again with this new config
 
 ```bash
 python emerge.py -c configs/c-template.yaml
 ```
-
 
 After the scan, your scan output (including your interactive web app) can be found at the directory that you created and set in the config parameter `export` -> `directory`, as seen in the logs above.
 
@@ -358,6 +464,7 @@ The yaml configuration is basically defined at the following levels:
 |                           | |
 
 ## Supported scan types and file extensions
+---
 
 Emerge supports the following file extensions and scan types per language, whereas a `file_scan` simply calculates metrics and maps nodes within graph structures to scanned files and an `entity_scan` tries to extract more fine-grained entities from files e.g. classes or structs.
 
