@@ -26,7 +26,6 @@ emerge
 The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given software project.
 
 ## The following features are currently supported by emerge
-___
 
 - File scan support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`
 - Basic entity scan/extraction (e.g. classes) for the following languages: `Groovy`, `Java`, `Kotlin`, `Swift`
@@ -57,12 +56,11 @@ ___
 &nbsp;
 
 ## How to install and use emerge as a user
-___
 
 Basically there are two ways to install emerge. If you're familiar with `pip` (a virtual environment by using `pyenv`, `virtualenv` and `virtualenvwrapper` is recommended, but not needed) you can simply install the latest version of emerge with the following few steps.
 
 ### 1️⃣ ~ Install emerge with pip
----
+
 ```
 pip install emerge-viz
 ```
@@ -87,7 +85,7 @@ options:
 ```
 
 ### 2️⃣ ~ Create and adjust project configuration
----
+
 You can create a simple project config adhoc from the command line and then simply adjust the necessary source/export paths
 
 ```
@@ -135,7 +133,7 @@ analyses:
 ```
 
 ### 3️⃣ ~ Start a scan
----
+
 After this you can simply start a scan by
 
 ```
@@ -153,30 +151,26 @@ After this you can simply start a scan by
 ```
 
 ### 4️⃣ ~ Start your web app
----
+
 Now just copy the above mentioned `file://` path to any modern web browser and interactively expore your configured codebase 😉
 
 &nbsp;
 
 ## How to install and use emerge from source (e.g. for development)
-___
 
 You can clone this repository and install it by following this instruction:
 
 ### 1️⃣ ~ Clone this repository
----
 ```
 git clone https://github.com/glato/emerge.git
 ```
 
 ### 2️⃣.1️⃣ ~ (*macOS*) Install the `graphviz` package first
----
 ```
 brew install graphviz
 ```
 
 ### 2️⃣.2️⃣ ~ (*macOS*) Create a virtual environment
----
 Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
 
 ```
@@ -186,7 +180,6 @@ virtualenv -p python3 venv
 ```
 
 ### 2️⃣ ~ (*ubuntu*) Create a virtual environment
----
 Install required packages and create a Python 3 virtual environment (optionally within the project structure)
 
 ```
@@ -196,13 +189,11 @@ python3 -m venv venv
 ```
 
 ### 3️⃣ ~ Before using/working with the tool, activate the virtual environment
----
 ```
 source venv/bin/activate
 ```
 
 ### 4️⃣ ~ (*macOS*) Install all dependencies
----
 Install all required dependencies for the project with pip
 
 ```
@@ -218,13 +209,11 @@ pip install -r requirements.txt
 ```
 
 ### 5️⃣ ~ Running unit tests from the command line
----
 ```
 python emerge/tests/run_tests.py
 ```
 
 ### 6️⃣ ~ Running `emerge` as a standalone tool
----
 ```
 (emerge) user@host emerge % python emerge.py 
 usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
@@ -244,7 +233,6 @@ options:
 ```
 
 ### 7️⃣ ~ You're ready to go
----
 Let's quickly try to run emerge on its own codebase
 
 ```
@@ -299,10 +287,9 @@ This should produce a similar output:
 ```
 
 ### 8️⃣ ~ Start your web app
----
 Now just copy the above mentioned `file://` path to any modern web browser and interactively expore the emerge codebase 😉
 
-#### **8.1** Currently emerge offers the following keyboard shortcuts in the interactive web app:
+#### 8️⃣.1️⃣ ~ Currently emerge offers the following keyboard shortcuts in the interactive web app:
 
 - ℹ️ Hovering over a node and pressing ⬆️ + `s` to select and highlight or deselect a specific node
 - ℹ️ Resetting the currently active node selection by pressing ⬆️ +  `r`
@@ -313,12 +300,10 @@ And now let's make this more interesting ...
 &nbsp;
 
 ## Further configuration (using emerge on other projects)
----
 
 If you wand to use emerge on other projects, you can simple copy or customize one of the existing configuration templates from the `emerge/configs` directory.
 
 ### 9️⃣ ~ Scan a real project
----
 For a quick run, it should be enough to adjust `source_directory`, `directory` in `export`.
 
 ```yaml
@@ -351,7 +336,6 @@ analyses:
   - d3
 ```
 ### 1️⃣0️⃣ ~ Run emerge with a specific yaml configuration
----
 After customizing a present config (e.g. `config/c-template.yaml`) or creating your own, just run emerge again with this new config
 
 ```bash
@@ -464,7 +448,6 @@ The yaml configuration is basically defined at the following levels:
 |                           | |
 
 ## Supported scan types and file extensions
----
 
 Emerge supports the following file extensions and scan types per language, whereas a `file_scan` simply calculates metrics and maps nodes within graph structures to scanned files and an `entity_scan` tries to extract more fine-grained entities from files e.g. classes or structs.
 
