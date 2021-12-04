@@ -25,7 +25,7 @@ emerge
 
 &nbsp;
 
-The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given software project by using an exploratory approach.
+The main goal of this project is to create a free/ open source tool, that can easily be used by anyone with interest in software development, architecture, metrics and visualization to gather more insights about those topics. It should facilitate/ support getting a better understanding of a given software project by using an [exploratory approach](https://en.wikipedia.org/wiki/Exploratory_data_analysis).
 
 &nbsp;
 
@@ -36,6 +36,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
 - Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
 - Logging support with configurable log levels
 - Configuration support based on YAML syntax to configure multiple/specific analyses
+- Create a language/project configuration directly from an included configuration template
 - Export of scan results/ metrics/ statistics for the following formats/ outputs
   - Code dependency, inheritance, complete and filesystem graph (enriched with scan results/metrics)
   - [GraphML](http://graphml.graphdrawing.org)
