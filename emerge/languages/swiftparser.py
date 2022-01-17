@@ -28,7 +28,10 @@ coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 class SwiftParsingKeyword(Enum):
     CLASS = "class"
     STRUCT = "struct"
+    PROTOCOL = "protocol"
+    ENUM = "enum"
     VAR = "var"
+    LET = "let"
     FUNC = "func"
     EXTENSION = "extension"
     OPEN_SCOPE = "{"
@@ -95,11 +98,11 @@ class SwiftParser(AbstractParser, ParsingMixin):
         result: FileResult
         for _, result in filtered_results.items():
 
-            entity_keywords: List[str] = [SwiftParsingKeyword.CLASS.value, SwiftParsingKeyword.STRUCT.value]
+            entity_keywords: List[str] = [SwiftParsingKeyword.CLASS.value, SwiftParsingKeyword.STRUCT.value, SwiftParsingKeyword.ENUM.value, SwiftParsingKeyword.PROTOCOL.value]
             entity_name = pp.Word(pp.alphanums)
 
-            match_expression = (pp.Keyword(SwiftParsingKeyword.CLASS.value) | pp.Keyword(SwiftParsingKeyword.STRUCT.value)) + \
-                (~pp.Keyword(SwiftParsingKeyword.VAR.value) & ~pp.Keyword(SwiftParsingKeyword.FUNC.value)) + \
+            match_expression = (pp.Keyword(SwiftParsingKeyword.CLASS.value) | pp.Keyword(SwiftParsingKeyword.STRUCT.value) | pp.Keyword(SwiftParsingKeyword.ENUM.value) | pp.Keyword(SwiftParsingKeyword.PROTOCOL.value)) + \
+                (~pp.Keyword(SwiftParsingKeyword.LET.value) & ~pp.Keyword(SwiftParsingKeyword.VAR.value) & ~pp.Keyword(SwiftParsingKeyword.FUNC.value)) + \
                 entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
                 pp.Optional(pp.Keyword(CoreParsingKeyword.COLON.value)) + pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
 
@@ -177,11 +180,11 @@ class SwiftParser(AbstractParser, ParsingMixin):
         result: FileResult
         for _, result in filtered_results.items():
 
-            entity_keywords: List[str] = [SwiftParsingKeyword.CLASS.value, SwiftParsingKeyword.STRUCT.value]
+            entity_keywords: List[str] = [SwiftParsingKeyword.CLASS.value, SwiftParsingKeyword.STRUCT.value, SwiftParsingKeyword.ENUM.value, SwiftParsingKeyword.PROTOCOL.value]
             entity_name = pp.Word(pp.alphanums)
 
-            match_expression = (pp.Keyword(SwiftParsingKeyword.CLASS.value) | pp.Keyword(SwiftParsingKeyword.STRUCT.value)) + \
-                (~pp.Keyword(SwiftParsingKeyword.VAR.value) & ~pp.Keyword(SwiftParsingKeyword.FUNC.value)) + \
+            match_expression = (pp.Keyword(SwiftParsingKeyword.CLASS.value) | pp.Keyword(SwiftParsingKeyword.STRUCT.value) | pp.Keyword(SwiftParsingKeyword.ENUM.value) | pp.Keyword(SwiftParsingKeyword.PROTOCOL.value)) + \
+                (~pp.Keyword(SwiftParsingKeyword.LET.value) & ~pp.Keyword(SwiftParsingKeyword.VAR.value) & ~pp.Keyword(SwiftParsingKeyword.FUNC.value)) + \
                 entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
                 pp.Optional(pp.Keyword(CoreParsingKeyword.COLON.value)) + pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
 
