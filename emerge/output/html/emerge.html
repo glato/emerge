@@ -378,6 +378,8 @@
         const toolTipMetricItemBoxFillColor = hexToRGB("#f7f7f7", 1.0);
 
         const activeSelectionColor = '#FF0000'
+        const directoryNodeColor = '#3b8cff'
+        const fileNodeColor = '#d1e3ff'
 
         /**
          * * Math constants
@@ -451,8 +453,9 @@
             "metric_fan_out_inheritance_graph": 0.05,
             "metric_fan_out_complete_graph": 0.05,
 
-            "metric_louvain_modularity_in_entity": 0.005,
-            "metric_louvain_modularity_in_file": 0.010,
+            "metric_entity_result_dependency_graph_louvain_modularity_in_entity": 0.005,
+            "metric_entity_result_inheritance_graph_louvain_modularity_in_entity": 0.005,
+            "metric_entity_result_dependency_graph_louvain_modularity_in_file": 0.005,
 
             "metric_sloc_in_file": 0.003,
             "metric_sloc_in_entity": 0.003,
@@ -870,9 +873,21 @@
 
         function nodeColorByModularity(node, alpha = 1.0) {
             if (currentGraphType.includes('file_result') || currentGraphType.includes('filesystem')) {
-                return hexToRGB(color(node.metric_louvain_modularity_in_file), alpha)
+                if ('metric_file_result_dependency_graph_louvain_modularity_in_file' in node) {
+                    return hexToRGB(color(node.metric_file_result_dependency_graph_louvain_modularity_in_file), alpha)
+                } else if ('directory' in node) {
+                    if (node.directory == true) {
+                        return hexToRGB(directoryNodeColor)
+                    }
+                }
             } else {
-                return hexToRGB(color(node.metric_louvain_modularity_in_entity), alpha);
+                if ('metric_entity_result_dependency_graph_louvain_modularity_in_entity' in node) {
+                    return hexToRGB(color(node.metric_entity_result_dependency_graph_louvain_modularity_in_entity), alpha)
+                }
+
+                if ('metric_entity_result_inheritance_graph_louvain_modularity_in_entity' in node) {
+                    return hexToRGB(color(node.metric_entity_result_inheritance_graph_louvain_modularity_in_entity), alpha)
+                }
             }
         }
 
@@ -900,10 +915,12 @@
             currentGraph.nodes.forEach(function(node, i) {
                 let nodeClusterId = 0
 
-                if (node.hasOwnProperty('metric_louvain_modularity_in_file')) {
-                    nodeClusterId = node.metric_louvain_modularity_in_file
-                } else if (node.hasOwnProperty('metric_louvain_modularity_in_entity')) {
-                    nodeClusterId = node.metric_louvain_modularity_in_entity
+                if (node.hasOwnProperty('metric_file_result_dependency_graph_louvain_modularity_in_file')) {
+                    nodeClusterId = node.metric_file_result_dependency_graph_louvain_modularity_in_file
+                } else if (node.hasOwnProperty('metric_entity_result_dependency_graph_louvain_modularity_in_entity')) {
+                    nodeClusterId = node.metric_entity_result_dependency_graph_louvain_modularity_in_entity
+                } else if (node.hasOwnProperty('metric_entity_result_inheritance_graph_louvain_modularity_in_entity')) {
+                    nodeClusterId = node.metric_entity_result_inheritance_graph_louvain_modularity_in_entity
                 }
 
                 nodeClusterId = nodeClusterId.toString()
@@ -916,7 +933,7 @@
                 }
             })
 
-            // console.log(clusterMap)
+             console.log(clusterMap)
         }
 
         function onMouseOverHullMenuNode(clusterId) {
@@ -992,20 +1009,22 @@
                 iteration = 0
                 Object.keys(clusterMap).forEach(function(clusterId) {
                     if (iteration < maxClusterHulls) {
-
                         let clusterToolTipDescription = "<u>Cluster metrics</u><br>"
                         let clusterMetrics = clusterMetricsMap[clusterId]
 
-                        // add all cluster metrics that we can find
-                        Object.keys(clusterMetrics).forEach(function(clusterMetric) {
-                            let metricPrettyName = clusterMetric.replace(/_/gi, " ").replace(/metric/gi, "")
-                            clusterToolTipDescription += metricPrettyName + ": " + "<b>" + clusterMetrics[clusterMetric] + "</b>" + "<br>"
-                        })
+                        // TODO: check why clusterMetrics can be undefined
+                        if (clusterMetrics !== undefined) {
+                            // add all cluster metrics that we can find
+                            Object.keys(clusterMetrics).forEach(function(clusterMetric) {
+                                let metricPrettyName = clusterMetric.replace(/_/gi, " ").replace(/metric/gi, "")
+                                clusterToolTipDescription += metricPrettyName + ": " + "<b>" + clusterMetrics[clusterMetric] + "</b>" + "<br>"
+                            })
 
-                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('title', clusterToolTipDescription)
-                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-html', 'true')
-                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-placement', 'bottom')
-                        $('#' + 'clusterHullNodeSVGCircle-' + clusterId).tooltip();
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('title', clusterToolTipDescription)
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-html', 'true')
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-placement', 'bottom')
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).tooltip();
+                        }
                     }
                 })
             }

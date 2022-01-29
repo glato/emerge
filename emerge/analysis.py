@@ -79,6 +79,7 @@ class Analysis:
 
         self._start_time: datetime = None
         self._stop_time: datetime = None
+        self.total_runtime: Optional[str] = None
 
         self.statistics = Statistics()
 

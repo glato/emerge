@@ -5,7 +5,7 @@ Defines concrete metrics based on the abstract interfaces to share/hide common c
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 # interfaces for inputs
 from emerge.abstractresult import AbstractResult
@@ -17,9 +17,9 @@ from emerge.metrics.abstractmetric import AbstractGraphMetric, AbstractCodeMetri
 
 class GraphMetric(AbstractGraphMetric):
     def __init__(self, analysis, graph_representations: Dict):
-        self._dependency_graph_representaion: GraphRepresentation = None
-        self._inheritance_graph_representaion: GraphRepresentation = None
-        self._complete_graph_representaion: GraphRepresentation = None
+        self._dependency_graph_representaion: Optional[GraphRepresentation] = None
+        self._inheritance_graph_representaion: Optional[GraphRepresentation] = None
+        self._complete_graph_representaion: Optional[GraphRepresentation] = None
         self._analysis = analysis
         self._local_data: Dict[str, Dict] = {}
         self._overall_data: Dict[str, Any] = {}

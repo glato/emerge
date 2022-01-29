@@ -288,17 +288,30 @@ class D3Exporter:
             for node in data['nodes']:
                 node_cluster_id = 0
 
-                if 'metric_louvain-modularity-in-file' in node:
-                    node_cluster_id = node['metric_louvain-modularity-in-file']
-                elif 'metric_louvain-modularity-in-entity' in node:
-                    node_cluster_id = node['metric_louvain-modularity-in-entity']
+                # TODO: adjust to all graph types
+                # metric_entity_result_dependency_graph-louvain-modularity-in-entity
+                # metric_entity_result_inheritance_graph-louvain-modularity-in-entity
+                # metric_file_result_dependency_graph-louvain-modularity-in-file
+                #
+                
+                if 'metric_entity_result_dependency_graph-louvain-modularity-in-entity' in node:
+                    node_cluster_id = node['metric_entity_result_dependency_graph-louvain-modularity-in-entity']
+                if 'metric_entity_result_inheritance_graph-louvain-modularity-in-entity' in node:
+                    node_cluster_id = node['metric_entity_result_inheritance_graph-louvain-modularity-in-entity']
+                if 'metric_file_result_dependency_graph-louvain-modularity-in-file' in node:
+                    node_cluster_id = node['metric_file_result_dependency_graph-louvain-modularity-in-file']
+
+                # if 'metric_louvain-modularity-in-file' in node:
+                #     node_cluster_id = node['metric_louvain-modularity-in-file']
+                # elif 'metric_louvain-modularity-in-entity' in node:
+                #     node_cluster_id = node['metric_louvain-modularity-in-entity']
 
                 if 'metric_sloc-in-file' in node:
                     total_sloc += node['metric_sloc-in-file']
                 elif 'metric_sloc-in-entity' in node:
                     total_sloc += node['metric_sloc-in-entity']
 
-                node_cluster_id = node_cluster_id
+                #node_cluster_id = node_cluster_id
 
                 if node_cluster_id in cluster_map:
                     cluster_map[node_cluster_id].append(node)

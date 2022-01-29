@@ -15,7 +15,7 @@ import pyparsing as pp
 import coloredlogs
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
-from emerge.results import FileResult
+from emerge.results import FileResult, EntityResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.stats import Statistics
 from emerge.log import Logger
@@ -46,6 +46,23 @@ class SwiftParser(AbstractParser, ParsingMixin):
     def __init__(self):
         self._results: Dict[str, AbstractResult] = {}
 
+        self._token_mappings: Dict[str, str] = {
+            ':': ' : ',
+            ';': ' ; ',
+            '{': ' { ',
+            '}': ' } ',
+            '(': ' ( ',
+            ')': ' ) ',
+            '[': ' [ ',
+            ']': ' ] ',
+            '?': ' ? ',
+            '!': ' ! ',
+            ',': ' , ',
+            '<': ' < ',
+            '>': ' > ',
+            '"': ' " '
+        }
+
     @classmethod
     def parser_name(cls) -> str:
         return Parser.SWIFT_PARSER.name
@@ -53,7 +70,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
     @classmethod
     def language_type(cls) -> str:
         return LanguageType.SWIFT.name
-    
+
     @property
     def results(self) -> Dict[str, AbstractResult]:
         return self._results
@@ -63,7 +80,9 @@ class SwiftParser(AbstractParser, ParsingMixin):
         self._results = value
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
-        LOGGER.debug(f'generating file results...')
+        LOGGER.debug('generating file results...')
+
+        #scanned_tokens: List[str] = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
         scanned_tokens: List[str] = self.preprocess_file_content_and_generate_token_list(file_content)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
@@ -72,7 +91,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
 
         file_result = FileResult.create_file_result(
             analysis=analysis,
-            scanned_file_name=file_name,
+            scanned_file_name=relative_file_path_to_analysis,
             relative_file_path_to_analysis=relative_file_path_to_analysis,
             absolute_name=full_file_path,
             display_name=file_name,
@@ -92,22 +111,39 @@ class SwiftParser(AbstractParser, ParsingMixin):
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
     def generate_entity_results_from_analysis(self, analysis):
-        LOGGER.debug(f'generating entity results...')
-        filtered_results: Dict[str, FileResult] = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractFileResult)}
+        LOGGER.debug('generating entity results...')
+        filtered_results: Dict[str, FileResult] = {k: v for (k, v) in self.results.items() \
+            if v.analysis is analysis and isinstance(v, AbstractFileResult)}
 
         result: FileResult
         for _, result in filtered_results.items():
 
-            entity_keywords: List[str] = [SwiftParsingKeyword.CLASS.value, SwiftParsingKeyword.STRUCT.value, SwiftParsingKeyword.ENUM.value, SwiftParsingKeyword.PROTOCOL.value]
-            entity_name = pp.Word(pp.alphanums)
+            entity_keywords: List[str] = [
+                SwiftParsingKeyword.CLASS.value,
+                SwiftParsingKeyword.STRUCT.value,
+                SwiftParsingKeyword.ENUM.value,
+                SwiftParsingKeyword.PROTOCOL.value
+            ]
 
-            match_expression = (pp.Keyword(SwiftParsingKeyword.CLASS.value) | pp.Keyword(SwiftParsingKeyword.STRUCT.value) | pp.Keyword(SwiftParsingKeyword.ENUM.value) | pp.Keyword(SwiftParsingKeyword.PROTOCOL.value)) + \
-                (~pp.Keyword(SwiftParsingKeyword.LET.value) & ~pp.Keyword(SwiftParsingKeyword.VAR.value) & ~pp.Keyword(SwiftParsingKeyword.FUNC.value)) + \
+            entity_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value)
+
+            match_expression = (
+                pp.Keyword(SwiftParsingKeyword.CLASS.value) |
+                pp.Keyword(SwiftParsingKeyword.STRUCT.value) |
+                pp.Keyword(SwiftParsingKeyword.ENUM.value) |
+                pp.Keyword(SwiftParsingKeyword.PROTOCOL.value)) + \
+                (~pp.Keyword(SwiftParsingKeyword.LET.value) &
+                 ~pp.Keyword(SwiftParsingKeyword.VAR.value) &
+                 ~pp.Keyword(SwiftParsingKeyword.FUNC.value)) + \
                 entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
                 pp.Optional(pp.Keyword(CoreParsingKeyword.COLON.value)) + pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
 
-            comment_keywords: Dict[str, str] = {CoreParsingKeyword.LINE_COMMENT.value: SwiftParsingKeyword.INLINE_COMMENT.value,
-                                                CoreParsingKeyword.START_BLOCK_COMMENT.value: SwiftParsingKeyword.START_BLOCK_COMMENT.value, CoreParsingKeyword.STOP_BLOCK_COMMENT.value: SwiftParsingKeyword.STOP_BLOCK_COMMENT.value}
+            comment_keywords: Dict[str, str] = {
+                CoreParsingKeyword.LINE_COMMENT.value: SwiftParsingKeyword.INLINE_COMMENT.value,
+                CoreParsingKeyword.START_BLOCK_COMMENT.value: SwiftParsingKeyword.START_BLOCK_COMMENT.value,
+                CoreParsingKeyword.STOP_BLOCK_COMMENT.value: SwiftParsingKeyword.STOP_BLOCK_COMMENT.value
+            }
+
             entity_results = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
 
             for entity_result in entity_results:
@@ -119,9 +155,15 @@ class SwiftParser(AbstractParser, ParsingMixin):
         self._add_extensions_to_entity_results(analysis)
 
     def _add_extensions_to_entity_results(self, analysis) -> None:
-        LOGGER.debug(f'adding swift extensions to entity results...')
-        entity_results: Dict[str, AbstractEntityResult] = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractEntityResult)}
-        file_results: Dict[str, AbstractFileResult] = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractFileResult)}
+        LOGGER.debug('adding swift extensions to entity results...')
+
+        entity_results: Dict[str, EntityResult] = {
+            k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, EntityResult)
+        }
+
+        file_results: Dict[str, FileResult] = {
+            k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, FileResult)
+        }
 
         entity_names: List[str] = [v.entity_name for _, v in entity_results.items()]
 
@@ -131,11 +173,16 @@ class SwiftParser(AbstractParser, ParsingMixin):
             entity_name_of_extension = pp.Word(pp.alphanums)
 
             match_expression = pp.Keyword(SwiftParsingKeyword.EXTENSION.value) + \
-                entity_name_of_extension.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
+                entity_name_of_extension.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
+                     pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
 
             comment_keywords: Dict[str, str] = {CoreParsingKeyword.LINE_COMMENT.value: SwiftParsingKeyword.INLINE_COMMENT.value,
-                                                CoreParsingKeyword.START_BLOCK_COMMENT.value: SwiftParsingKeyword.START_BLOCK_COMMENT.value, CoreParsingKeyword.STOP_BLOCK_COMMENT.value: SwiftParsingKeyword.STOP_BLOCK_COMMENT.value}
-            extension_entity_results: List[AbstractEntityResult] = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
+                                                CoreParsingKeyword.START_BLOCK_COMMENT.value: SwiftParsingKeyword.START_BLOCK_COMMENT.value,
+                                                CoreParsingKeyword.STOP_BLOCK_COMMENT.value: SwiftParsingKeyword.STOP_BLOCK_COMMENT.value}
+
+            extension_entity_results: List[EntityResult] = result.generate_entity_results_from_scopes(entity_keywords,
+                                                                                                    match_expression,
+                                                                                                    comment_keywords)
 
             for extension in extension_entity_results:
                 if extension.entity_name in entity_names:
@@ -146,8 +193,11 @@ class SwiftParser(AbstractParser, ParsingMixin):
 
     def _add_imports_to_entity_results(self, analysis) -> None:
         # TODO: add framework imports
-        LOGGER.debug(f'adding imports to entity result...')
-        entity_results: Dict[str, AbstractEntityResult] = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractEntityResult)}
+        LOGGER.debug('adding imports to entity result...')
+        entity_results: Dict[str, AbstractEntityResult] = {
+            k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractEntityResult)
+        }
+
         entity_names: List[str] = [v.entity_name for _, v in entity_results.items()]
 
         for _, result in entity_results.items():
@@ -171,25 +221,38 @@ class SwiftParser(AbstractParser, ParsingMixin):
             analysis (Analysis): A given analysis.
         """
         # TODO: add framework imports
-        LOGGER.debug(f'adding imports to file results...')
-        entity_results: Dict[str, AbstractEntityResult] = {}
+        LOGGER.debug('adding imports to file results...')
+        entity_results: Dict[str, EntityResult] = {}
 
-        filtered_results: Dict[str, FileResult] = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractFileResult)}
+        filtered_results: Dict[str, FileResult] = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, FileResult)}
 
         # 1. extract entities
         result: FileResult
         for _, result in filtered_results.items():
 
-            entity_keywords: List[str] = [SwiftParsingKeyword.CLASS.value, SwiftParsingKeyword.STRUCT.value, SwiftParsingKeyword.ENUM.value, SwiftParsingKeyword.PROTOCOL.value]
+            entity_keywords: List[str] = [
+                SwiftParsingKeyword.CLASS.value,
+                SwiftParsingKeyword.STRUCT.value,
+                SwiftParsingKeyword.ENUM.value,
+                SwiftParsingKeyword.PROTOCOL.value
+            ]
+
             entity_name = pp.Word(pp.alphanums)
 
-            match_expression = (pp.Keyword(SwiftParsingKeyword.CLASS.value) | pp.Keyword(SwiftParsingKeyword.STRUCT.value) | pp.Keyword(SwiftParsingKeyword.ENUM.value) | pp.Keyword(SwiftParsingKeyword.PROTOCOL.value)) + \
+            match_expression = (pp.Keyword(SwiftParsingKeyword.CLASS.value) |
+                                pp.Keyword(SwiftParsingKeyword.STRUCT.value) |
+                                pp.Keyword(SwiftParsingKeyword.ENUM.value) |
+                                pp.Keyword(SwiftParsingKeyword.PROTOCOL.value)) + \
                 (~pp.Keyword(SwiftParsingKeyword.LET.value) & ~pp.Keyword(SwiftParsingKeyword.VAR.value) & ~pp.Keyword(SwiftParsingKeyword.FUNC.value)) + \
                 entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
                 pp.Optional(pp.Keyword(CoreParsingKeyword.COLON.value)) + pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
 
-            comment_keywords: Dict[str, str] = {CoreParsingKeyword.LINE_COMMENT.value: SwiftParsingKeyword.INLINE_COMMENT.value,
-                                                CoreParsingKeyword.START_BLOCK_COMMENT.value: SwiftParsingKeyword.START_BLOCK_COMMENT.value, CoreParsingKeyword.STOP_BLOCK_COMMENT.value: SwiftParsingKeyword.STOP_BLOCK_COMMENT.value}
+            comment_keywords: Dict[str, str] = {
+                CoreParsingKeyword.LINE_COMMENT.value: SwiftParsingKeyword.INLINE_COMMENT.value,
+                CoreParsingKeyword.START_BLOCK_COMMENT.value: SwiftParsingKeyword.START_BLOCK_COMMENT.value,
+                CoreParsingKeyword.STOP_BLOCK_COMMENT.value: SwiftParsingKeyword.STOP_BLOCK_COMMENT.value
+            }
+
             entity_results_extracted_from_file = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
 
             # TODO: also add tokens from extensions
@@ -205,7 +268,8 @@ class SwiftParser(AbstractParser, ParsingMixin):
             for _, file_result in filtered_results.items():
                 if entity_name in file_result.scanned_tokens and entity_result.scanned_file_name not in file_result.scanned_import_dependencies:
 
-                    dependency = os.path.basename(os.path.normpath(entity_result.scanned_file_name))
+                    # dependency = os.path.basename(os.path.normpath(entity_result.scanned_file_name))
+                    dependency = entity_result.scanned_file_name
 
                     if self._is_dependency_in_ignore_list(dependency, analysis):
                         LOGGER.debug(f'ignoring dependency from {file_result.unique_name} to {dependency}')
@@ -213,22 +277,32 @@ class SwiftParser(AbstractParser, ParsingMixin):
                         file_result.scanned_import_dependencies.append(dependency)
                         LOGGER.debug(f'adding import: {dependency}')
 
-    def _add_package_name_to_result(self, result: AbstractResult) -> None:
+    def _add_package_name_to_result(self, result: FileResult) -> None:
         result.module_name = result.scanned_file_name
         LOGGER.debug(f'added filename as package prefix: {result.scanned_file_name} and added to result')
 
     def _add_inheritance_to_entity_result(self, result: AbstractEntityResult) -> None:
         LOGGER.debug(f'extracting inheritance from entity result {result.entity_name}...')
         for _, obj, following in self._gen_word_read_ahead(result.scanned_tokens):
-            if obj == SwiftParsingKeyword.CLASS.value:
+            if obj == SwiftParsingKeyword.CLASS.value or \
+               obj == SwiftParsingKeyword.STRUCT.value or \
+               obj == SwiftParsingKeyword.ENUM.value or \
+               obj == SwiftParsingKeyword.PROTOCOL.value:
                 read_ahead_string = self.create_read_ahead_string(obj, following)
 
-                entity_name = pp.Word(pp.alphanums)
-                expression_to_match = pp.Keyword(SwiftParsingKeyword.CLASS.value) + entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + pp.Keyword(CoreParsingKeyword.COLON.value) + \
-                    entity_name.setResultsName(CoreParsingKeyword.INHERITED_ENTITY_NAME.value) + pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
+                entity_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value)
+                expression_to_match = (pp.Keyword(SwiftParsingKeyword.CLASS.value) |
+                                        pp.Keyword(SwiftParsingKeyword.STRUCT.value) |
+                                        pp.Keyword(SwiftParsingKeyword.ENUM.value) |
+                                        pp.Keyword(SwiftParsingKeyword.PROTOCOL.value) ) + \
+                                        entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
+                                        pp.Keyword(CoreParsingKeyword.COLON.value) + \
+                    entity_name.setResultsName(CoreParsingKeyword.INHERITED_ENTITY_NAME.value) + \
+                         pp.SkipTo(pp.FollowedBy(SwiftParsingKeyword.OPEN_SCOPE.value))
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
+                # pylint: disable=bare-except
                 except:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
                     LOGGER.warning(f'warning: could not parse result {result=}')
@@ -238,11 +312,13 @@ class SwiftParser(AbstractParser, ParsingMixin):
                 if len(parsing_result) > 0:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
 
-                    if getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value) is not None and bool(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)):
+                    if getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value) is not None and \
+                       bool(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)):
 
                         result.analysis.statistics.increment(Statistics.Key.PARSING_HITS)
                         LOGGER.debug(
-                            f'found inheritance class {getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)} for entity name: {getattr(parsing_result, CoreParsingKeyword.ENTITY_NAME.value)} and added to result')
+                            f'found inheritance class {getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)}' + \
+                            'for entity name: {getattr(parsing_result, CoreParsingKeyword.ENTITY_NAME.value)} and added to result')
                         result.scanned_inheritance_dependencies.append(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value))
 
 

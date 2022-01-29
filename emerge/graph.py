@@ -61,7 +61,7 @@ class GraphRepresentation:
         Args:
             results (List[AbstractFileResult]): A list of objects that subclass AbstractFileResult.
         """
-        LOGGER.debug(f'creating dependency graph...')
+        LOGGER.debug('creating dependency graph...')
         for _, result in results.items():
             node_name = result.unique_name
             absolute_name = result.absolute_name
@@ -79,7 +79,7 @@ class GraphRepresentation:
         Args:
             results (List[AbstractEntityResult]): A list of objects that subclass AbstractEntityResult.
         """
-        LOGGER.debug(f'creating inheritance graph...')
+        LOGGER.debug('creating inheritance graph...')
         for _, result in results.items():
             node_name = result.unique_name
 
@@ -96,7 +96,7 @@ class GraphRepresentation:
             dependency_graph_repr (GraphRepresentation): A dependency graph representation.
             inheritance_graph_repr (GraphRepresentation): An inheritance graph representation.
         """
-        LOGGER.debug(f'creating complete graph...')
+        LOGGER.debug('creating complete graph...')
         self._digraph = nx.compose(dependency_graph_repr.digraph, inheritance_graph_repr.digraph)
 
     def add_local_metric_results_to_graph_nodes(self, metric_results: Dict[str, Dict[str, Any]]) -> None:
@@ -140,7 +140,6 @@ class GraphRepresentation:
                     for name, value in metric_dict.items():
                         if 'file' not in name:  # do not include any file metrics in the ENTITY_RESULT graphs
                             graph.nodes[node]['metric_' + name] = value
-
 
 @unique
 class FileSystemNodeType(Enum):

@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "args": [
                 "-c",
-                "configs/c-template.yaml"
+                "emerge/configs/swift-template.yaml"
             ]
         },
         {
