@@ -881,13 +881,16 @@
                     }
                 }
             } else {
-                if ('metric_entity_result_dependency_graph_louvain_modularity_in_entity' in node) {
-                    return hexToRGB(color(node.metric_entity_result_dependency_graph_louvain_modularity_in_entity), alpha)
+                if (currentGraphType.includes('entity_result_dependency_graph')) {
+                    if ('metric_entity_result_dependency_graph_louvain_modularity_in_entity' in node) {
+                        return hexToRGB(color(node.metric_entity_result_dependency_graph_louvain_modularity_in_entity), alpha)
+                    }
                 }
-
-                if ('metric_entity_result_inheritance_graph_louvain_modularity_in_entity' in node) {
-                    return hexToRGB(color(node.metric_entity_result_inheritance_graph_louvain_modularity_in_entity), alpha)
-                }
+                if (currentGraphType.includes('entity_result_inheritance_graph')) {
+                    if ('metric_entity_result_inheritance_graph_louvain_modularity_in_entity' in node) {
+                        return hexToRGB(color(node.metric_entity_result_inheritance_graph_louvain_modularity_in_entity), alpha)
+                    }
+                }   
             }
         }
 

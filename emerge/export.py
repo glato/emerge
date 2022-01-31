@@ -19,7 +19,7 @@ from networkx.readwrite import json_graph
 from networkx.drawing.nx_agraph import write_dot
 from prettytable import PrettyTable
 
-from emerge.graph import GraphRepresentation
+from emerge.graph import GraphRepresentation, GraphType
 from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('analysis'))
@@ -294,12 +294,17 @@ class D3Exporter:
                 # metric_file_result_dependency_graph-louvain-modularity-in-file
                 #
                 
-                if 'metric_entity_result_dependency_graph-louvain-modularity-in-entity' in node:
-                    node_cluster_id = node['metric_entity_result_dependency_graph-louvain-modularity-in-entity']
-                if 'metric_entity_result_inheritance_graph-louvain-modularity-in-entity' in node:
-                    node_cluster_id = node['metric_entity_result_inheritance_graph-louvain-modularity-in-entity']
-                if 'metric_file_result_dependency_graph-louvain-modularity-in-file' in node:
-                    node_cluster_id = node['metric_file_result_dependency_graph-louvain-modularity-in-file']
+                if graph_representation.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH:
+                    if 'metric_entity_result_dependency_graph_louvain-modularity-in-entity' in node:
+                        node_cluster_id = node['metric_entity_result_dependency_graph_louvain-modularity-in-entity']
+
+                if graph_representation.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
+                    if 'metric_entity_result_inheritance_graph_louvain-modularity-in-entity' in node:
+                        node_cluster_id = node['metric_entity_result_inheritance_graph_louvain-modularity-in-entity']
+
+                if graph_representation.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:      
+                    if 'metric_file_result_dependency_graph_louvain-modularity-in-file' in node:
+                        node_cluster_id = node['metric_file_result_dependency_graph_louvain-modularity-in-file']
 
                 # if 'metric_louvain-modularity-in-file' in node:
                 #     node_cluster_id = node['metric_louvain-modularity-in-file']

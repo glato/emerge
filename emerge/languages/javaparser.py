@@ -15,7 +15,7 @@ import coloredlogs
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import EntityResult, FileResult
-from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
+from emerge.abstractresult import AbstractResult, AbstractEntityResult
 from emerge.stats import Statistics
 from emerge.log import Logger
 
@@ -108,9 +108,9 @@ class JavaParser(AbstractParser, ParsingMixin):
 
     def generate_entity_results_from_analysis(self, analysis):
         LOGGER.debug(f'generating entity results...')
-        filtered_results = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractFileResult)}
+        filtered_results = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, FileResult)}
 
-        result: AbstractFileResult
+        result: FileResult
         for _, result in filtered_results.items():
 
             entity_keywords: List[str] = [JavaParsingKeyword.CLASS.value]
@@ -132,16 +132,16 @@ class JavaParser(AbstractParser, ParsingMixin):
                 self.create_unique_entity_name(entity_result)
                 self._results[entity_result.unique_name] = entity_result
 
-    def _add_imports_to_entity_result(self, entity_result: AbstractEntityResult):
-        LOGGER.debug(f'adding imports to entity result...')
+    def _add_imports_to_entity_result(self, entity_result: EntityResult):
+        LOGGER.debug('adding imports to entity result...')
         for scanned_import in entity_result.parent_file_result.scanned_import_dependencies:
             last_component_of_import = scanned_import.split(CoreParsingKeyword.DOT.value)[-1]
             for token in entity_result.scanned_tokens:  # either check for substrings in token, or find a better way to tokenize
                 if last_component_of_import in token and scanned_import not in entity_result.scanned_import_dependencies:
                     entity_result.scanned_import_dependencies.append(scanned_import)
 
-    def _add_imports_to_result(self, result: AbstractResult, analysis):
-        LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
+    def _add_imports_to_result(self, result: FileResult, analysis):
+        LOGGER.debug('extracting imports from file result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
         source_string_no_comments = self._filter_source_tokens_without_comments(
             list_of_words_with_newline_strings, JavaParsingKeyword.INLINE_COMMENT.value, JavaParsingKeyword.START_BLOCK_COMMENT.value, JavaParsingKeyword.STOP_BLOCK_COMMENT.value)
@@ -175,7 +175,7 @@ class JavaParser(AbstractParser, ParsingMixin):
                     result.scanned_import_dependencies.append(dependency)
                     LOGGER.debug(f'adding import: {dependency}')
 
-    def _add_package_name_to_result(self, result: AbstractResult) -> str:
+    def _add_package_name_to_result(self, result: FileResult):
         LOGGER.debug(f'extracting package name from base result {result.scanned_file_name}...')
         list_of_words = result.scanned_tokens
         for _, obj, following in self._gen_word_read_ahead(list_of_words):

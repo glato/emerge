@@ -13,7 +13,7 @@ import coloredlogs
 from networkx import DiGraph
 import community as community_louvain
 
-from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
+from emerge.abstractresult import AbstractResult
 from emerge.results import FileResult, EntityResult
 from emerge.log import Logger
 from emerge.graph import GraphRepresentation, GraphType
@@ -61,7 +61,7 @@ class LouvainModularityMetric(GraphMetric):
             digraph: DiGraph = graph_instance.digraph
             undirected_graph = digraph.to_undirected()
 
-            graph_type = graph_instance.graph_type.name
+            graph_type_name = graph_instance.graph_type.name
 
             # if not graph_type in self.local_data:
             #     self.local_data[graph_type] = {}
@@ -112,14 +112,24 @@ class LouvainModularityMetric(GraphMetric):
                                 result = results[node_name]
 
                                 if isinstance(result, FileResult):    
-                                    key = (graph_type + '_' + self.Keys.LOUVAIN_MODULARITY_IN_FILE.value).lower()
+                                    key = (graph_type_name + '_' + self.Keys.LOUVAIN_MODULARITY_IN_FILE.value).lower()
                                     result.metrics[key] = sorted_partion_by_louvain[node_name]
-                                    self.local_data[result.unique_name] = {key: sorted_partion_by_louvain[node_name]}
+                                    local_data_graph_type_modularity = {}
+                                    local_data_graph_type_modularity = {key: sorted_partion_by_louvain[node_name]}
+                                    if result.unique_name in self.local_data:
+                                        self.local_data[result.unique_name].update(local_data_graph_type_modularity)
+                                    else:
+                                        self.local_data[result.unique_name] = local_data_graph_type_modularity
 
-                                if isinstance(result, EntityResult):
-                                    key = (graph_type + '_' + self.Keys.LOUVAIN_MODULARITY_IN_ENTITY.value).lower()
+                                elif isinstance(result, EntityResult):
+                                    key = (graph_type_name + '_' + self.Keys.LOUVAIN_MODULARITY_IN_ENTITY.value).lower()
                                     result.metrics[key] = sorted_partion_by_louvain[node_name]
-                                    self.local_data[result.unique_name] = {key: sorted_partion_by_louvain[node_name]}
+                                    local_data_graph_type_modularity = {}
+                                    local_data_graph_type_modularity = {key: sorted_partion_by_louvain[node_name]}
+                                    if result.unique_name in self.local_data:
+                                        self.local_data[result.unique_name].update(local_data_graph_type_modularity)
+                                    else:
+                                        self.local_data[result.unique_name] = local_data_graph_type_modularity
 
                             else:  # if it's not in results, it must be a dependency outside of the analysis
                                 if graph_instance.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH or \
@@ -127,18 +137,16 @@ class LouvainModularityMetric(GraphMetric):
                                         graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
 
                                     local_data_graph_type_modularity = {}
-                                    key = (graph_instance.graph_type + self.Keys.LOUVAIN_MODULARITY_IN_ENTITY.value).lower()
+                                    key = (graph_type_name + '_' + self.Keys.LOUVAIN_MODULARITY_IN_ENTITY.value).lower()
                                     local_data_graph_type_modularity[node_name] = {key: sorted_partion_by_louvain[node_name]}
-                                    self.local_data[node_name].update(local_data_graph_type_modularity)
-                                    # self.local_data[graph_type][node_name] = {self.Keys.LOUVAIN_MODULARITY_IN_ENTITY.value: sorted_partion_by_louvain[node_name]}
+                                    self.local_data.update(local_data_graph_type_modularity)
 
-                                if graph_instance.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:
+                                elif graph_instance.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:
 
                                     local_data_graph_type_modularity = {}
-                                    key = (graph_instance.graph_type + self.Keys.LOUVAIN_MODULARITY_IN_FILE.value).lower()
+                                    key = (graph_type_name + '_' + self.Keys.LOUVAIN_MODULARITY_IN_FILE.value).lower()
                                     local_data_graph_type_modularity[node_name] = {key: sorted_partion_by_louvain[node_name]}
-                                    self.local_data[node_name].update(local_data_graph_type_modularity)
-                                    # self.local_data[graph_type][node_name] = {self.Keys.LOUVAIN_MODULARITY_IN_FILE.value: sorted_partion_by_louvain[node_name]}
+                                    self.local_data.update(local_data_graph_type_modularity)
 
                 for index, distribution in sum_biggest_five_community_distribution.items():
                     sum_biggest_five_community_distribution[index] = round((distribution / optimization_runs) / undirected_graph.number_of_nodes(), 2)
@@ -171,6 +179,6 @@ class LouvainModularityMetric(GraphMetric):
                 self.overall_data.update(metric_keys)
 
             except:
-                LOGGER.warning('something went wrong, skipping metric')
+                LOGGER.error(f'something went wrong, skipping metric {self.metric_name}')
 
         pass
