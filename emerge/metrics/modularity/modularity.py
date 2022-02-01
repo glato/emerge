@@ -63,11 +63,8 @@ class LouvainModularityMetric(GraphMetric):
 
             graph_type_name = graph_instance.graph_type.name
 
-            # if not graph_type in self.local_data:
-            #     self.local_data[graph_type] = {}
-
             try:
-                optimization_runs = 1
+                optimization_runs = 5
                 sum_communities_found, sum_modularity = 0, 0.0
                 sum_biggest_five_community_distribution = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
 
@@ -180,5 +177,3 @@ class LouvainModularityMetric(GraphMetric):
 
             except:
                 LOGGER.error(f'something went wrong, skipping metric {self.metric_name}')
-
-        pass

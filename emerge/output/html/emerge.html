@@ -445,23 +445,24 @@
          * * When selecting metrics, ever radius is multiplicated/scaled using this map
          */
         const metricScale = {
-            "metric_fan_in_dependency_graph": 0.05,
-            "metric_fan_in_inheritance_graph": 0.05,
-            "metric_fan_in_complete_graph": 0.05,
+            "metric_fan_in_dependency_graph": 0.1,
+            "metric_fan_in_inheritance_graph": 0.1,
+            "metric_fan_in_complete_graph": 0.1,
 
-            "metric_fan_out_dependency_graph": 0.05,
-            "metric_fan_out_inheritance_graph": 0.05,
-            "metric_fan_out_complete_graph": 0.05,
+            "metric_fan_out_dependency_graph": 0.1,
+            "metric_fan_out_inheritance_graph": 0.1,
+            "metric_fan_out_complete_graph": 0.1,
 
-            "metric_entity_result_dependency_graph_louvain_modularity_in_entity": 0.005,
-            "metric_entity_result_inheritance_graph_louvain_modularity_in_entity": 0.005,
-            "metric_entity_result_dependency_graph_louvain_modularity_in_file": 0.005,
+            "metric_entity_result_dependency_graph_louvain_modularity_in_entity": 0.02,
+            "metric_entity_result_inheritance_graph_louvain_modularity_in_entity": 0.02,
+            "metric_entity_result_complete_graph_louvain_modularity_in_entity": 0.02,
+            "metric_entity_result_dependency_graph_louvain_modularity_in_file": 0.02,
 
-            "metric_sloc_in_file": 0.003,
-            "metric_sloc_in_entity": 0.003,
+            "metric_sloc_in_file": 0.005,
+            "metric_sloc_in_entity": 0.005,
 
-            "metric_number_of_methods_in_file": 0.03,
-            "metric_number_of_methods_in_entity": 0.03,
+            "metric_number_of_methods_in_file": 0.05,
+            "metric_number_of_methods_in_entity": 0.05,
         }
 
         let selectedNodesMap = {}
@@ -1514,10 +1515,17 @@
             $('#badge_metric_fan_out_inheritance_graph').attr('title', description_metric_fan_out)
             $('#badge_metric_fan_out_inheritance_graph').tooltip();
 
-            $('#badge_metric_louvain_modularity_in_file').attr('title', description_metric_louvain_modularity)
-            $('#badge_metric_louvain_modularity_in_file').tooltip();
-            $('#badge_metric_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
-            $('#badge_metric_louvain_modularity_in_entity').tooltip();
+            $('#badge_metric_file_result_dependency_graph_louvain_modularity_file').attr('title', description_metric_louvain_modularity)
+            $('#badge_metric_file_result_dependency_graph_louvain_modularity_file').tooltip();
+
+            $('#badge_metric_entity_result_dependency_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
+            $('#badge_metric_entity_result_dependency_graph_louvain_modularity_in_entity').tooltip();
+
+            $('#badge_metric_entity_result_inheritance_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
+            $('#badge_metric_entity_result_inheritance_graph_louvain_modularity_in_entity').tooltip();
+
+            $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
+            $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();
         }
 
         function createStatistics() {
@@ -1579,7 +1587,13 @@
                 applyMetricHtml += currentMetricKeys[key]
                 applyMetricHtml += '\');"/>&nbsp; <span id="'
                 applyMetricHtml += '" style="font-size:10px;">'
-                applyMetricHtml += currentMetricKeys[key].replace(/_/gi, " ").replace(/metric/gi, "")
+
+                let visibleMetricName = currentMetricKeys[key].replace(/_/gi, " ").replace(/metric/gi, "")
+                
+                // reformat the visible metric name if necessary
+                if (visibleMetricName.includes('louvain modularity')) { visibleMetricName = 'louvain modularity' }
+                
+                applyMetricHtml += visibleMetricName
                 applyMetricHtml += '</span> <small><span id="'
                 applyMetricHtml += 'badge_' + currentMetricKeys[key]
                 applyMetricHtml += '" data-toggle="tooltip" data-placement="bottom" title="" class="badge badge-primary badge-pill"> ?</span> </small> &nbsp;</li>'

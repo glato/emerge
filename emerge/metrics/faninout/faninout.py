@@ -138,4 +138,4 @@ class FanInOutMetric(GraphMetric):
                 self.overall_data.update(avg_data)
 
             except ZeroDivisionError:
-                LOGGER.warning(f'graph representation has no nodes, skipping average metrics')
+                LOGGER.error('graph representation has no nodes, skipping average metrics')
