@@ -147,6 +147,10 @@ class GraphRepresentation:
                                 if GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name:
                                     graph.nodes[node]['metric_' + name] = value
 
+                            if self.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
+                                if GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower() not in name and GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name:
+                                    graph.nodes[node]['metric_' + name] = value
+
 @unique
 class FileSystemNodeType(Enum):
     FILE = auto()

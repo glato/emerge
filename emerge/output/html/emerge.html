@@ -891,7 +891,13 @@
                     if ('metric_entity_result_inheritance_graph_louvain_modularity_in_entity' in node) {
                         return hexToRGB(color(node.metric_entity_result_inheritance_graph_louvain_modularity_in_entity), alpha)
                     }
-                }   
+                }
+                
+                if (currentGraphType.includes('entity_result_complete_graph')) {
+                    if ('metric_entity_result_complete_graph_louvain_modularity_in_entity' in node) {
+                        return hexToRGB(color(node.metric_entity_result_complete_graph_louvain_modularity_in_entity), alpha)
+                    }
+                }
             }
         }
 
