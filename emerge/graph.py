@@ -113,8 +113,7 @@ class GraphRepresentation:
                 current_node = nodes[node]
                 if not bool(current_node):
                     continue  # if a file/dependency doesn't physically exits, do not consider it for the filsystem graph
-
-                current_node: FileSystemNode
+                
                 if current_node['directory'] == True:
                     continue  # do not add any metrics to directories
 
@@ -141,14 +140,18 @@ class GraphRepresentation:
                         if 'file' not in name:  # do not include any file metrics in the ENTITY_RESULT graphs  
 
                             if self.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH:
-                                if GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower() not in name:
+                                if GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower() not in name and \
+                                    GraphType.ENTITY_RESULT_COMPLETE_GRAPH.name.lower() not in name:
                                     graph.nodes[node]['metric_' + name] = value
+
                             if self.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
-                                if GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name:
+                                if GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name and \
+                                    GraphType.ENTITY_RESULT_COMPLETE_GRAPH.name.lower() not in name:
                                     graph.nodes[node]['metric_' + name] = value
 
                             if self.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
-                                if GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower() not in name and GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name:
+                                if GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower() not in name and \
+                                    GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name:
                                     graph.nodes[node]['metric_' + name] = value
 
 @unique

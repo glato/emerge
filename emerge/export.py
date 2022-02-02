@@ -287,12 +287,6 @@ class D3Exporter:
             # now loop over all nodes and create a cluster map helper structure
             for node in data['nodes']:
                 node_cluster_id = 0
-
-                # TODO: adjust to all graph types
-                # metric_entity_result_dependency_graph-louvain-modularity-in-entity
-                # metric_entity_result_inheritance_graph-louvain-modularity-in-entity
-                # metric_file_result_dependency_graph-louvain-modularity-in-file
-                #
                 
                 if graph_representation.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH:
                     if 'metric_entity_result_dependency_graph_louvain-modularity-in-entity' in node:
@@ -302,21 +296,18 @@ class D3Exporter:
                     if 'metric_entity_result_inheritance_graph_louvain-modularity-in-entity' in node:
                         node_cluster_id = node['metric_entity_result_inheritance_graph_louvain-modularity-in-entity']
 
-                if graph_representation.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:      
+                if graph_representation.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
+                    if 'metric_entity_result_complete_graph_louvain-modularity-in-entity' in node:
+                        node_cluster_id = node['metric_entity_result_complete_graph_louvain-modularity-in-entity']
+
+                if graph_representation.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or graph_representation.graph_type == GraphType.FILESYSTEM_GRAPH:      
                     if 'metric_file_result_dependency_graph_louvain-modularity-in-file' in node:
                         node_cluster_id = node['metric_file_result_dependency_graph_louvain-modularity-in-file']
-
-                # if 'metric_louvain-modularity-in-file' in node:
-                #     node_cluster_id = node['metric_louvain-modularity-in-file']
-                # elif 'metric_louvain-modularity-in-entity' in node:
-                #     node_cluster_id = node['metric_louvain-modularity-in-entity']
 
                 if 'metric_sloc-in-file' in node:
                     total_sloc += node['metric_sloc-in-file']
                 elif 'metric_sloc-in-entity' in node:
                     total_sloc += node['metric_sloc-in-entity']
-
-                #node_cluster_id = node_cluster_id
 
                 if node_cluster_id in cluster_map:
                     cluster_map[node_cluster_id].append(node)

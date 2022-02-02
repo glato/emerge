@@ -931,6 +931,8 @@
                     nodeClusterId = node.metric_entity_result_dependency_graph_louvain_modularity_in_entity
                 } else if (node.hasOwnProperty('metric_entity_result_inheritance_graph_louvain_modularity_in_entity')) {
                     nodeClusterId = node.metric_entity_result_inheritance_graph_louvain_modularity_in_entity
+                } else if (node.hasOwnProperty('metric_entity_result_complete_graph_louvain_modularity_in_entity')) {
+                    nodeClusterId = node.metric_entity_result_complete_graph_louvain_modularity_in_entity
                 }
 
                 nodeClusterId = nodeClusterId.toString()
@@ -1529,6 +1531,9 @@
 
             $('#badge_metric_entity_result_inheritance_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
             $('#badge_metric_entity_result_inheritance_graph_louvain_modularity_in_entity').tooltip();
+
+            $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
+            $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();
 
             $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
             $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();

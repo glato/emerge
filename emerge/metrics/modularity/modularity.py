@@ -133,17 +133,24 @@ class LouvainModularityMetric(GraphMetric):
                                         graph_instance.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH or \
                                         graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
 
-                                    local_data_graph_type_modularity = {}
                                     key = (graph_type_name + '_' + self.Keys.LOUVAIN_MODULARITY_IN_ENTITY.value).lower()
-                                    local_data_graph_type_modularity[node_name] = {key: sorted_partion_by_louvain[node_name]}
-                                    self.local_data.update(local_data_graph_type_modularity)
-
-                                elif graph_instance.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:
-
                                     local_data_graph_type_modularity = {}
+                                    local_data_graph_type_modularity = {key: sorted_partion_by_louvain[node_name]}
+                                    if node_name in self.local_data:
+                                        self.local_data[node_name].update(local_data_graph_type_modularity)
+                                    else:
+                                        self.local_data[node_name] = local_data_graph_type_modularity
+
+                                elif graph_instance.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or \
+                                        graph_instance.graph_type == GraphType.FILESYSTEM_GRAPH:
+
                                     key = (graph_type_name + '_' + self.Keys.LOUVAIN_MODULARITY_IN_FILE.value).lower()
-                                    local_data_graph_type_modularity[node_name] = {key: sorted_partion_by_louvain[node_name]}
-                                    self.local_data.update(local_data_graph_type_modularity)
+                                    local_data_graph_type_modularity = {}
+                                    local_data_graph_type_modularity = {key: sorted_partion_by_louvain[node_name]}
+                                    if node_name in self.local_data:
+                                        self.local_data[node_name].update(local_data_graph_type_modularity)
+                                    else:
+                                        self.local_data[node_name] = local_data_graph_type_modularity
 
                 for index, distribution in sum_biggest_five_community_distribution.items():
                     sum_biggest_five_community_distribution[index] = round((distribution / optimization_runs) / undirected_graph.number_of_nodes(), 2)
