@@ -5,15 +5,130 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run emerge with arguments",
+            "name": "TypeScript / emerge",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/emerge.py",
             "console": "integratedTerminal",
             "args": [
                 "-c",
-                "emerge/configs/swift-template.yaml"
+                "emerge/myconfigs/typescript-template.yaml"
             ]
+        },
+        {
+            "name": "Ruby / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/ruby-template.yaml"
+            ]
+        },
+        {
+            "name": "Python / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/py-template.yaml"
+            ]
+        },
+        {
+            "name": "ObjC / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/objc-template.yaml"
+            ]
+        },
+        {
+            "name": "Kotlin / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/kotlin-template.yaml"
+            ]
+        },
+        {
+            "name": "Groovy / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/groovy-template.yaml"
+            ]
+        },
+        {
+            "name": "CPP / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/cpp-template.yaml"
+            ]
+        },
+        {
+            "name": "C / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/c-template.yaml"
+            ]
+        },
+        {
+            "name": "Swift / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/swift-template.yaml"
+            ]
+        },
+        {
+            "name": "Java / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/java-template.yaml"
+            ]
+        },
+        {
+            "name": "JavaScript / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/javascript-template.yaml"
+            ]
+        },
+        {
+            "name": "--",
+            "type": "python",
+            "request": "launch"
         },
         {
             "name": "Run emerge add config",
@@ -59,41 +174,6 @@
             "request": "launch",
             "module": "enter-your-module-name-here",
             "console": "integratedTerminal"
-        },
-        {
-            "name": "Python: Django",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "console": "integratedTerminal",
-            "args": [
-                "runserver",
-                "--noreload",
-                "--nothreading"
-            ],
-            "django": true
-        },
-        {
-            "name": "Python: Flask",
-            "type": "python",
-            "request": "launch",
-            "module": "flask",
-            "env": {
-                "FLASK_APP": "app.py"
-            },
-            "args": [
-                "run",
-                "--no-debugger",
-                "--no-reload"
-            ],
-            "jinja": true
-        },
-        {
-            "name": "Python: Current File (External Terminal)",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "externalTerminal"
         }
     ]
 }

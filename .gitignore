@@ -7,7 +7,7 @@ venv/*
 **.swp
 **.swp
 
-emerge/configs/my
+emerge/myconfigs/**
 emerge/export/**
 build/**
 emerge_dependency_visualizer.egg-info/**
