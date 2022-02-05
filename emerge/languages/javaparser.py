@@ -43,7 +43,7 @@ class JavaParser(AbstractParser, ParsingMixin):
         self._token_mappings: Dict[str, str] = {
             ':': ' : ',
             ';': ' ; ',
-            '{': ' { ',
+            '{': ' { ',
             '}': ' } ',
             '(': ' ( ',
             ')': ' ) ',

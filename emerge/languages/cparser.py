@@ -41,7 +41,7 @@ class CParser(AbstractParser, ParsingMixin):
         self._token_mappings: Dict[str, str] = {
             ':': ' : ',
             ';': ' ; ',
-            '{': ' { ',
+            '{': ' { ',
             '}': ' } ',
             '(': ' ( ',
             ')': ' ) ',
