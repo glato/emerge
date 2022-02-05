@@ -217,4 +217,3 @@ class Analyzer:
         parser: AbstractParser
         for _, parser in self._parsers.items():
             parser.results.clear()
-            pass

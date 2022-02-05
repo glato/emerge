@@ -9,7 +9,6 @@ from typing import Dict, List
 from enum import Enum, unique
 import logging
 from pathlib import PosixPath
-import os
 
 import pyparsing as pp
 import coloredlogs
@@ -49,7 +48,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
         self._token_mappings: Dict[str, str] = {
             ':': ' : ',
             ';': ' ; ',
-            '{': ' { ',
+            '{': ' { ',
             '}': ' } ',
             '(': ' ( ',
             ')': ' ) ',

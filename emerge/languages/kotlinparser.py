@@ -43,7 +43,7 @@ class KotlinParser(AbstractParser, ParsingMixin):
         self._token_mappings: Dict[str, str] = {
             ':': ' : ',
             ';': ' ; ',
-            '{': ' { ',
+            '{': ' { ',
             '}': ' } ',
             '(': ' ( ',
             ')': ' ) ',
@@ -135,7 +135,7 @@ class KotlinParser(AbstractParser, ParsingMixin):
                 self._results[entity_result.unique_name] = entity_result
 
     def _add_imports_to_entity_result(self, entity_result: AbstractEntityResult):
-        LOGGER.debug(f'adding imports to entity result...')
+        LOGGER.debug('adding imports to entity result...')
         for scanned_import in entity_result.parent_file_result.scanned_import_dependencies:
             last_component_of_import = scanned_import.split(CoreParsingKeyword.DOT.value)[-1]
             for token in entity_result.scanned_tokens:  # either check for substrings in token, or find a better way to tokenize

@@ -33,6 +33,13 @@ class GraphType(Enum):
     ENTITY_RESULT_COMPLETE_GRAPH = auto()
     FILESYSTEM_GRAPH = auto()
 
+@unique
+class GraphFilter(Enum):
+    """Small utility enum to filter metrics for graph types.
+    """
+    DEPENDENCY = auto()
+    INHERITANCE = auto()
+    COMPLETE = auto()
 
 class GraphRepresentation:
     """GraphRepresentation contains a networkx directed graph instance, a graph type and methods to construct the corresponding graph.
@@ -46,16 +53,16 @@ class GraphRepresentation:
     @property
     def digraph(self) -> DiGraph:
         return self._digraph
+    
+    @digraph.setter
+    def digraph(self, value: DiGraph):
+        self._digraph = value
 
     @property
     def graph_type(self) -> GraphType:
         return self._graph_type
 
-    @digraph.setter
-    def digraph(self, value: DiGraph):
-        self._digraph = value
-
-    def calculate_dependency_graph_from_results(self, results: List[AbstractFileResult]) -> None:
+    def calculate_dependency_graph_from_results(self, results: Dict[str, Any]) -> None:
         """Constructs a dependency graph from a list of abstract file results.
 
         Args:
@@ -73,7 +80,7 @@ class GraphRepresentation:
                 self._digraph.add_node(dependency, display_name=dependency)
                 self._digraph.add_edge(node_name, dependency)
 
-    def calculate_inheritance_graph_from_results(self, results: List[AbstractEntityResult]) -> None:
+    def calculate_inheritance_graph_from_results(self, results: Dict[str, Any]) -> None:
         """Constructs an inheritance graph from a list of abstract entity results.
 
         Args:
@@ -114,7 +121,7 @@ class GraphRepresentation:
                 if not bool(current_node):
                     continue  # if a file/dependency doesn't physically exits, do not consider it for the filsystem graph
                 
-                if current_node['directory'] == True:
+                if current_node['directory'] is True:
                     continue  # do not add any metrics to directories
 
                 if node in metric_results.keys():
@@ -124,7 +131,10 @@ class GraphRepresentation:
                         if 'entity' not in name:  # do not include any entity metrics in the filesystem graph
                             graph.nodes[node]['metric_' + name] = value
 
-            if self.graph_type == GraphType.FILE_RESULT_COMPLETE_GRAPH or self.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or self.graph_type == GraphType.FILE_RESULT_INHERITANCE_GRAPH:
+            if  self.graph_type == GraphType.FILE_RESULT_COMPLETE_GRAPH or \
+                self.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or \
+                self.graph_type == GraphType.FILE_RESULT_INHERITANCE_GRAPH:
+
                 if node in metric_results.keys():
                     metric_dict = metric_results[node]
 
@@ -132,26 +142,27 @@ class GraphRepresentation:
                         if 'entity' not in name:  # do not include any entity metrics in FILE_RESULT graphs
                             graph.nodes[node]['metric_' + name] = value
 
-            if self.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH or self.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH or self.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
+            if  self.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH or \
+                self.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH or \
+                self.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
+
                 if node in metric_results.keys():
                     metric_dict = metric_results[node]
 
                     for name, value in metric_dict.items():
                         if 'file' not in name:  # do not include any file metrics in the ENTITY_RESULT graphs  
-
+                            
+                            # filter out any metrics that don't belong to the appropriate graph type
                             if self.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH:
-                                if GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower() not in name and \
-                                    GraphType.ENTITY_RESULT_COMPLETE_GRAPH.name.lower() not in name:
+                                if GraphFilter.INHERITANCE.name.lower() not in name and GraphFilter.COMPLETE.name.lower() not in name:
                                     graph.nodes[node]['metric_' + name] = value
 
                             if self.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
-                                if GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name and \
-                                    GraphType.ENTITY_RESULT_COMPLETE_GRAPH.name.lower() not in name:
+                                if GraphFilter.DEPENDENCY.name.lower() not in name and GraphFilter.COMPLETE.name.lower() not in name:
                                     graph.nodes[node]['metric_' + name] = value
 
                             if self.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
-                                if GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower() not in name and \
-                                    GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() not in name:
+                                if GraphFilter.INHERITANCE.name.lower() not in name and GraphFilter.DEPENDENCY.name.lower() not in name:
                                     graph.nodes[node]['metric_' + name] = value
 
 @unique
@@ -164,8 +175,8 @@ class FileSystemNode:
     """Small representation of a filesystem object, e.g. a directory or a file. This class is currently used to build the filesystem graph.
     """
 
-    def __init__(self, type: FileSystemNodeType, absolute_name: str, content: Optional[str] = None):
-        self.type: FileSystemNodeType = type
+    def __init__(self, node_type: FileSystemNodeType, absolute_name: str, content: Optional[str] = None):
+        self.type: FileSystemNodeType = node_type
         self.absolute_name: str = absolute_name
 
         self.content: Optional[str] = content
