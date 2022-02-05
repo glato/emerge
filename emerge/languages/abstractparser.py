@@ -200,15 +200,6 @@ class ParsingMixin(ABC):
         return " ".join(read_ahead)
 
     @staticmethod
-    def _gen_word_read_ahead(list_of_words) -> Generator:
-        following = None
-        length = len(list_of_words)
-        for index, obj in enumerate(list_of_words):
-            if index < (length - 1):
-                following = list_of_words[index + 1:]
-            yield index, obj, following
-
-    @staticmethod
     def _is_dependency_in_ignore_list(dependency: str, analysis) -> bool:
         if bool(analysis.ignore_dependencies_containing):
             for ignored_dependency in analysis.ignore_dependencies_containing:
@@ -220,7 +211,7 @@ class ParsingMixin(ABC):
     def preprocess_file_content_and_generate_token_list(cls, file_content: str) -> List[str]:
         return re.findall(r'\S+|\n', file_content.replace(':', ' : ')
                                                  .replace(';', ' ; ')
-                                                 .replace('{', ' { ')
+                                                 .replace('{', ' { ')
                                                  .replace('}', ' } ')
                                                  .replace('(', ' ( ')
                                                  .replace(')', ' ) ')
