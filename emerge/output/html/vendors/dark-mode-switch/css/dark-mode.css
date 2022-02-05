@@ -1,47 +1,46 @@
 [data-theme="dark"] {
-    background-color: #111 !important;
+    background-color: #00040a !important;
     color: #eee;
 }
 
 [data-theme="dark"] .bg-light {
-    background-color: #333 !important;
+    background-color: #141414 !important;
 }
 
 [data-theme="dark"] .bg-white {
-    background-color: #000 !important;
+    background-color: #000000 !important;
 }
 
 [data-theme="dark"] .bg-black {
-    background-color: #eee !important;
+    background-color: #eeeeee !important;
 }
 
 [data-theme="dark"] .card {
-    background-color: rgb(20, 20, 20) !important;
+    background-color: #0e0e0e !important;
+    outline: 2px solid #121212;
 }
 
 [data-theme="dark"] .jumbotron {
-    background-color: #111 !important;
+    background-color: #00040a !important;
 }
 
 [data-theme="dark"] .list-group-item {
-    background-color: rgb(20, 20, 20) !important;
+    background-color: #0e0e0e !important;
 }
 
 [data-theme="dark"] .card-header {
-    background-color: rgb(30, 30, 30) !important;
+    background-color: #121212 !important;
 }
 
 [data-theme="dark"] .tooltip table tbody tr td {
-    background-color: rgb(40, 40, 40) !important;
+    background-color: #121212 !important;
 }
 
 [data-theme="dark"] .modal-title {
-    /* color: rgb(30, 30, 30) !important; */
     color: #eee;
 }
 
 [data-theme="dark"] .modal-body table {
-    /* color: rgb(30, 30, 30) !important; */
     color: #eee;
 }
 
@@ -54,22 +53,22 @@
 }
 
 [data-theme="dark"] #dropdown-apply-metric {
-    background-color: rgb(20, 20, 20) !important;
+    background-color: #121212 !important;
     color: #eee;
 }
 
 [data-theme="dark"] #dropdown-graph {
-    background-color: rgb(20, 20, 20) !important;
+    background-color: #121212 !important;
     color: #eee;
 }
 
 [data-theme="dark"] .dropdown-item {
-    background-color: rgb(20, 20, 20) !important;
+    background-color: #121212 !important;
     color: #eee;
 }
 
 [data-theme="dark"] .modal-content {
-    background-color: #111 !important;
+    background-color: #111111 !important;
     color: #eee;
 }
 
