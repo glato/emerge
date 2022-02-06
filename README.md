@@ -38,7 +38,13 @@ The main goal of this project is to create a free/ open source tool, that can ea
 - Configuration support based on YAML syntax to configure multiple/specific analyses
 - Create a language/project configuration directly from an included configuration template
 - Export of scan results/ metrics/ statistics for the following formats/ outputs
-  - Code dependency, inheritance, complete and filesystem graph (enriched with scan results/metrics)
+  - File scan
+    - Dependency graph
+  - Entity scan
+    - Dependency graph
+    - Inheritance graph
+    - Complete graph (composition of dependency and inheritance graph)
+  - A Filesystem graph that shows the project filesystem hierarchy as a graph
   - [GraphML](http://graphml.graphdrawing.org)
   - [Graphviz DOT format](https://graphviz.org/doc/info/lang.html)
   - JavaScript format suited for a [D3 force graph simulation](https://github.com/d3/d3-force)
@@ -48,7 +54,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - The node colors are based on [Louvain modularity](https://github.com/taynaud/python-louvain) with a bit of post-processing to make the graph coloring more deterministic and stable
     - Fast full-screen UI rendering on HTML canvas
     - Visualization of files, entities and given metrics
-    - [dark mode support](https://github.com/coliff/dark-mode-switch)
+    - [Dark mode support](https://github.com/coliff/dark-mode-switch)
     - Reactive visual live search of files/ entities (e.g. classes)
     - Selection and highlighting of individual nodes
     - [Concave hull](https://github.com/AndriiHeonia/hull) visualization of single clusters
@@ -75,7 +81,7 @@ and then simply execute it like this
 (emerge) user@host ~ % emerge
 usage: emerge [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
 
-🔎 Welcome to emerge 1.0.0 (2021-12-04 20:40:34)
+🔎 Welcome to emerge 1.1.0 (2022-02-06 15:05:39)
 
 options:
   -h, --help            show this help message and exit
@@ -95,7 +101,7 @@ You can create a simple project config adhoc from the command line and then simp
 
 ```
 (emerge) user@host tmp % pwd
-/Users/grzegorz.lato/tmp
+/Users/user1/tmp
 (emerge) user@host tmp % emerge -a java
 ✅ created config file from template: /Users/user1/tmp/java-template.yaml
 ```
@@ -134,7 +140,7 @@ analyses:
   - tabular_file
   - tabular_console_overall
   - d3
-(emerge) grzegorz.lato@C02DN06QMD6V tmp %
+(emerge) user@host tmp %
 ```
 
 ### 3️⃣ ~ Start a scan
@@ -142,7 +148,7 @@ analyses:
 After this you can simply start a scan by
 
 ```
-(emerge) grzegorz.lato@C02DN06QMD6V tmp % emerge -c java-template.yaml
+(emerge) user@host tmp % emerge -c java-template.yaml
 2021-12-04 21:18:15   analysis I 👉 starting to analyze java_project_example
 2021-12-04 21:18:15   analysis I ⏩ performing analysis 1/1: full java check
 2021-12-04 21:18:15   analysis I 👉 starting to create filesystem graph in full java check
@@ -223,7 +229,7 @@ python emerge/tests/run_tests.py
 (emerge) user@host emerge % python emerge.py 
 usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
 
-🔎 Welcome to emerge 1.0.0 (2021-12-04 20:40:34)
+🔎 Welcome to emerge 1.1.0 (2022-02-06 15:05:39)
 
 options:
   -h, --help            show this help message and exit
