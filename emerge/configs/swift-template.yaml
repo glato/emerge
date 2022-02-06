@@ -3,7 +3,7 @@ project_name: swift_example_project
 loglevel: info
 analyses:
 - analysis_name: full swift check
-  source_directory: /Users/grzegorz.lato/Private/Code/github/clean-architecture-swiftui
+  source_directory: /Users/user1/emerge/project/source
   only_permit_languages:
   - swift
   only_permit_file_extensions:
@@ -15,14 +15,15 @@ analyses:
   - fan_in_out
   - louvain_modularity
   entity_scan:
-  - inheritance_graph
   - dependency_graph
+  - inheritance_graph
+  - complete_graph
   - source_lines_of_code
   - number_of_methods
   - fan_in_out
   - louvain_modularity
   export:
-  - directory: /Users/grzegorz.lato/temp/swift-export
+  - directory: /Users/user1/emerge/project/export
   - graphml
   - dot
   - json

@@ -16,6 +16,8 @@ analyses:
   - louvain_modularity
   entity_scan:
   - dependency_graph
+  - inheritance_graph
+  - complete_graph
   - source_lines_of_code
   - number_of_methods
   - fan_in_out
