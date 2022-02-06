@@ -70,7 +70,7 @@ class SwiftParserTestCase(unittest.TestCase):
         self.analysis.collect_results_from_parser(self.parser)
         entity_results = self.analysis.entity_results
 
-        self.assertTrue(len(entity_results) == 14)
+        self.assertTrue(len(entity_results) == 22)
 
         result: EntityResult
         for _, result in entity_results.items():
