@@ -25,9 +25,6 @@ from emerge.log import Logger
 LOGGER = Logger(logging.getLogger('analysis'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
-# LOGGER = logging.Logger(logging.getLogger('analysis'))
-# coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=logging.Logger.log_format)
-
 
 class GraphExporter:
     def __init__(self):
