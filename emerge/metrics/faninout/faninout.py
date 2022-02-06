@@ -82,12 +82,12 @@ class FanInOutMetric(GraphMetric):
                 if graph_instance.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:
                     metric_keys = {'fan-in': self.Keys.FAN_IN_DEPENDENCY_GRAPH.value, 'fan-out': self.Keys.FAN_OUT_DEPENDENCY_GRAPH.value,
                                    'avg-fan-in': self.Keys.AVG_FAN_IN_DEPENDENCY_GRAPH.value, 'avg-fan-out': self.Keys.AVG_FAN_OUT_DEPENDENCY_GRAPH.value}
-
-                if graph_instance.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_INHERITANCE_GRAPH:
+                                   
+                if graph_instance.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
                     metric_keys = {'fan-in': self.Keys.FAN_IN_INHERITANCE_GRAPH.value, 'fan-out': self.Keys.FAN_OUT_INHERITANCE_GRAPH.value,
                                    'avg-fan-in': self.Keys.AVG_FAN_IN_INHERITANCE_GRAPH.value, 'avg-fan-out': self.Keys.AVG_FAN_OUT_INHERITANCE_GRAPH.value}
 
-                if graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_COMPLETE_GRAPH:
+                if graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
                     metric_keys = {'fan-in': self.Keys.FAN_IN_COMPLETE_GRAPH.value, 'fan-out': self.Keys.FAN_OUT_COMPLETE_GRAPH.value,
                                    'avg-fan-in': self.Keys.AVG_FAN_IN_COMPLETE_GRAPH.value, 'avg-fan-out': self.Keys.AVG_FAN_OUT_COMPLETE_GRAPH.value}
 
@@ -123,13 +123,13 @@ class FanInOutMetric(GraphMetric):
                     avg_data[self.Keys.MAX_FAN_OUT_DEPENDENCY_GRAPH.value] = biggest_fan_out_degree
                     avg_data[self.Keys.MAX_FAN_OUT_NAME_DEPENDENCY_GRAPH.value] = biggest_fan_out_name
 
-                if graph_instance.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_INHERITANCE_GRAPH:
+                if graph_instance.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
                     avg_data[self.Keys.MAX_FAN_IN_INHERITANCE_GRAPH.value] = biggest_fan_in_degree
                     avg_data[self.Keys.MAX_FAN_IN_NAME_INHERITANCE_GRAPH.value] = biggest_fan_in_name
                     avg_data[self.Keys.MAX_FAN_OUT_INHERITANCE_GRAPH.value] = biggest_fan_out_degree
                     avg_data[self.Keys.MAX_FAN_OUT_NAME_INHERITANCE_GRAPH.value] = biggest_fan_out_name
 
-                if graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_COMPLETE_GRAPH:
+                if graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
                     avg_data[self.Keys.MAX_FAN_IN_COMPLETE_GRAPH.value] = biggest_fan_in_degree
                     avg_data[self.Keys.MAX_FAN_IN_NAME_COMPLETE_GRAPH.value] = biggest_fan_in_name
                     avg_data[self.Keys.MAX_FAN_OUT_COMPLETE_GRAPH.value] = biggest_fan_out_degree

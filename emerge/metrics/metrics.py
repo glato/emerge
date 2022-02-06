@@ -29,12 +29,6 @@ class GraphMetric(AbstractGraphMetric):
         if GraphType.FILE_RESULT_DEPENDENCY_GRAPH.name.lower() in graph_representations.keys():
             self._dependency_graph_representaion = graph_representations[GraphType.FILE_RESULT_DEPENDENCY_GRAPH.name.lower()]
 
-        if GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower() in graph_representations.keys():
-            self._inheritance_graph_representaion = graph_representations[GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower()]
-
-        if GraphType.FILE_RESULT_COMPLETE_GRAPH.name.lower() in graph_representations.keys():
-            self._complete_graph_representation = graph_representations[GraphType.FILE_RESULT_COMPLETE_GRAPH.name.lower()]
-
         if GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower() in graph_representations.keys():
             self._dependency_graph_representaion = graph_representations[GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower()]
 

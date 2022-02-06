@@ -71,9 +71,7 @@ class Analysis:
             GraphType.ENTITY_RESULT_COMPLETE_GRAPH.name.lower(): None,
             GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower(): None,
             GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower(): None,
-            GraphType.FILE_RESULT_COMPLETE_GRAPH.name.lower(): None,
             GraphType.FILE_RESULT_DEPENDENCY_GRAPH.name.lower(): None,
-            GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower(): None,
             GraphType.FILESYSTEM_GRAPH.name.lower(): None
         }
 
@@ -499,21 +497,16 @@ class Analysis:
 
         # make sure we compute dependency/inheritance graphs before composing complete graphs
         simple_graph_representations = {k: v for (k, v) in self.graph_representations.items() if v is not None and
-                                        v.graph_type is not GraphType.ENTITY_RESULT_COMPLETE_GRAPH and
-                                        v.graph_type is not GraphType.FILE_RESULT_COMPLETE_GRAPH}
+                                        v.graph_type is not GraphType.ENTITY_RESULT_COMPLETE_GRAPH}
 
         complete_graph_representation = {k: v for (k, v) in self.graph_representations.items() if v is not None and
-                                         (v.graph_type is GraphType.ENTITY_RESULT_COMPLETE_GRAPH or
-                                          v.graph_type is GraphType.FILE_RESULT_COMPLETE_GRAPH)}
+                                         v.graph_type is GraphType.ENTITY_RESULT_COMPLETE_GRAPH}
 
         representation: GraphRepresentation
         for name, representation in simple_graph_representations.items():
 
             if name == GraphType.FILE_RESULT_DEPENDENCY_GRAPH.name.lower():
                 representation.calculate_dependency_graph_from_results(file_results)
-
-            if name == GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower():
-                representation.calculate_inheritance_graph_from_results(file_results)
 
             if name == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower():
                 representation.calculate_dependency_graph_from_results(entity_results)
@@ -524,12 +517,6 @@ class Analysis:
         # now if necessary compute the compositions
         representation: GraphRepresentation
         for name, representation in complete_graph_representation.items():
-            if name == GraphType.FILE_RESULT_COMPLETE_GRAPH.name.lower():
-                if simple_graph_representations[GraphType.FILE_RESULT_DEPENDENCY_GRAPH.name.lower()] is not None and \
-                   simple_graph_representations[GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower()] is not None:
-                    representation.calculate_complete_graph(dependency_graph_repr=simple_graph_representations[GraphType.FILE_RESULT_DEPENDENCY_GRAPH.name.lower()],
-                                                            inheritance_graph_repr=simple_graph_representations[GraphType.FILE_RESULT_INHERITANCE_GRAPH.name.lower()])
-
             if name == GraphType.ENTITY_RESULT_COMPLETE_GRAPH.name.lower():
                 if simple_graph_representations[GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower()] is not None and \
                    simple_graph_representations[GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower()] is not None:

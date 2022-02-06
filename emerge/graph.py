@@ -26,8 +26,6 @@ class GraphType(Enum):
     """Small enum class to represent a type of a GraphRepresentation. 
     """
     FILE_RESULT_DEPENDENCY_GRAPH = auto()
-    FILE_RESULT_INHERITANCE_GRAPH = auto()
-    FILE_RESULT_COMPLETE_GRAPH = auto()
     ENTITY_RESULT_DEPENDENCY_GRAPH = auto()
     ENTITY_RESULT_INHERITANCE_GRAPH = auto()
     ENTITY_RESULT_COMPLETE_GRAPH = auto()
@@ -131,10 +129,7 @@ class GraphRepresentation:
                         if 'entity' not in name:  # do not include any entity metrics in the filesystem graph
                             graph.nodes[node]['metric_' + name] = value
 
-            if  self.graph_type == GraphType.FILE_RESULT_COMPLETE_GRAPH or \
-                self.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or \
-                self.graph_type == GraphType.FILE_RESULT_INHERITANCE_GRAPH:
-
+            if self.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:
                 if node in metric_results.keys():
                     metric_dict = metric_results[node]
 

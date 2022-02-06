@@ -166,14 +166,14 @@ class LouvainModularityMetric(GraphMetric):
                         self.Keys.LOUVAIN_BIGGEST_COMMUNITIES_DEPENDENCY_GRAPH.value: sum_biggest_five_community_distribution
                     }
 
-                if graph_instance.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_INHERITANCE_GRAPH:
+                if graph_instance.graph_type == GraphType.ENTITY_RESULT_INHERITANCE_GRAPH:
                     metric_keys = {
                         self.Keys.LOUVAIN_COMMUNITIES_INHERITANCE_GRAPH.value: rounded_communities_found,
                         self.Keys.LOUVAIN_MODULARITY_INHERITANCE_GRAPH.value: rounded_modularity,
                         self.Keys.LOUVAIN_BIGGEST_COMMUNITIES_INHERITANCE_GRAPH.value: sum_biggest_five_community_distribution
                     }
 
-                if graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_COMPLETE_GRAPH:
+                if graph_instance.graph_type == GraphType.ENTITY_RESULT_COMPLETE_GRAPH:
                     metric_keys = {
                         self.Keys.LOUVAIN_COMMUNITIES_COMPLETE_GRAPH.value: rounded_communities_found,
                         self.Keys.LOUVAIN_MODULARITY_COMPLETE_GRAPH.value: rounded_modularity,
