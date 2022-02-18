@@ -74,6 +74,17 @@ The main goal of this project is to create a free/ open source tool, that can ea
 Basically there are two ways to install emerge. If you're familiar with `pip` (a virtual environment by using `pyenv`, `virtualenv` and `virtualenvwrapper` is recommended, but not needed) you can simply install the latest version of emerge with the following few steps.
 
 ### 1️⃣ ~ Install emerge with pip
+You can simply install emerge by using `pip`.
+
+### 1️⃣.1️⃣ ~ (*ubuntu*) install prerequisites
+
+On Ubuntu 20.04+ pleaase make sure that the packages `graphviz` and `graphviz-dev` are installed, i.e. 
+
+```
+apt-get install graphviz graphviz-dev 
+```
+
+### 1️⃣.2️⃣ ~ Install with pip
 
 ```
 pip install emerge-viz
