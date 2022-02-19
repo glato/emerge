@@ -4,7 +4,7 @@ Emerge
 ![GitHub license](https://img.shields.io/github/license/glato/emerge)
 ![GitHub tag version](https://img.shields.io/github/v/tag/glato/emerge)
 ![PyPI](https://img.shields.io/pypi/v/emerge-viz)
-![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue)
+![Python version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue)
 ![Code size](https://img.shields.io/github/languages/code-size/glato/emerge)
 ![Repo size](https://img.shields.io/github/repo-size/glato/emerge)
 ![PyPI](https://img.shields.io/pypi/dw/emerge-viz)
@@ -72,6 +72,17 @@ The main goal of this project is to create a free/ open source tool, that can ea
 ## How to install and use emerge as a user
 
 Basically there are two ways to install emerge. If you're familiar with `pip` (a virtual environment by using `pyenv`, `virtualenv` and `virtualenvwrapper` is recommended, but not needed) you can simply install the latest version of emerge with the following few steps.
+
+### 
+
+### 0️⃣ ~ (Optional) Setup a virtual environment with pyenv
+The recommended way would be to use a virtual env, you can do this by using the following example:
+
+```
+pyenv install 3.10.0
+pyenv virtualenv 3.10.0 venv-3.10.0
+pyenv activate venv-3.10.0
+```
 
 ### 1️⃣ ~ Install emerge with pip
 You can simply install emerge by using `pip`.
