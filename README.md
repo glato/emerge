@@ -245,9 +245,11 @@ pip install -r requirements.txt
 ```
 
 ### 5️⃣ ~ Running unit tests from the command line
+Execute the following from the cloned project root:
 ```
-python emerge/tests/run_tests.py
+python -m unittest discover -v -s ./emerge -p "test_*.py"
 ```
+If you got in any trouble executing the tests, check [this woraround](https://github.com/glato/emerge/issues/14).
 
 ### 6️⃣ ~ Running `emerge` as a standalone tool
 ```
