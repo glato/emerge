@@ -11,6 +11,7 @@ interrogate==1.2.0
 isort==4.3.21
 lazy-object-proxy==1.4.3
 networkx==2.4
+sklearn
 numpy
 prettytable==0.7.2
 py

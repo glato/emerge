@@ -1,4 +1,9 @@
 import pathlib
+
+# borrowed from https://stackoverflow.com/questions/6786555/automatic-version-number-both-in-setup-py-setuptools-and-source-code
+import re
+import ast
+
 from setuptools import setup
 
 # The directory containing this file
@@ -6,10 +11,6 @@ HERE = pathlib.Path(__file__).parent
 
 # The text of the README file
 README = (HERE / "README.md").read_text()
-
-# borrowed from https://stackoverflow.com/questions/6786555/automatic-version-number-both-in-setup-py-setuptools-and-source-code
-import re
-import ast
 
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
 with open('emerge/appear.py', 'rb') as f:
@@ -43,6 +44,7 @@ setup(
         "isort==4.3.21",
         "lazy-object-proxy==1.4.3",
         "networkx==2.4",
+        "sklearn",
         "numpy",
         "prettytable==0.7.2",
         "py==1.10.0",

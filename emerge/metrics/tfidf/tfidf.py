@@ -1,0 +1,92 @@
+"""
+Contains an implemetation of a TF/IDF metric to extract meaninful tokens from source code.
+"""
+
+# Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
+# License: MIT
+
+from typing import Dict, Any
+
+import logging
+import coloredlogs
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# interfaces for inputs
+from emerge.analysis import Analysis
+from emerge.abstractresult import AbstractResult
+from emerge.log import Logger
+
+# enums and interface/type of the given metric
+from emerge.metrics.metrics import CodeMetric
+
+LOGGER = Logger(logging.getLogger('metrics'))
+coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
+
+class TFIDFMetric(CodeMetric):
+
+    def __init__(self, analysis: Analysis):
+        super().__init__(analysis)
+        self.result_tokens: Dict[str, Any] = {}
+
+        self.language_specific_stopwords = {
+            "JAVA":       {'void', 'new', 'public', 'private', 'static', 'import', 'null', 'set', 'char'},
+            "KOTLIN":     {'null', 'val', 'fun', 'throw', 'any', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'this'},
+            "OBJC":       {'include', 'struct', 'const', 'new', 'self', 'bool', 'object', 'return'},
+            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil'},
+            "RUBY":       {'true', 'false', 'require', 'module', 'class', 'def' ,'end', 'if', 'unless', 'begin', 'break', 'self', 'nil', 'void', 'do', 'super', 'int', 'bytes'},
+            "GROOVY":     {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized'},
+            "JAVASCRIPT": {'var', 'obj', 'const', 'key', 'newobj', 'string', 'export', 'id', 'true', 'false', 'return', 'require', 'function', 'exports', 'null'},
+            "TYPESCRIPT": {'break', 'case', 'this', 'import'},
+            "C":          {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsinged', 'extern', 'char', 'float', 'sizeof'},
+            "CPP":        {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsinged', 'extern', 'char', 'float', 'sizeof', 'string', 'bool', 'virtual'},
+            "PY":         {'return', 'self', 'import', 'enum', 'true', 'false', 'none'}
+        }
+
+        self.stopwords = {
+            'and', 'the', 'to', 'of', 'or', 'then', 'do', 'def', 'end', 'with', 'without', 'if', 'a', 'else', 'in', 'where', 'is', 'by', 'for', 'or', 'license', 'all', 'from', 'that', 'an', 'get', 'set', 'as', 'when', 'up', 'ok', 'may', 'foo', 'bar', 'baz', 'at'
+        }
+
+    def calculate_from_results(self, results: Dict[str, AbstractResult]):
+        self.read_tokens_from_results(results)
+        self.calculate_tfidf()
+
+    def read_tokens_from_results(self, results: Dict[str, AbstractResult]):
+        for _, result in results.items():
+            tokens_as_string = ''
+
+            for token in result.scanned_tokens:
+                if token.isalpha() and (token.lower() not in self.stopwords) and (token.lower() not in self.language_specific_stopwords[result.scanned_language.name]):
+                    tokens_as_string += token.lower()
+                    tokens_as_string += ' '
+
+            self.result_tokens[result.unique_name] = tokens_as_string
+                
+    def preprocess(self):
+        pass
+
+    def calculate_tfidf(self):
+        tfidf = TfidfVectorizer()
+        sorted_tfidf = {}
+        
+        tfidf.fit_transform(self.result_tokens.values())
+        feature_names = tfidf.get_feature_names()
+
+        for name, _ in self.result_tokens.items():
+
+            if not name in sorted_tfidf:
+                sorted_tfidf[name] = {}
+            
+            tokens = self.result_tokens[name]
+            response = tfidf.transform([self.result_tokens[name]])
+            print (name)
+            
+            for col in response.nonzero()[1]:
+                sorted_tfidf[name][feature_names[col]] = response[0, col]
+
+            ordered_tfidf_by_name = {k: v for k, v in sorted(sorted_tfidf[name].items(), key=lambda item: item[1], reverse=True)}
+            # print (list(ordered_tfidf_by_name.items())[:5])
+            print (list(ordered_tfidf_by_name)[:7])
+            print ('--')
+
+        pass

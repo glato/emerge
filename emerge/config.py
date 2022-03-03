@@ -22,6 +22,7 @@ from emerge.metrics.numberofmethods.numberofmethods import NumberOfMethodsMetric
 from emerge.metrics.sloc.sloc import SourceLinesOfCodeMetric
 from emerge.metrics.faninout.faninout import FanInOutMetric
 from emerge.metrics.modularity.modularity import LouvainModularityMetric
+from emerge.metrics.tfidf.tfidf import TFIDFMetric
 
 from emerge.graph import GraphType
 from emerge.log import Logger
@@ -83,6 +84,7 @@ class ConfigKeyFileScan(EnumKeyValid, Enum):
     DEPENDENCY_GRAPH = auto()
     FAN_IN_OUT = auto()
     LOUVAIN_MODULARITY = auto()
+    TFIDF = auto()
 
 
 @unique
@@ -96,6 +98,7 @@ class ConfigKeyEntityScan(EnumKeyValid, Enum):
     COMPLETE_GRAPH = auto()
     FAN_IN_OUT = auto()
     LOUVAIN_MODULARITY = auto()
+    TFIDF = auto()
 
 
 @unique
@@ -459,6 +462,15 @@ class Configuration:
                         louvain_modularity_metric = LouvainModularityMetric(analysis, graph_representations)
                         analysis.metrics_for_file_results.update({
                             louvain_modularity_metric.metric_name: louvain_modularity_metric
+                        })
+
+                    # tfidf - EXPERIMENTAL
+                    if ConfigKeyFileScan.TFIDF.name.lower() in configured_metric:
+                        LOGGER.debug(f'adding {TFIDFMetric.pretty_metric_name}...')
+                        graph_representations = analysis.existing_graph_representations
+                        tfidf_metric = TFIDFMetric(analysis)
+                        analysis.metrics_for_file_results.update({
+                            tfidf_metric.metric_name: tfidf_metric
                         })
 
                     # TODO: add more metrics
