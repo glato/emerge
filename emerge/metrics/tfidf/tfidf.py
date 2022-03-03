@@ -33,7 +33,7 @@ class TFIDFMetric(CodeMetric):
             "JAVA":       {'void', 'new', 'public', 'private', 'static', 'import', 'null', 'set', 'char'},
             "KOTLIN":     {'null', 'val', 'fun', 'throw', 'any', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'this'},
             "OBJC":       {'include', 'struct', 'const', 'new', 'self', 'bool', 'object', 'return'},
-            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil'},
+            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil', 'throws', 'private', 'struct'},
             "RUBY":       {'true', 'false', 'require', 'module', 'class', 'def' ,'end', 'if', 'unless', 'begin', 'break', 'self', 'nil', 'void', 'do', 'super', 'int', 'bytes'},
             "GROOVY":     {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized'},
             "JAVASCRIPT": {'var', 'obj', 'const', 'key', 'newobj', 'string', 'export', 'id', 'true', 'false', 'return', 'require', 'function', 'exports', 'null'},
@@ -77,16 +77,24 @@ class TFIDFMetric(CodeMetric):
             if not name in sorted_tfidf:
                 sorted_tfidf[name] = {}
             
-            tokens = self.result_tokens[name]
             response = tfidf.transform([self.result_tokens[name]])
-            print (name)
             
             for col in response.nonzero()[1]:
                 sorted_tfidf[name][feature_names[col]] = response[0, col]
 
             ordered_tfidf_by_name = {k: v for k, v in sorted(sorted_tfidf[name].items(), key=lambda item: item[1], reverse=True)}
-            # print (list(ordered_tfidf_by_name.items())[:5])
-            print (list(ordered_tfidf_by_name)[:7])
-            print ('--')
+
+            tfidf_metric_token_dict = {}
+            max_tokens = 5
+            count_tokens = 0
+            for key, value in ordered_tfidf_by_name.items():
+                if count_tokens < max_tokens:
+                    tfidf_metric_token_dict['tag_' + key] = value
+                    count_tokens += 1
+
+            if name in self.local_data:
+                self.local_data[name].update(tfidf_metric_token_dict)
+            else:
+                self.local_data[name] = tfidf_metric_token_dict
 
         pass

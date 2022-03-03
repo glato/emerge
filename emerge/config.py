@@ -464,7 +464,7 @@ class Configuration:
                             louvain_modularity_metric.metric_name: louvain_modularity_metric
                         })
 
-                    # tfidf - EXPERIMENTAL
+                    # tfidf
                     if ConfigKeyFileScan.TFIDF.name.lower() in configured_metric:
                         LOGGER.debug(f'adding {TFIDFMetric.pretty_metric_name}...')
                         graph_representations = analysis.existing_graph_representations
@@ -524,6 +524,15 @@ class Configuration:
 
                         analysis.metrics_for_entity_results.update({
                             louvain_modularity_metric.metric_name: louvain_modularity_metric
+                        })
+
+                     # tfidf
+                    if ConfigKeyEntityScan.TFIDF.name.lower() in configured_metric:
+                        LOGGER.debug(f'adding {TFIDFMetric.pretty_metric_name}...')
+                        graph_representations = analysis.existing_graph_representations
+                        tfidf_metric = TFIDFMetric(analysis)
+                        analysis.metrics_for_entity_results.update({
+                            tfidf_metric.metric_name: tfidf_metric
                         })
 
                     # TODO: add more metrics

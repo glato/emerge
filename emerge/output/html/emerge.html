@@ -817,14 +817,24 @@
             const metricFontSize = 14
             const metricLineHeight = (metricFontSize * 1.286);
             let yPosOffset = yPos + 10
+            let newYPos = 0
+            let renderWithTags = false
+
             context.font = metricFontSize + 'px Helvetica';
 
             for (metricKey in nodeMetrics) {
+                
+                // do not include any tag/tfidf metric in the primary metric section
+                if (metricKey.includes('metric_tag')) {
+                    renderWithTags = true
+                    continue
+                }
+
                 let val = nodeMetrics[metricKey]
                 let human_readable_metric_name = metricKey.replace('metric_', '').replace(/_/gi, " ")
                 let metricItemText = human_readable_metric_name + ": " + val
 
-                let newYPos = yPosOffset + (metricLineHeight * metricItem)
+                newYPos = yPosOffset + (metricLineHeight * metricItem)
 
                 // Interesting bug: on Safari it seems to cause random lags if you do fillStyle/fillRect BEFORE strokeStyle/strokeRect
                 context.strokeStyle = toolTipMetricItemBoxColor
@@ -837,6 +847,49 @@
                 context.fillText(metricItemText, xPos, newYPos - 4);
 
                 metricItem = metricItem + 1
+            }
+
+            // render tag/tfidf metric section
+            if (renderWithTags) {
+                let metricItem = 1
+                newYPos += 20
+                
+                // draw the header/title of the toolip    
+                context.fillStyle = hexToRGB("#f5bc42", 1.0);
+                context.fillRect(xPos - 6, (newYPos - lineHeight) + 2, maxLineWidth + 10, lineHeight + 4);
+                context.strokeStyle = hexToRGB("#333333", 1.0);
+                context.strokeRect(xPos - 6, (newYPos - lineHeight) + 2, maxLineWidth + 10, lineHeight + 4)
+                context.fillStyle = hexToRGB("#333333", 0.8);
+                context.fillText('Meaningful Tags', xPos, newYPos);
+
+                let yTagPosOffset = newYPos + 10
+
+                // render tag/tfidf metrics
+                for (metricKey in nodeMetrics) {
+                    
+                    // do not include any tag/tfidf metric in the primary metric section
+                    if (!metricKey.includes('metric_tag')) {
+                        continue
+                    }
+
+                    let val = nodeMetrics[metricKey]
+                    let human_readable_metric_name = metricKey.replace('metric_tag', '').replace(/_/gi, "")
+                    let metricItemText = human_readable_metric_name // + ": " + val
+
+                    newYPos = yTagPosOffset + (metricLineHeight * metricItem)
+
+                    // Interesting bug: on Safari it seems to cause random lags if you do fillStyle/fillRect BEFORE strokeStyle/strokeRect
+                    context.strokeStyle = toolTipMetricItemBoxColor
+                    context.strokeRect(xPos - 6, (newYPos - metricLineHeight), maxLineWidth + 10, metricLineHeight)
+
+                    context.fillStyle = toolTipMetricItemBoxFillColor
+                    context.fillRect(xPos - 6, (newYPos - metricLineHeight), maxLineWidth + 10, metricLineHeight);
+
+                    context.fillStyle = toolTipMetricItemTextColor;
+                    context.fillText(metricItemText, xPos, newYPos - 4);
+
+                    metricItem = metricItem + 1
+                }
             }
         }
 
@@ -1141,7 +1194,8 @@
                 d.metrics = {}
 
                 for (let key in d) {
-                    if (key.includes('metric_')) {
+                    // do not include tag/tfidf metrics in the 'apply metrics' dropDown menu
+                    if (key.includes('metric_') /* && !key.includes('metric_tag') */ ) {
                         d.metrics[key] = d[key]
                         if (!currentMetricKeys.includes(key)) {
                             currentMetricKeys.push(key)
