@@ -13,9 +13,9 @@
 
 ![screenshot 1](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-01.png)
 ![screenshot 2](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-02.png)
-![screenshot 3](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-03.png)
+![screenshot 3](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-2-0-screenshot-03.png)
 ![screenshot 4](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-05.png)
-![screenshot 5](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-06.png)
+![screenshot 5](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-2-0-screenshot-05.png)
 
 ## Goals of this project
 
@@ -35,6 +35,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
 - File scan support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`
 - Basic entity scan/extraction (e.g. classes) for the following languages: `Groovy`, `Java`, `Kotlin`, `Swift`
 - Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
+- Infer meaning by feature/semantic keyword extraction based on [term frequency-inverse document frequency](https://en.wikipedia.org/wiki/Tf–idf)
 - Logging support with configurable log levels
 - Configuration support based on YAML syntax to configure multiple/specific analyses
 - Create a language/project configuration directly from an included configuration template
@@ -105,7 +106,7 @@ and then simply execute it like this
 (emerge) user@host ~ % emerge
 usage: emerge [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
 
-🔎 Welcome to emerge 1.1.0 (2022-02-06 15:05:39)
+🔎 Welcome to emerge x.y.z (yyyy-mm-dd hh:mm:ss)
 
 options:
   -h, --help            show this help message and exit
@@ -150,12 +151,14 @@ analyses:
   - dependency_graph
   - fan_in_out
   - louvain_modularity
+  - tfidf
   entity_scan:
   - dependency_graph
   - source_lines_of_code
   - number_of_methods
   - fan_in_out
   - louvain_modularity
+  - tfidf
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml
@@ -383,6 +386,7 @@ analyses:
   - dependency_graph
   - louvain_modularity
   - fan_in_out
+  - tfidf
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml
@@ -424,12 +428,14 @@ analyses:
   - dependency_graph
   - fan_in_out
   - louvain_modularity
+  - tfidf
   entity_scan:
   - dependency_graph
   - source_lines_of_code
   - number_of_methods
   - fan_in_out
   - louvain_modularity
+  - tfidf
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml
@@ -477,7 +483,7 @@ The yaml configuration is basically defined at the following levels:
 | `number_of_methods`    | apply a number of methods metric to every file, create an overall metric |
 | `fan_in_out`           | apply a fan in/ fan out graph metric to every file, create an overall metric |
 | `louvain_modularity`   | apply a louvain modularity metric to every file, create an overall metric |
-| `tfidf`                | apply a tfidf metric to every file and extract the best rated semantic keywords|
+| `tfidf`                | apply a tfidf metric to every file and extract relevant semantic keywords|
 |                        | |
 
 ## entity_scan metrics
@@ -491,7 +497,7 @@ The yaml configuration is basically defined at the following levels:
 | `number_of_methods`    | apply a number of methods metric to every entity, create an overall metric |
 | `fan_in_out`           | apply a fan in/ fan out graph metric to every entity, create an overall metric |
 | `louvain_modularity`   | apply a louvain modularity metric to every entity, create an overall metric |
-| `tfidf`                | apply a tfidf metric to every entity and extract the best rated semantic keywords|
+| `tfidf`                | apply a tfidf metric to every entity and extract relevant semantic keywords|
 |                        | |
 
 ## export configuration

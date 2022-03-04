@@ -14,6 +14,7 @@ analyses:
   - dependency_graph
   - louvain_modularity
   - fan_in_out
+  - tfidf
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml

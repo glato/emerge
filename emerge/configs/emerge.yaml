@@ -21,6 +21,7 @@ analyses:
   - dependency_graph
   - louvain_modularity
   - fan_in_out
+  - tfidf
   export:
   - directory: ./emerge/export/emerge
   - tabular_console_overall
