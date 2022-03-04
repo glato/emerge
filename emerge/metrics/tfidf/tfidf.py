@@ -29,6 +29,7 @@ class TFIDFMetric(CodeMetric):
         super().__init__(analysis)
         self.result_tokens: Dict[str, Any] = {}
 
+        # pylint: disable=line-too-long
         self.language_specific_stopwords = {
             "JAVA":       {'void', 'new', 'public', 'private', 'static', 'import', 'null', 'set', 'char'},
             "KOTLIN":     {'null', 'val', 'fun', 'throw', 'any', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'this'},
@@ -47,6 +48,10 @@ class TFIDFMetric(CodeMetric):
             'and', 'the', 'to', 'of', 'or', 'then', 'do', 'def', 'end', 'with', 'without', 'if', 'a', 'else', 'in', 'where', 'is', 'by', 'for', 'or', 'license', 'all', 'from', 'that', 'an', 'get', 'set', 'as', 'when', 'up', 'ok', 'may', 'foo', 'bar', 'baz', 'at'
         }
 
+    @property
+    def pretty_metric_name(self) -> str:
+        return 'tfidf metric'
+
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
         self.read_tokens_from_results(results)
         self.calculate_tfidf()
@@ -54,23 +59,21 @@ class TFIDFMetric(CodeMetric):
     def read_tokens_from_results(self, results: Dict[str, AbstractResult]):
         for _, result in results.items():
             tokens_as_string = ''
-
+            
             for token in result.scanned_tokens:
-                if token.isalpha() and (token.lower() not in self.stopwords) and (token.lower() not in self.language_specific_stopwords[result.scanned_language.name]):
+                if token.isalpha() and (token.lower() not in self.stopwords) \
+                and (token.lower() not in self.language_specific_stopwords[result.scanned_language.name]):
                     tokens_as_string += token.lower()
                     tokens_as_string += ' '
 
             self.result_tokens[result.unique_name] = tokens_as_string
-                
-    def preprocess(self):
-        pass
 
     def calculate_tfidf(self):
         tfidf = TfidfVectorizer()
         sorted_tfidf = {}
         
         tfidf.fit_transform(self.result_tokens.values())
-        feature_names = tfidf.get_feature_names()
+        feature_names = tfidf.get_feature_names_out()
 
         for name, _ in self.result_tokens.items():
 
@@ -96,5 +99,3 @@ class TFIDFMetric(CodeMetric):
                 self.local_data[name].update(tfidf_metric_token_dict)
             else:
                 self.local_data[name] = tfidf_metric_token_dict
-
-        pass
