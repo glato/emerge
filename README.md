@@ -1,5 +1,4 @@
-Emerge
-===
+# Emerge
 
 ![GitHub license](https://img.shields.io/github/license/glato/emerge)
 ![GitHub tag version](https://img.shields.io/github/v/tag/glato/emerge)
@@ -10,14 +9,13 @@ Emerge
 ![PyPI](https://img.shields.io/pypi/dw/emerge-viz)
 ![PyPI](https://img.shields.io/pypi/dm/emerge-viz)
 
-
 **Emerge** (or **emerge-viz**) is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. Emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-01.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-02.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-03.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-05.png)
-![](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-06.png)
+![screenshot 1](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-01.png)
+![screenshot 2](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-02.png)
+![screenshot 3](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-03.png)
+![screenshot 4](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-05.png)
+![screenshot 5](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-1-0-screenshot-06.png)
 
 ## Goals of this project
 
@@ -73,36 +71,37 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 Basically there are two ways to install emerge. If you're familiar with `pip` (a virtual environment by using `pyenv`, `virtualenv` and `virtualenvwrapper` is recommended, but not needed) you can simply install the latest version of emerge with the following few steps.
 
-### 
-
 ### 0️⃣ ~ (Optional) Setup a virtual environment with pyenv
+
 The recommended way would be to use a virtual env, you can do this by using the following example:
 
-```
+```text
 pyenv install 3.10.0
 pyenv virtualenv 3.10.0 venv-3.10.0
 pyenv activate venv-3.10.0
 ```
 
 ### 1️⃣ ~ Install emerge with pip
+
 You can simply install emerge by using `pip`.
 
 ### 1️⃣.1️⃣ ~ (*ubuntu*) install prerequisites
 
-On Ubuntu 20.04+ pleaase make sure that the packages `graphviz` and `graphviz-dev` are installed, i.e. 
+On Ubuntu 20.04+ pleaase make sure that the packages `graphviz` and `graphviz-dev` are installed, i.e.
 
-```
+```text
 apt-get install graphviz graphviz-dev 
 ```
 
 ### 1️⃣.2️⃣ ~ Install with pip
 
-```
+```text
 pip install emerge-viz
 ```
+
 and then simply execute it like this
 
-```
+```text
 (emerge) user@host ~ % emerge
 usage: emerge [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
 
@@ -124,7 +123,7 @@ options:
 
 You can create a simple project config adhoc from the command line and then simply adjust the necessary source/export paths
 
-```
+```text
 (emerge) user@host tmp % pwd
 /Users/user1/tmp
 (emerge) user@host tmp % emerge -a java
@@ -133,7 +132,7 @@ You can create a simple project config adhoc from the command line and then simp
 
 and then simply adjust the necessary paths (`analyses/source_directory` and `export/directory`):
 
-```
+```text
 (emerge) user@host tmp % cat java-template.yaml 
 ---
 project_name: java_project_example
@@ -172,7 +171,7 @@ analyses:
 
 After this you can simply start a scan by
 
-```
+```text
 (emerge) user@host tmp % emerge -c java-template.yaml
 2021-12-04 21:18:15   analysis I 👉 starting to analyze java_project_example
 2021-12-04 21:18:15   analysis I ⏩ performing analysis 1/1: full java check
@@ -197,66 +196,83 @@ Now just copy the above mentioned `file://` path to any modern web browser and i
 You can clone this repository and install it by following this instruction:
 
 ### 1️⃣ ~ Clone this repository
-```
+
+```text
 git clone https://github.com/glato/emerge.git
 ```
 
 ### 2️⃣.1️⃣ ~ (*macOS*) Install the `graphviz` package first
-```
+
+```text
 brew install graphviz
 ```
 
 ### 2️⃣.2️⃣ ~ (*macOS*) Create a virtual environment
+
 Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
 
-```
+```text
 cd emerge
 pip3 install virtualenv
 virtualenv -p python3 venv
 ```
 
 ### 2️⃣ ~ (*ubuntu*) Create a virtual environment
+
 Install required packages and create a Python 3 virtual environment (optionally within the project structure)
 
-```
+```text
 apt-get install python3-venv python3-dev graphviz graphviz-dev
 cd emerge
 python3 -m venv venv
 ```
 
 ### 3️⃣ ~ Before using/working with the tool, activate the virtual environment
-```
+
+```text
 source venv/bin/activate
 ```
 
 ### 4️⃣ ~ (*macOS*) Install all dependencies
+
 Install all required dependencies for the project with pip
 
-```
+```text
 pip install -r requirements.txt
 ```
 
 ### 4️⃣ ~ (*ubuntu*) Install all dependencies
+
 Install the wheel package, after that install all required dependencies for the project with pip
 
-```
+```text
 pip install wheel
 pip install -r requirements.txt
 ```
 
 ### 5️⃣ ~ Running unit tests from the command line
+
 Execute the following from the cloned project root:
-```
+
+```text
 python -m unittest discover -v -s ./emerge -p "test_*.py"
 ```
+
+otherwise execute the script `run_tests.py`:
+
+```text
+python run_tests.py
+```
+
 If you got in any trouble executing the tests, check [this woraround](https://github.com/glato/emerge/issues/14).
 
 ### 6️⃣ ~ Running `emerge` as a standalone tool
-```
+
+```text
 (emerge) user@host emerge % python emerge.py 
 usage: emerge.py [-h] [-c YAMLCONFIG] [-v] [-d] [-e] [-a LANGUAGE]
 
-🔎 Welcome to emerge 1.1.0 (2022-02-06 15:05:39)
+🔎 Welcome to emerge x.y.z (yyyy-mm-dd hh:mm:ss)
 
 options:
   -h, --help            show this help message and exit
@@ -271,15 +287,16 @@ options:
 ```
 
 ### 7️⃣ ~ You're ready to go
+
 Let's quickly try to run emerge on its own codebase
 
-```
+```text
 python emerge.py -c configs/emerge.yaml
 ```
 
 This should produce a similar output:
 
-```
+```text
 ...   analysis I 👉 starting to analyze emerge
 ...   analysis I ⏩ performing analysis 1/1: self-check
 ...   analysis I 👉 starting to create filesystem graph in self-check
@@ -325,9 +342,10 @@ This should produce a similar output:
 ```
 
 ### 8️⃣ ~ Start your web app
+
 Now just copy the above mentioned `file://` path to any modern web browser and interactively expore the emerge codebase 😉
 
-#### 8️⃣.1️⃣ ~ Currently emerge offers the following keyboard shortcuts in the interactive web app:
+#### 8️⃣.1️⃣ ~ Currently emerge offers the following keyboard shortcuts in the interactive web app
 
 - ℹ️ Hovering over a node and pressing ⬆️ + `s` to select and highlight or deselect a specific node
 - ℹ️ Resetting the currently active node selection by pressing ⬆️ +  `r`
@@ -342,6 +360,7 @@ And now let's make this more interesting ...
 If you wand to use emerge on other projects, you can simple copy or customize one of the existing configuration templates from the `emerge/configs` directory.
 
 ### 9️⃣ ~ Scan a real project
+
 For a quick run, it should be enough to adjust `source_directory`, `directory` in `export`.
 
 ```yaml
@@ -373,10 +392,12 @@ analyses:
   - tabular_console_overall
   - d3
 ```
+
 ### 1️⃣0️⃣ ~ Run emerge with a specific yaml configuration
+
 After customizing a present config (e.g. `config/c-template.yaml`) or creating your own, just run emerge again with this new config
 
-```bash
+```text
 python emerge.py -c configs/c-template.yaml
 ```
 
@@ -456,6 +477,7 @@ The yaml configuration is basically defined at the following levels:
 | `number_of_methods`    | apply a number of methods metric to every file, create an overall metric |
 | `fan_in_out`           | apply a fan in/ fan out graph metric to every file, create an overall metric |
 | `louvain_modularity`   | apply a louvain modularity metric to every file, create an overall metric |
+| `tfidf`                | apply a tfidf metric to every file and extract the best rated semantic keywords|
 |                        | |
 
 ## entity_scan metrics
@@ -469,6 +491,7 @@ The yaml configuration is basically defined at the following levels:
 | `number_of_methods`    | apply a number of methods metric to every entity, create an overall metric |
 | `fan_in_out`           | apply a fan in/ fan out graph metric to every entity, create an overall metric |
 | `louvain_modularity`   | apply a louvain modularity metric to every entity, create an overall metric |
+| `tfidf`                | apply a tfidf metric to every entity and extract the best rated semantic keywords|
 |                        | |
 
 ## export configuration
@@ -503,16 +526,15 @@ Emerge supports the following file extensions and scan types per language, where
 | `.rb`                     | Ruby            | ✅ | ❌
 | `.py`                     | Python          | ✅ | ❌
 
-
 ## Interpretation of graphs
 
-The interpretation of such graphs can often be very subjective and project dependent. The following examples should help to recognize certain patterns through indicators and hints. 
+The interpretation of such graphs can often be very subjective and project dependent. The following examples should help to recognize certain patterns through indicators and hints.
 
 ### ⭐️ Modularity
 
 The magic of uncovering modularity lies in applying a community detection algorithm e.g. Louvain optimization to a force-directed graph, so that both distances and coloring influence the result. The following example includes several indicators for a modular codebase.
 
-1. In the first example on the left you can spot multiple coherent colored clusters which show a low coupling by a certain distance (= generated by the force-directed graph). 
+1. In the first example on the left you can spot multiple coherent colored clusters which show a low coupling by a certain distance (= generated by the force-directed graph).
 
 2. In the second example on the right the same graph is rendered with activated cluster hulls. On this example the hulls show minimal to no overlapping. Such hints can be indicators for a good software architecture e.g. in terms of *modularity*, *abstraction* and well defined *interfaces*.
 
@@ -531,7 +553,7 @@ The magic of uncovering modularity lies in applying a community detection algori
 
 ### ⭐️ Big Ball of Mud
 
-"A BIG BALL OF MUD is haphazardly structured, sprawling, sloppy, duct-tape and bailing wire, spaghetti code jungle" (B. Foote, J. Yoder, 1997). This kind of graph often represents a less optimal architecture. To verify this kind of *spaghetti code jungle*, one can simply enable hull rendering for all clusters to finally determine: there is only one big cluster after all. 
+"A BIG BALL OF MUD is haphazardly structured, sprawling, sloppy, duct-tape and bailing wire, spaghetti code jungle" (B. Foote, J. Yoder, 1997). This kind of graph often represents a less optimal architecture. To verify this kind of *spaghetti code jungle*, one can simply enable hull rendering for all clusters to finally determine: there is only one big cluster after all.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/glato/assets/emerge/ball_of_mud_01.png" width="40%"/> &ensp; <img src="https://raw.githubusercontent.com/glato/assets/emerge/ball_of_mud_02.png" width="40%"/>
@@ -548,9 +570,7 @@ Sometimes it can help to better understand the complexity of a software architec
 <img src="https://raw.githubusercontent.com/glato/assets/emerge/ball_of_mud_all_dependencies.png" width="43%"/> &ensp; <img src="https://raw.githubusercontent.com/glato/assets/emerge/cleaner_graph_hub_nodes.png" width="36%"/>
 </p>
 
-
 ## Further development
 
 - Parsing of further entity types for more languages is planned for further development. [Contributions](CONTRIBUTING.md) are very welcome ❤️
 - Everyone is invited to contribute to this project, whether the contribution is related with development, testing, bug reporting or any other support. I would appreciate any help. See [Contributing](CONTRIBUTING.md) and [Credits](CREDITS.md) for further details.
-

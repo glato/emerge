@@ -6,7 +6,7 @@ All abstract result classes.
 # License: MIT
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Any, List
 
 
 class AbstractResult(ABC):
@@ -20,10 +20,7 @@ class AbstractResult(ABC):
     @abstractmethod
     def analysis(self):
         ...
-
-
-class AbstractFileResult(AbstractResult):
-
+     
     @property
     @abstractmethod
     def scanned_tokens(self) -> List[str]:
@@ -33,6 +30,13 @@ class AbstractFileResult(AbstractResult):
     @abstractmethod
     def scanned_file_name(self) -> str:
         ...
+
+    @property
+    @abstractmethod
+    def scanned_language(self) -> Any:
+        ...
+
+class AbstractFileResult(AbstractResult):
 
     @property
     @abstractmethod
@@ -47,11 +51,6 @@ class AbstractFileResult(AbstractResult):
     @property
     @abstractmethod
     def scanned_by(self) -> str:
-        ...
-
-    @property
-    @abstractmethod
-    def scanned_language(self) -> str:
         ...
 
     @property
@@ -98,7 +97,7 @@ class AbstractEntityResult(AbstractResult):
 
     @property
     @abstractmethod
-    def scanned_language(self) -> str:
+    def scanned_language(self) -> Any:
         ...
 
     @property
