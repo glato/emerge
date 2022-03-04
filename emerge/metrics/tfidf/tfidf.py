@@ -33,7 +33,7 @@ class TFIDFMetric(CodeMetric):
             "JAVA":       {'void', 'new', 'public', 'private', 'static', 'import', 'null', 'set', 'char'},
             "KOTLIN":     {'null', 'val', 'fun', 'throw', 'any', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'this'},
             "OBJC":       {'include', 'struct', 'const', 'new', 'self', 'bool', 'object', 'return'},
-            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil', 'throws', 'private', 'struct'},
+            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil', 'throws', 'private', 'struct', 'bool', 'static', 'inout'},
             "RUBY":       {'true', 'false', 'require', 'module', 'class', 'def' ,'end', 'if', 'unless', 'begin', 'break', 'self', 'nil', 'void', 'do', 'super', 'int', 'bytes'},
             "GROOVY":     {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized'},
             "JAVASCRIPT": {'var', 'obj', 'const', 'key', 'newobj', 'string', 'export', 'id', 'true', 'false', 'return', 'require', 'function', 'exports', 'null'},

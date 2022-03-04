@@ -382,13 +382,13 @@
         const fileNodeColor = '#d1e3ff'
 
         /**
-         * * Math constants
+         * * MARK: - Math constants
          */
         const TWO_TIMES_PI = 2 * Math.PI
         const ONE_THIRD_TWO_TIMES_PI = (1.0 / 3.0) * TWO_TIMES_PI
 
         /**
-         * * UI workarounds
+         * * MARK: - UI workarounds
          */
         // workaround from https://stackoverflow.com/questions/6985507/one-time-page-refresh-after-first-page-load to fix strange safari full screen loading problems
         let userAgent = navigator.userAgent.toLowerCase();
@@ -433,7 +433,7 @@
         }
 
         /**
-         * * Metric info badge tooltip descriptions
+         * * MARK: - Metric info badge tooltip descriptions
          */
         const description_metric_sloc_in_file = '"Source lines of code (SLOC), also known as lines of code (LOC), is a software metric used to measure the size of a computer program by counting the number of lines in the text of the programs source code. SLOC is typically used to predict the amount of effort that will be required to develop a program, as well as to estimate programming productivity or maintainability once the software is produced." (Wikipedia)'
         const description_metric_number_of_methods = 'A metric representing the total number of methods found per file or entity. This is similar to a weighted methods per class (WMC) metric with a uniform complexity/weight of 1.'
@@ -565,7 +565,7 @@
             .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
 
         /**
-         * * Connectivity checks 
+         * * MARK: - Connectivity checks 
          */
         let linkedByIndex = {};
 
@@ -582,7 +582,7 @@
         }
 
         /**
-         * * Drawing on canvas
+         * * MARK: - Drawing on canvas
          */
         function drawEdges(context) {
             currentGraph.links.forEach(function(d) {
@@ -860,7 +860,7 @@
                 context.strokeStyle = hexToRGB("#333333", 1.0);
                 context.strokeRect(xPos - 6, (newYPos - lineHeight) + 2, maxLineWidth + 10, lineHeight + 4)
                 context.fillStyle = hexToRGB("#333333", 0.8);
-                context.fillText('Meaningful Tags', xPos, newYPos);
+                context.fillText('Semantic keywords', xPos, newYPos);
 
                 let yTagPosOffset = newYPos + 10
 
@@ -971,7 +971,7 @@
         }
 
         /**
-         * * Rendering concave hulls of clusters.
+         * * MARK: - Rendering concave hulls of clusters.
          */
         function setupGraphClustersById() {
             clusterMap = {}
@@ -1114,7 +1114,7 @@
         }
 
         /**
-         * * Translations on canvas
+         * * MARK: - Translations on canvas
          */
         function translateCanvas(direction) {
             switch (direction) {
@@ -1141,7 +1141,7 @@
         }
 
         /**
-         * * Zooming and scaling on canvas
+         * * MARK: - Zooming and scaling on canvas
          */
         function zoomed(event) {
             transform = event.transform;
@@ -1166,7 +1166,7 @@
         zoomOut() // initialliy zoom out a bit
 
         /**
-         * * Called on startup an d every time you change a graph
+         * * MARK: - Called on startup an d every time you change a graph
          */
         function startWithGraph(graphType, chargeForce = currentChargeForce, linkDistance = currentLinkDistance) {
 
@@ -1194,11 +1194,13 @@
                 d.metrics = {}
 
                 for (let key in d) {
-                    // do not include tag/tfidf metrics in the 'apply metrics' dropDown menu
-                    if (key.includes('metric_') /* && !key.includes('metric_tag') */ ) {
+                    if (key.includes('metric_')) {
                         d.metrics[key] = d[key]
                         if (!currentMetricKeys.includes(key)) {
-                            currentMetricKeys.push(key)
+                            // do not include tag/tfidf metrics in the 'apply metrics' dropDown menu
+                            if (!key.includes('metric_tag')) {
+                                currentMetricKeys.push(key)
+                            }                            
                         }
                     }
                 }
@@ -1357,7 +1359,7 @@
         }
 
         /**
-         * * Handling of data structures
+         * * MARK: - Handling of data structures
          */
         function prepareGraphStructures() {
             if (typeof file_result_dependency_graph !== 'undefined') {
@@ -1479,7 +1481,7 @@
         }
 
         /**
-         * * Create/update the HTML/Bootstrap UI
+         * * MARK: - Create/update the HTML/Bootstrap UI
          */
 
         function cancelNodeSearch() {
@@ -1712,7 +1714,7 @@
         }
 
         /**
-         * * Helper functions
+         * * MARK: - Helper functions
          */
 
         // borrowed from https://stackoverflow.com/questions/5767325/how-can-i-remove-a-specific-item-from-an-array
