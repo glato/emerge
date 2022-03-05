@@ -1,5 +1,5 @@
 """
-Contains an implemetation of a TF/IDF metric to extract meaninful tokens from source code.
+Contains an implemetation of a TF/IDF metric to extract semantic keywords from source code.
 """
 
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
@@ -24,12 +24,16 @@ LOGGER = Logger(logging.getLogger('metrics'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 class TFIDFMetric(CodeMetric):
+    """Provides a metric based on TF-IDF to extract semantic keywords from source code.
+    """
 
     def __init__(self, analysis: Analysis):
         super().__init__(analysis)
         self.result_tokens: Dict[str, Any] = {}
 
         # pylint: disable=line-too-long
+        """The following language specific stopwords should be excluded from the TF-IDF calculation.
+        """
         self.language_specific_stopwords = {
             "JAVA":       {'void', 'new', 'public', 'private', 'static', 'import', 'null', 'set', 'char'},
             "KOTLIN":     {'null', 'val', 'fun', 'throw', 'any', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'this'},
@@ -44,6 +48,8 @@ class TFIDFMetric(CodeMetric):
             "PY":         {'return', 'self', 'import', 'enum', 'true', 'false', 'none'}
         }
 
+        """The following natural language stopwords should be excluded from the TF-IDF calculation.
+        """
         self.stopwords = {
             'and', 'the', 'to', 'of', 'or', 'then', 'do', 'def', 'end', 'with', 'without', 'if', 'a', 'else', 'in', 'where', 'is', 'by', 'for', 'or', 'license', 'all', 'from', 'that', 'an', 'get', 'set', 'as', 'when', 'up', 'ok', 'may', 'foo', 'bar', 'baz', 'at'
         }
@@ -56,6 +62,8 @@ class TFIDFMetric(CodeMetric):
         self.read_tokens_from_results(results)
         self.calculate_tfidf()
 
+    """Read tokens from results, perform preprocessing and store them locally in self.result_tokens.
+    """
     def read_tokens_from_results(self, results: Dict[str, AbstractResult]):
         for _, result in results.items():
             tokens_as_string = ''
@@ -68,6 +76,10 @@ class TFIDFMetric(CodeMetric):
 
             self.result_tokens[result.unique_name] = tokens_as_string
 
+    """this is where the actual calculation of TF-IDF takes place. This is done via scikit-learn and TfidfVectorizer.
+    After calculating the semantic keywords for any source code file or entity, we sort them by TF-IDF score and
+    store up to max_tokens in the local_data of this metric, to further be collected from the analysis.
+    """
     def calculate_tfidf(self):
         tfidf = TfidfVectorizer()
         sorted_tfidf = {}
