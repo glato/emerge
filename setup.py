@@ -53,7 +53,7 @@ setup(
         "python-louvain==0.15",
         "PyYAML==5.4",
         "six==1.13.0",
-        "tabulate==0.8.7",
+        "tabulate==0.8.9",
         "toml==0.10.1",
         "wrapt==1.11.2"
     ],
