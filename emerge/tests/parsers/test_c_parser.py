@@ -48,7 +48,7 @@ class CParserTestCase(unittest.TestCase):
         for _, result in results.items():
             self.assertTrue(len(result.scanned_tokens) > 0)
             self.assertTrue(len(result.scanned_import_dependencies) > 0)
-
+            self.assertTrue(all(isinstance(dependency, str) for dependency in result.scanned_import_dependencies))
             self.assertTrue(result.analysis.analysis_name.strip())
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())

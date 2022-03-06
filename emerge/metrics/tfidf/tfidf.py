@@ -33,23 +33,22 @@ class TFIDFMetric(CodeMetric):
         # pylint: disable=line-too-long
         """The following language specific stopwords should be excluded from the TF-IDF calculation."""
         self.language_specific_stopwords = {
-            "JAVA":       {'void', 'new', 'public', 'private', 'static', 'import', 'null', 'set', 'char'},
-            "KOTLIN":     {'null', 'val', 'fun', 'throw', 'any', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'this'},
-            "OBJC":       {'include', 'struct', 'const', 'new', 'self', 'bool', 'object', 'return'},
-            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil', 'throws', 'private', 'struct', 'bool', 'static', 'inout', 'int', 'string'},
-            "RUBY":       {'true', 'false', 'require', 'module', 'class', 'def' ,'end', 'if', 'unless', 'begin', 'break', 'self', 'nil', 'void', 'do', 'super', 'int', 'bytes'},
-            "GROOVY":     {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized'},
-            "JAVASCRIPT": {'var', 'obj', 'const', 'key', 'newobj', 'string', 'export', 'id', 'true', 'false', 'return', 'require', 'function', 'exports', 'null'},
-            "TYPESCRIPT": {'break', 'case', 'this', 'import'},
-            "C":          {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsinged', 'extern', 'char', 'float', 'sizeof'},
-            "CPP":        {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsinged', 'extern', 'char', 'float', 'sizeof', 'string', 'bool', 'virtual'},
-            "PY":         {'return', 'self', 'import', 'enum', 'true', 'false', 'none'}
+            "JAVA":       {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized', 'fi', 'throws', 'long', 'int', 'import', 'new', 'void', 'null', 'char'},
+            "KOTLIN":     {'null', 'val', 'var', 'lateinit', 'fun', 'throw', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'string', 'map', 'int', 'boolean', 'true', 'false', 'abstract'},
+            "OBJC":       {'include', 'struct', 'const', 'new', 'self', 'bool', 'object', 'return', 'nonatomic', 'atomic', 'readonly', 'readwrite', 'case', 'null', 'long', 'nsobject', 'nullable', 'nonnull', 'void', 'yes', 'no', 'id', 'int', 'strong', 'assign'},
+            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil', 'throws', 'private', 'struct', 'class', 'protocol', 'bool', 'static', 'inout', 'int', 'string'},
+            "RUBY":       {'true', 'false', 'require', 'module', 'class', 'fi', 'unless', 'begin', 'break', 'self', 'nil', 'void', 'super', 'int', 'bytes', 'array', 'string'},
+            "GROOVY":     {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized', 'fi', 'throws', 'long', 'int', 'import', 'new', 'void', 'null', 'char'},
+            "JAVASCRIPT": {'case', 'break', 'this', 'static', 'throw', 'var', 'let', 'obj', 'const', 'string', 'export', 'true', 'false', 'return', 'require', 'function', 'exports', 'null', 'void', 'undefined', 'void'},
+            "TYPESCRIPT": {'break', 'var', 'case', 'this', 'import', 'let', 'const', 'return', 'public', 'private', 'function', 'null', 'true', 'false', 'string', 'export', 'new', 'void', 'readonly', 'abstract', 'static', 'require', 'exports', 'boolean', 'obj', 'index', 'undefined', 'number'},
+            "C":          {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsigned', 'extern', 'char', 'float', 'sizeof', 'unsinged', 'undef', 'define'},
+            "CPP":        {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsigned', 'extern', 'char', 'float', 'sizeof', 'string', 'bool', 'virtual', 'override', 'nullptr', 'final', 'inline', 'template'},
+            "PY":         {'return', 'self', 'import', 'enum', 'true', 'false', 'none', 'class', 'cls', 'super', 'not'}
         }
 
-        """The following natural language stopwords should be excluded from the TF-IDF calculation.
-        """
+        """The following natural language stopwords should be excluded from the TF-IDF calculation."""
         self.stopwords = {
-            'and', 'the', 'to', 'of', 'or', 'then', 'do', 'def', 'end', 'with', 'without', 'if', 'a', 'else', 'in', 'where', 'is', 'by', 'for', 'or', 'license', 'all', 'from', 'that', 'an', 'get', 'set', 'as', 'when', 'up', 'ok', 'may', 'foo', 'bar', 'baz', 'at'
+            'and', 'the', 'to', 'of', 'or', 'then', 'any', 'use', 'see', 'do', 'this', 'def', 'end', 'with', 'without', 'if', 'a', 'else', 'in', 'where', 'is', 'it', 'by', 'you', 'for', 'or', 'license', 'all', 'from', 'that', 'an', 'get', 'set', 'as', 'when', 'up', 'ok', 'may', 'foo', 'bar', 'baz', 'at', 'too', 'only', 'but', 'just'
         }
 
     @property
@@ -99,10 +98,11 @@ class TFIDFMetric(CodeMetric):
             ordered_tfidf_by_name = {k: v for k, v in sorted(sorted_tfidf[name].items(), key=lambda item: item[1], reverse=True)}
 
             tfidf_metric_token_dict = {}
-            max_tokens = 5
-            count_tokens = 0
+            min_score = 0.2
+            max_tokens = 7
+            count_tokens = 1
             for key, value in ordered_tfidf_by_name.items():
-                if count_tokens < max_tokens:
+                if min_score < value and count_tokens <= max_tokens:
                     tfidf_metric_token_dict['tag_' + key] = value
                     count_tokens += 1
 
@@ -110,3 +110,4 @@ class TFIDFMetric(CodeMetric):
                 self.local_data[name].update(tfidf_metric_token_dict)
             else:
                 self.local_data[name] = tfidf_metric_token_dict
+

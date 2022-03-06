@@ -53,6 +53,8 @@ class SwiftParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.SWIFT)
+            self.assertTrue(all(isinstance(dependency, str) for dependency in result.scanned_import_dependencies))
+
         LOGGER.info(f'test successful')
 
     def test_generate_entity_results(self):
@@ -80,6 +82,7 @@ class SwiftParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.SWIFT)
+            self.assertTrue(all(isinstance(dependency, str) for dependency in result.scanned_import_dependencies))
         LOGGER.info(f'test successful')
 
 

@@ -50,7 +50,7 @@ class EntityResult(AbstractEntityResult):
         self._module_name = module_name
         self._unique_name = unique_name
         self._parent_file_result = parent_file_result
-        self._scanned_inheritance_dependencies = []
+        self._scanned_inheritance_dependencies: List[str] = []
         self._metrics: Dict = {}
 
     def __repr__(self):
@@ -183,7 +183,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
         self._scanned_language = scanned_language
         self._scanned_by = scanned_by
         self._scanned_tokens = scanned_tokens
-        self._scanned_import_dependencies = []
+        self._scanned_import_dependencies: List[str] = []
         self._metrics: Dict = {}
 
     def __repr__(self):
@@ -223,7 +223,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
         self._relative_file_path_to_analysis = value
 
     @property
-    def absolute_dir_path(self) -> str:
+    def absolute_dir_path(self) -> PosixPath:
         return self._absolute_dir_path
 
     @absolute_dir_path.setter
@@ -231,7 +231,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
         self._absolute_dir_path = value
 
     @property
-    def relative_analysis_path(self) -> str:
+    def relative_analysis_path(self) -> PosixPath:
         return self._relative_analysis_path
 
     @property

@@ -182,5 +182,5 @@ class LouvainModularityMetric(GraphMetric):
 
                 self.overall_data.update(metric_keys)
 
-            except:
-                LOGGER.error(f'something went wrong, skipping metric {self.metric_name}')
+            except Exception as ex:
+                LOGGER.error(f'something went wrong, skipping metric {self.metric_name}: {ex}')

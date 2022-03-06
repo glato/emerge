@@ -6,7 +6,8 @@ All abstract result classes.
 # License: MIT
 
 from abc import ABC, abstractmethod
-from typing import Any, List
+from pathlib import PosixPath
+from typing import Any, List, Dict
 
 
 class AbstractResult(ABC):
@@ -35,6 +36,12 @@ class AbstractResult(ABC):
     @abstractmethod
     def scanned_language(self) -> Any:
         ...
+    
+    @property
+    @abstractmethod
+    def metrics(self) -> Dict:
+        ...
+
 
 class AbstractFileResult(AbstractResult):
 
@@ -45,7 +52,7 @@ class AbstractFileResult(AbstractResult):
 
     @property
     @abstractmethod
-    def absolute_dir_path(self) -> str:
+    def absolute_dir_path(self) -> PosixPath:
         ...
 
     @property
@@ -68,11 +75,16 @@ class AbstractFileResult(AbstractResult):
     def absolute_name(self) -> str:
         ...
 
+    # @classmethod
+    # @abstractmethod
+    # def create_file_result(cls, analysis, scanned_file_name, module_name, scanned_by, scanned_language, scanned_tokens):
+    #     ...
+
     @classmethod
     @abstractmethod
-    def create_file_result(cls, analysis, scanned_file_name, module_name, scanned_by, scanned_language, scanned_tokens):
+    def create_file_result(cls, analysis, scanned_file_name, relative_file_path_to_analysis, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens):
         ...
-
+    
     @abstractmethod
     def generate_entity_results_from_scopes(self, entity_keywords, entity_expression, comment_keywords) -> List:
         ...

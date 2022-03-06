@@ -5,7 +5,7 @@ Contains the implementation of the number of methods metric.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import Dict
+from typing import Dict, Pattern
 from enum import auto
 import logging
 import re
@@ -52,7 +52,7 @@ class NumberOfMethodsMetric(CodeMetric):
             "PY":         r"(def)\s.+(.+):"
         }
 
-        self.compiled_re = {}
+        self.compiled_re: Dict[str, Pattern] = {}
         self._compile()
 
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
@@ -91,9 +91,9 @@ class NumberOfMethodsMetric(CodeMetric):
 
         if len(file_results) > 0:
             total_method_count, total_files = 0, 0
-            for _, result in file_results.items():
+            for _, file_result in file_results.items():
                 total_files += 1
-                total_method_count += result.metrics[self.Keys.NUMBER_OF_METHODS_IN_FILE.value]
+                total_method_count += file_result.metrics[self.Keys.NUMBER_OF_METHODS_IN_FILE.value]
 
             average_methods_in_file = total_method_count / total_files
             self.overall_data[self.Keys.AVG_NUMBER_OF_METHODS_IN_FILE.value] = average_methods_in_file
@@ -101,13 +101,13 @@ class NumberOfMethodsMetric(CodeMetric):
 
         if len(entity_results) > 0:
             total_method_count, total_entities = 0, 0
-            for _, result in entity_results.items():
+            for _, entity_result in entity_results.items():
                 total_entities += 1
-                total_method_count += result.metrics[self.Keys.NUMBER_OF_METHODS_IN_ENTITY.value]
+                total_method_count += entity_result.metrics[self.Keys.NUMBER_OF_METHODS_IN_ENTITY.value]
 
             average_methods_in_entity = total_method_count / total_entities
             self.overall_data[self.Keys.AVG_NUMBER_OF_METHODS_IN_ENTITY.value] = average_methods_in_entity
             LOGGER.debug(f'average method count per entity: {average_methods_in_entity}')
 
-    def __get_expression(self, result: AbstractResult) -> str:
+    def __get_expression(self, result: AbstractResult) -> Pattern:
         return self.compiled_re[result.scanned_language.name]

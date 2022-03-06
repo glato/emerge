@@ -57,22 +57,22 @@ class GraphMetric(AbstractGraphMetric):
     @property
     def dependency_graph_representation(self) -> Any:
         return self._dependency_graph_representaion
-
-    @property
-    def inheritance_graph_representation(self) -> Any:
-        return self._inheritance_graph_representaion
-
-    @property
-    def complete_graph_representation(self) -> Any:
-        return self._complete_graph_representaion
-
+    
     @dependency_graph_representation.setter
     def dependency_graph_representation(self, value):
         self._dependency_graph_representaion = value
 
+    @property
+    def inheritance_graph_representation(self) -> Any:
+        return self._inheritance_graph_representaion
+    
     @inheritance_graph_representation.setter
     def inheritance_graph_representation(self, value):
         self._inheritance_graph_representaion = value
+
+    @property
+    def complete_graph_representation(self) -> Any:
+        return self._complete_graph_representaion
 
     @complete_graph_representation.setter
     def complete_graph_representation(self, value):

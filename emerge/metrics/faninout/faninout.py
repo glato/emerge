@@ -56,9 +56,6 @@ class FanInOutMetric(GraphMetric):
         MAX_FAN_IN_NAME_COMPLETE_GRAPH = auto()
         MAX_FAN_OUT_NAME_COMPLETE_GRAPH = auto()
 
-    def __init__(self, analysis, graph_representations: Dict):
-        super().__init__(analysis, graph_representations)
-
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
         self._calculate_metric_data()
 
