@@ -10,13 +10,13 @@
     <link rel="stylesheet" href="vendors/dark-mode-switch/css/dark-mode.css">
 
     <!-- jquery js -->
-    <script type="text/javascript" src="vendors/jquery/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="vendors/jquery/jquery-3.6.0.min.js"></script>
     <!-- popper js -->
     <script type="text/javascript" src="vendors/popper/popper.min.js"></script>
     <!-- bootstrap js -->
     <script type="text/javascript" src="vendors/bootstrap/js/bootstrap.min.js"></script>
     <!-- d3 js -->
-    <script src="vendors/d3/d3.v6.min.js"></script>
+    <script src="vendors/d3/d3.v7.min.js"></script>
     <!-- Hull.js -->
     <script type="text/javascript" src="vendors/hull/hull.js"></script>
     <!-- exported graph representations as js -->
@@ -998,7 +998,7 @@
                 }
             })
 
-             console.log(clusterMap)
+            // console.log(clusterMap)
         }
 
         function onMouseOverHullMenuNode(clusterId) {
@@ -1037,7 +1037,7 @@
                 selectedClusterHullIds.push(clusterId)
                 addHighlightToSVGCircle(clusterId)
             }
-            console.log(selectedClusterHullIds)
+            // console.log(selectedClusterHullIds)
             simulationUpdate()
         }
 
