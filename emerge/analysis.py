@@ -56,6 +56,8 @@ class Analysis:
 
         self.only_permit_languages: List[LanguageType] = []
         self.only_permit_file_extensions: List[str] = []
+        self.only_permit_files_matching_absolute_path_available: bool = False
+        self.only_permit_files_matching_absolute_path: List[str] = []
         self.ignore_directories_containing: List = []
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
@@ -406,6 +408,7 @@ class Analysis:
 
         for root, dirs, files in os.walk(self.source_directory):
             # exclude directories and scans
+
             if self.ignore_directories_containing:
                 dirs[:] = [d for d in dirs if d not in self.ignore_directories_containing]
 
@@ -435,6 +438,15 @@ class Analysis:
 
             for file_name in files:
                 absolute_path_to_file = os.path.join(root, file_name)
+
+                # check if the scan should only allow specific files
+                if self.only_permit_files_matching_absolute_path_available:
+                    if absolute_path_to_file not in self.only_permit_files_matching_absolute_path:
+                        skipped_files += 1
+                        LOGGER.info(f'ignoring file {absolute_path_to_file} due to only_scan_files restriction')
+                        continue
+                    else:
+                        LOGGER.info(f'got file {absolute_path_to_file}')
 
                 # watch out for symlinks
                 if os.path.islink(absolute_path_to_file):

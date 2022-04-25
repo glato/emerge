@@ -67,6 +67,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     SOURCE_DIRECTORY = auto()
     ONLY_PERMIT_LANGUAGES = auto()
     ONLY_PERMIT_FILE_EXTENSIONS = auto()
+    ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH = auto()
     IGNORE_DIRECTORIES_CONTAINING = auto()
     IGNORE_FILES_CONTAINING = auto()
     IGNORE_DEPENDENCIES_CONTAINING = auto()
@@ -420,6 +421,13 @@ class Configuration:
                         if analysis.import_aliases_available == False:
                             analysis.import_aliases_available = True
                         analysis.import_aliases[dependency_substring] = replaced_dependency_substring
+
+            # check if the analysis should only consider specified files
+            if ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower() in analysis_dict:
+                for file in analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()]:
+                    if analysis.only_permit_files_matching_absolute_path_available == False:
+                        analysis.only_permit_files_matching_absolute_path_available = True
+                    analysis.only_permit_files_matching_absolute_path.append(file)
 
             # load metrics from analysis
             if ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis_dict:
