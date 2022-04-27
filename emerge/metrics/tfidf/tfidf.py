@@ -9,6 +9,7 @@ from typing import Dict, Any
 
 import logging
 import coloredlogs
+from sklearn.exceptions import NotFittedError
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -82,9 +83,13 @@ class TFIDFMetric(CodeMetric):
         tfidf = TfidfVectorizer()
         sorted_tfidf = {}
         
-        tfidf.fit_transform(self.result_tokens.values())
-        feature_names = tfidf.get_feature_names_out()
-
+        try:
+            tfidf.fit_transform(self.result_tokens.values())
+            feature_names = tfidf.get_feature_names_out()
+        except (ValueError, NotFittedError) as ex:
+            LOGGER.error(f'something went wrong, skipping metric {self.pretty_metric_name}: {ex}')
+            return
+          
         for name, _ in self.result_tokens.items():
 
             if not name in sorted_tfidf:
@@ -110,4 +115,3 @@ class TFIDFMetric(CodeMetric):
                 self.local_data[name].update(tfidf_metric_token_dict)
             else:
                 self.local_data[name] = tfidf_metric_token_dict
-

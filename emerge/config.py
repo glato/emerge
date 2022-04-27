@@ -424,10 +424,14 @@ class Configuration:
 
             # check if the analysis should only consider specified files
             if ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower() in analysis_dict:
-                for file in analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()]:
-                    if analysis.only_permit_files_matching_absolute_path_available == False:
-                        analysis.only_permit_files_matching_absolute_path_available = True
-                    analysis.only_permit_files_matching_absolute_path.append(file)
+                if type(analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()]) == list:
+                    for file in analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()]:
+                        if analysis.only_permit_files_matching_absolute_path_available == False:
+                            analysis.only_permit_files_matching_absolute_path_available = True
+                        analysis.only_permit_files_matching_absolute_path.append(file)
+                else:
+                    raise Exception(f'❗️{ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()} '
+                                      f'must be a list of strings.')
 
             # load metrics from analysis
             if ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis_dict:

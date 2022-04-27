@@ -158,6 +158,8 @@ class LouvainModularityMetric(GraphMetric):
                 rounded_communities_found = round((sum_communities_found / optimization_runs))
                 rounded_modularity = round((sum_modularity / optimization_runs), 2)
 
+                rounded_modularity = max(rounded_modularity, 0)
+
                 metric_keys: Dict[str, Any] = {}
                 if graph_instance.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH or graph_instance.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH:
                     metric_keys = {
