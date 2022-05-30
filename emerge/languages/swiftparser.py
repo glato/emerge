@@ -124,7 +124,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
                 SwiftParsingKeyword.PROTOCOL.value
             ]
 
-            entity_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value)
+            entity_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value + CoreParsingKeyword.UNDERSCORE.value)
 
             match_expression = (
                 pp.Keyword(SwiftParsingKeyword.CLASS.value) |
@@ -201,7 +201,9 @@ class SwiftParser(AbstractParser, ParsingMixin):
 
         for _, result in entity_results.items():
             for token in result.scanned_tokens:
-                if token in entity_names and token not in result.scanned_import_dependencies and (token.lower() != result.entity_name.lower()):
+                if token in entity_names and token not in result.scanned_import_dependencies and \
+                    (token.lower() != result.entity_name.lower()) and \
+                    token not in result.scanned_inheritance_dependencies:
 
                     # ignore any dependency substring from the config ignore list
                     if self._is_dependency_in_ignore_list(token, analysis):
