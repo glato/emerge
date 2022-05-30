@@ -201,7 +201,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
 
         for _, result in entity_results.items():
             for token in result.scanned_tokens:
-                if token in entity_names and token not in result.scanned_import_dependencies and token not in result.entity_name:
+                if token in entity_names and token not in result.scanned_import_dependencies and (token.lower() != result.entity_name.lower()):
 
                     # ignore any dependency substring from the config ignore list
                     if self._is_dependency_in_ignore_list(token, analysis):
