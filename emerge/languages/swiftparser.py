@@ -59,8 +59,14 @@ class SwiftParser(AbstractParser, ParsingMixin):
             ',': ' , ',
             '<': ' < ',
             '>': ' > ',
-            '"': ' " '
+            '"': ' " ',
+            ".": ' . ',
         }
+
+        # FIXME: this is only a workaround for harmful parsing rules
+        self._ignore_entity_keywords: List[str] = [
+            'class', 'struct', 'protocol', 'enum', 'var', 'let', 'func', 'extension', 'import'
+        ]
 
     @classmethod
     def parser_name(cls) -> str:
@@ -143,15 +149,23 @@ class SwiftParser(AbstractParser, ParsingMixin):
                 CoreParsingKeyword.STOP_BLOCK_COMMENT.value: SwiftParsingKeyword.STOP_BLOCK_COMMENT.value
             }
 
-            entity_results = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
+            entity_results_unfiltered = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
+            entity_results: List[AbstractEntityResult] = []
+
+            # TODO: fix this as this results from a bug in the parser
+            for entity_result in entity_results_unfiltered:
+                if self.is_entity_in_ignore_list(entity_result.entity_name, analysis):
+                    pass
+                else:
+                    entity_results.append(entity_result)
 
             for entity_result in entity_results:
                 LOGGER.debug(f'{entity_result.entity_name=}')
                 self._add_inheritance_to_entity_result(entity_result)
                 self._results[entity_result.entity_name] = entity_result
 
-        self._add_imports_to_entity_results(analysis)
         self._add_extensions_to_entity_results(analysis)
+        self._add_imports_to_entity_results(analysis)
 
     def _add_extensions_to_entity_results(self, analysis) -> None:
         LOGGER.debug('adding swift extensions to entity results...')
@@ -185,7 +199,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
 
             for extension in extension_entity_results:
                 if extension.entity_name in entity_names:
-                    entity_result: AbstractEntityResult = analysis.result_by_entity_name(extension.entity_name)
+                    entity_result: AbstractEntityResult = analysis.result_by_entity_name(extension.entity_name, entity_results)
                     if entity_result is not None:
                         entity_result.scanned_tokens.extend(extension.scanned_tokens)
                         LOGGER.debug(f'added extension from file result {result=} to entity result: {entity_result=}.')

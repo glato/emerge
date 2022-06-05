@@ -61,6 +61,7 @@ class Analysis:
         self.ignore_directories_containing: List = []
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
+        self.ignore_entities_containing: List[str] = []
         self.import_aliases_available: bool = False
         self.import_aliases: Dict[str, str] = {}
 
@@ -327,7 +328,7 @@ class Analysis:
         if result_filter == MetricResultFilter.FILE_RESULTS:
             return self.file_results
 
-    def result_by_entity_name(self, name: str) -> Optional[AbstractEntityResult]:
+    def result_by_entity_name(self, name: str, results: Any) -> Optional[AbstractEntityResult]:
         """Returns the first found result given by entity name, otherwise None.
 
         Args:
@@ -336,9 +337,9 @@ class Analysis:
         Returns:
             Optional[AbstractEntityResult]: the first found result given by entity name, otherwise None.
         """
-        results: Dict[str, AbstractResult] = {k: v for (k, v) in self.results.items() if isinstance(v, AbstractEntityResult) and v.entity_name == name}
-        if bool(results):
-            return results[list(results.keys())[0]]
+        res: Dict[str, AbstractResult] = {k: v for (k, v) in results.items() if isinstance(v, AbstractEntityResult) and v.entity_name == name}
+        if bool(res):
+            return res[list(res.keys())[0]]
         return None
 
     def result_by_unique_name(self, unique_name: str) -> Optional[AbstractResult]:

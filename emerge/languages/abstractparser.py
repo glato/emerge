@@ -207,6 +207,14 @@ class ParsingMixin(ABC):
                     return True
         return False
 
+    @staticmethod
+    def is_entity_in_ignore_list(entity: str, analysis) -> bool:
+        if bool(analysis.ignore_entities_containing):
+            for ignored_entity in analysis.ignore_entities_containing:
+                if ignored_entity in entity:
+                    return True
+        return False
+
     @classmethod
     def preprocess_file_content_and_generate_token_list(cls, file_content: str) -> List[str]:
         return re.findall(r'\S+|\n', file_content.replace(':', ' : ')
