@@ -19,6 +19,8 @@
     <script src="vendors/d3/d3.v7.min.js"></script>
     <!-- Hull.js -->
     <script type="text/javascript" src="vendors/hull/hull.js"></script>
+    <!-- simpleheat.hs -->
+    <script type="text/javascript" src="vendors/simpleheat/simpleheat.js"></script>
     <!-- exported graph representations as js -->
     <script type="text/javascript" src="resources/js/graph_representations_d3_force_graph.js"></script>
 
@@ -279,6 +281,38 @@
                     </ul>
                 </div>
 
+                <!-- heatmap -->
+                <div style="width: 100%; padding-top: 4px;"></div>
+                <li class="list-group-item small d-flex justify-content-between align-items-center py-1" style="border: 0px;">
+                    <small>Heatmap settings</small>
+                </li>
+
+                <li class="list-group-item small d-flex justify-content-center" style="padding: 0px; border: 0px;">
+                    <div class="form-group small" style="width: 50%;">
+                        <label style="margin-bottom: 0px;">Activate</label>
+                        <div>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="switchActivateHeatmap">
+                                <label class="custom-control-label" for="switchActivateHeatmap"></label>
+                            </div>
+                         </div>
+                    </div>
+
+                    <div>
+                        <span style="padding: 5px;"></span>
+                    </div>
+
+                    <div class="form-group small" style="width: 50%;">
+                        <label style="margin-bottom: 0px;">Merge</label>
+                        <div>
+                                <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="switchMergeHeatmap">
+                                <label class="custom-control-label" for="switchMergeHeatmap" style="margin-bottom: 0px;"></label>
+                            </div>
+                         </div>
+                    </div>
+                </li>
+
                 <label id="selectNodesLabel">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
                         <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
@@ -466,6 +500,18 @@
             "metric_number_of_methods_in_entity": 0.05,
         }
 
+        // heatmap
+        const heatmapLimit = 120
+        const heatmapBaseScore = 10
+
+        const heatmapMetricWeights = {
+            "sloc": 1.0,
+            "fan_out": 3.0
+        }
+
+        let heatmapMerged = false
+        let heatmapActive = false
+
         let selectedNodesMap = {}
         let fadeUnselectedNodes = false
         let currentActiveNodeLabelColor = activeNodeLabelColor
@@ -518,7 +564,7 @@
         let graphCanvas = d3.select('#graphDiv').append('canvas')
             .attr('width', graphWidth + 'px')
             .attr('height', height + 'px')
-            .attr('id', ' mainCanvas')
+            .attr('id', 'mainCanvas')
             .node();
 
         let graphData = {}
@@ -530,6 +576,7 @@
         let statistics
         let overall_metric_results
 
+        initHeatmapSwitches()
         setInitialDarkMode()
         prepareGraphStructures()
 
@@ -549,6 +596,10 @@
         let simulation
 
         let transform = d3.zoomIdentity;
+
+        // heatmap
+        var heat = simpleheat('mainCanvas');
+        heat.max(heatmapLimit);
 
         // bring back d3 schemeCategory20 to live
         const schemeCategory20 = "1f77b4aec7e8ff7f0effbb782ca02c98df8ad62728ff98969467bdc5b0d58c564bc49c94e377c2f7b6d27f7f7fc7c7c7bcbd22dbdb8d17becf9edae5"
@@ -585,7 +636,7 @@
         /**
          * * MARK: - Drawing on canvas
          */
-        function drawEdges(context) {
+         function drawEdges(context) {
             currentGraph.links.forEach(function(d) {
 
                 context.beginPath();
@@ -607,7 +658,7 @@
                         }
                     }
 
-                } else  {
+                } else {
                     if ((d.target.id == closeNode.id) || (d.source.id == closeNode.id)) { // there is an edge that contains our hovered node
                         context.strokeStyle = currentActiveEdgeColor
                         context.fillStyle = currentActiveEdgeColor
@@ -623,7 +674,7 @@
                     context.fillStyle = currentActiveEdgeColor
                     context.lineWidth = 2.0;
                 } else {
-                    if (fadeUnselectedNodes == true) { // also fade away non-relevant egdes
+                    if (fadeUnselectedNodes == true || normalHeatmapIsActive() ) { // also fade away non-relevant egdes
                         context.fillStyle = context.strokeStyle = nodeColorByModularity(d.source, 0.2)
                     } 
                     context.lineWidth = 1.0;
@@ -642,6 +693,49 @@
             });
         }
 
+        /**
+         * * MARK: - Drawing a heatmap
+         */
+
+         function calculateHeatmapScore(node) {
+            let score = heatmapBaseScore
+            let slocScore = 0
+            let fanoutScore = 0
+
+            // add weighted sloc metric if present
+            if ('metric_sloc_in_entity' in node) {
+                slocScore = node.metric_sloc_in_entity * heatmapMetricWeights['sloc']
+            }
+            if ('metric_sloc_in_file' in node) {
+                slocScore = node.metric_sloc_in_file * heatmapMetricWeights['sloc']
+            }
+
+            // add weighted fan-out metric is present
+            if ('metric_fan_out_dependency_graph' in node) {
+                fanoutScore = node.metric_fan_out_dependency_graph * heatmapMetricWeights['fan_out']
+            }
+            if ('metric_fan_out_inheritance_graph' in node) {
+                fanoutScore = node.metric_fan_out_inheritance_graph * heatmapMetricWeights['fan_out']
+            }
+            if ('metric_fan_out_complete_graph' in node) {
+                fanoutScore = node.metric_fan_out_complete_graph * heatmapMetricWeights['fan_out']
+            }
+
+            return score + slocScore + fanoutScore
+        }
+
+        function drawHeatMap(context) {
+            heat.clear();
+            currentGraph.nodes.forEach(function(node, i) {
+                heat.add([node.x, node.y, calculateHeatmapScore(node)])
+            })
+
+            heat.draw()
+            
+            // reset alpha from heatmap rendering
+            context.globalAlpha = 1;  
+        }
+
         function drawNodes(context) {
             currentGraph.nodes.forEach(function(d, i) {
 
@@ -657,7 +751,7 @@
 
                 context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI, true);
 
-                if (fadeUnselectedNodes == true) {
+                if (fadeUnselectedNodes == true || normalHeatmapIsActive() ) {
                     context.strokeStyle = nodeStrokeStyle
                     context.fillStyle = hexToRGB(nodeStrokeStyle, 0.2)
                     context.stroke();
@@ -1315,6 +1409,11 @@
             context.translate(transform.x, transform.y);
             context.scale(transform.k, transform.k);
 
+            // draw heatmap
+            if (mergedHeatmapIsActive() || normalHeatmapIsActive() ) {
+                drawHeatMap(context)
+            }
+
             // this is pretty cpu hungry
             drawHulls(context)
 
@@ -1714,6 +1813,46 @@
             d3.select("#chargeForce").text(currentChargeForce)
             simulation.force("charge", d3.forceManyBody().strength(currentChargeForce))
             simulation.alpha(1).restart();
+        }
+
+        /**
+         * * MARK: - heatmap
+         */
+
+        function normalHeatmapIsActive() {
+            return (heatmapActive && !heatmapMerged)
+        }
+
+        function mergedHeatmapIsActive() {
+            return (heatmapActive && heatmapMerged)
+        }
+
+        function initHeatmapSwitches() {
+            $("#switchActivateHeatmap").on('change', function() {
+                if ($(this).is(':checked')) {
+                    heatmapActive = $(this).is(':checked');
+                } else {
+                    heatmapActive = $(this).is(':checked');
+                    $("#switchMergeHeatmap").prop('checked', false);
+                    heatmapMerged = false
+                }
+                simulationUpdate();
+            });
+
+            $("#switchMergeHeatmap").on('change', function() {
+                if (heatmapActive == true) {
+                    if ($(this).is(':checked')) {
+                        heatmapMerged = $(this).is(':checked');
+                    } else {
+                        heatmapMerged = $(this).is(':checked');
+                    }
+                } else {
+                    $("#switchActivateHeatmap").prop('checked', true);
+                    heatmapActive = $("#switchActivateHeatmap").is(':checked');
+                    heatmapMerged = $(this).is(':checked');
+                }
+                simulationUpdate();
+            });
         }
 
         /**

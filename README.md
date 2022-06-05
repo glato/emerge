@@ -60,6 +60,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - Reactive visual live search of files/ entities (e.g. classes)
     - Selection and highlighting of individual nodes
     - [Concave hull](https://github.com/AndriiHeonia/hull) visualization of single clusters
+    - [Heatmap](https://github.com/mourner/simpleheat) visualization support of potentially harmful nodes based on a SLOC/Fan-Out score
     - Display of cluster metrics to facilitate comparability
     - Interactivity given by translation, zooming, dragging and hovering over nodes
   - Tabular console output
