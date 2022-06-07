@@ -283,7 +283,7 @@
 
                 <!-- heatmap -->
                 <div style="width: 100%; padding-top: 4px;"></div>
-                <li class="list-group-item small d-flex justify-content-between align-items-center py-1" style="border: 0px;">
+                <li class="list-group-item small d-flex justify-content-between align-items-center py-1 disabled" style="border: 0px;">
                     <small>Heatmap settings</small>
                 </li>
 
@@ -501,12 +501,12 @@
         }
 
         // heatmap
-        const heatmapLimit = 120
+        const heatmapLimit = 200
         const heatmapBaseScore = 10
 
         const heatmapMetricWeights = {
-            "sloc": 1.0,
-            "fan_out": 3.0
+            "sloc": 1.7,
+            "fan_out": 2.0
         }
 
         let heatmapMerged = false
