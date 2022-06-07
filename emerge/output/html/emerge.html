@@ -344,6 +344,16 @@
 
                     </div>
                 </div>
+                
+                <div class="form-group small" style="width: 100%; margin-bottom: 0px;">
+                    <label style="margin-bottom: 0px; padding-top: 2px;"><small>Add semantic search</small></label>
+                    <div>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="switchAddSemanticSearch">
+                            <label class="custom-control-label" for="switchAddSemanticSearch"></label>
+                        </div>
+                     </div>
+                </div>
 
                 <div id="clusterHullMenu">
                     <!-- cluster hull selection / injected by javascript -->
@@ -415,6 +425,7 @@
         const directoryNodeColor = '#3b8cff'
         const fileNodeColor = '#d1e3ff'
         const defaultNodeColor = '#1f77b4'
+        const semanticHeaderYellow = '#f5bc42'
 
         /**
          * * MARK: - Math constants
@@ -524,6 +535,7 @@
 
         let darkMode = false
         let isSearching = false
+        let addSemanticSearch = false
         let searchString = ""
         let searchResults = 0
 
@@ -577,6 +589,7 @@
         let overall_metric_results
 
         initHeatmapSwitches()
+        initSemanticSearchSwitch()
         setInitialDarkMode()
         prepareGraphStructures()
 
@@ -649,12 +662,27 @@
 
                     } else { // node search is active
 
-                        if ((d.target.id.toLowerCase().includes(searchString)) && (d.source.id.toLowerCase().includes(searchString))) { // the edge is between two nodes that are included in the search
-                            context.strokeStyle = currentActiveEdgeColor
-                            context.fillStyle = currentActiveEdgeColor
+                        if (addSemanticSearch == true) {
+                            if ( // the edge is between two nodes that are included in the search
+                            (d.target.id.toLowerCase().includes(searchString)) && (d.source.id.toLowerCase().includes(searchString)) ||
+                            // the edge is between two nodes that includes the search in one of their semantic keywords
+                            (stringIncludedInNodeTags(searchString, d.target) && stringIncludedInNodeTags(searchString, d.source)))
+                            { 
+                                context.strokeStyle = currentActiveEdgeColor
+                                context.fillStyle = currentActiveEdgeColor
+                            } else { // the edge is not connected to a node which is included in the search
+                                context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
+                            }
 
-                        } else { // the edge is not connected to a node which is included in the search
-                            context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
+                        // normal search without semantic
+                        } else {
+                            // the edge is between two nodes that are included in the search
+                            if ( (d.target.id.toLowerCase().includes(searchString)) && (d.source.id.toLowerCase().includes(searchString)) ) { 
+                                context.strokeStyle = currentActiveEdgeColor
+                                context.fillStyle = currentActiveEdgeColor
+                            } else { // the edge is not connected to a node which is included in the search
+                                context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
+                            }
                         }
                     }
 
@@ -779,8 +807,9 @@
 
                         } else { // searching for nodes
 
-                            // the node is included in the current search
-                            if (d.id.toLowerCase().includes(searchString)) {
+                            // normal search
+                            if (addSemanticSearch == false && d.id.toLowerCase().includes(searchString)) {
+
                                 context.fillStyle = nodeColorByModularity(d)
                                 context.strokeStyle = nodeStrokeStyle;
                                 context.stroke();
@@ -790,6 +819,36 @@
                                 context.fillStyle = nodeColorByModularity(d)
 
                                 searchResults += 1
+
+                            } else if (addSemanticSearch == true && (d.id.toLowerCase().includes(searchString) || stringIncludedInNodeTags(searchString, d))) { // add semantic search
+                                // the node is included in the current search OR if the search in included in one of the node's semantic tags 
+                                // draw a highlight circle behind the found node due to semantic search
+                                if (stringIncludedInNodeTags(searchString, d)) {
+                                    context.fillStyle = currentActiveNodeLabelColor;
+                                    drawNodeLabel(d.id, d.x + 14, d.y - 7)
+                                    
+                                    drawNodeHighlight(d, nodeColorByModularity(d, 1.0))
+                                    context.strokeStyle = nodeStrokeStyle;
+                                    context.stroke();
+
+                                    drawNodeHighlight(d, semanticHeaderYellow, 2)
+                                    context.strokeStyle = nodeStrokeStyle;
+                                    context.stroke();
+
+                                    searchResults += 1
+                                    
+                                } else {
+
+                                    context.fillStyle = nodeColorByModularity(d)
+                                    context.strokeStyle = nodeStrokeStyle;
+                                    context.stroke();
+
+                                    context.fillStyle = currentActiveNodeLabelColor;
+                                    drawNodeLabel(d.id, d.x + 14, d.y - 7)
+                                    context.fillStyle = nodeColorByModularity(d)
+
+                                    searchResults += 1
+                                }
 
                             } else {
                                 context.fillStyle = nodeColorByModularity(d, 0.2)
@@ -871,11 +930,33 @@
             context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI);
         }
 
+        function drawNodeHighlight(node, color, radiusOffset) {
+            context.arc(node.x, node.y, node.radius + radiusOffset, 0, TWO_TIMES_PI);
+            context.fillStyle = color
+            context.strokeStyle = color;
+            context.stroke();
+            context.fill();
+        }
+
         function drawNodeLabel(text, xPos, yPos) {
             const fontSize = 8
             context.font = fontSize + 'px Helvetica';
             context.fillText(text, xPos, yPos);
         }
+
+        function stringIncludedInNodeTags(string, node) {
+            let propertyNames = Object.getOwnPropertyNames(node.metrics)
+            let searchedTag = 'metric_tag_' + string
+            let found = false
+
+            propertyNames.forEach(function(name) {
+                if (name.toLowerCase().includes(searchedTag.toLowerCase() )) {
+                    found = true
+                }
+            })
+       
+            return found
+        } 
 
         function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
             const fontSize = 14
@@ -1825,6 +1906,15 @@
 
         function mergedHeatmapIsActive() {
             return (heatmapActive && heatmapMerged)
+        }
+
+        function initSemanticSearchSwitch() {
+            $("#switchAddSemanticSearch").on('change', function() {
+                addSemanticSearch = $(this).is(':checked');
+                searchResults = 0
+                simulationUpdate();
+                $('#inputNodeSearchLabel').text(searchResults + ' nodes found')                
+            })
         }
 
         function initHeatmapSwitches() {
