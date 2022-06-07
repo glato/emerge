@@ -119,17 +119,17 @@ class ParsingMixin(ABC):
 
     @staticmethod
     def any_mapping_key_in_string(string: str, mapping: Dict [str, str]) -> Optional[Tuple]:
-        for k, v in mapping.items():
-            if k in string:
-                return k, v
+        for key, value in mapping.items():
+            if key in string:
+                return key, value
         return None
 
     @staticmethod
     def replace_substring_if_any_mapping_key_in_string_exists(string: str, mapping: Dict[str, str]) -> str:
         exists = ParsingMixin.any_mapping_key_in_string(string, mapping)
         if exists is not None:
-            k, v = exists
-            return string.replace(k, v) 
+            key, value = exists
+            return string.replace(key, value) 
         return string
 
     @staticmethod

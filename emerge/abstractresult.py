@@ -17,6 +17,11 @@ class AbstractResult(ABC):
     def unique_name(self) -> str:
         ...
 
+    # pylint: disable=unused-argument
+    @unique_name.setter
+    def unique_name(self, value):
+        ...
+
     @property
     @abstractmethod
     def analysis(self):
@@ -42,6 +47,11 @@ class AbstractResult(ABC):
     def metrics(self) -> Dict:
         ...
 
+    @property
+    @abstractmethod
+    def scanned_import_dependencies(self) -> List[str]:
+        ...
+
 
 class AbstractFileResult(AbstractResult):
 
@@ -62,11 +72,6 @@ class AbstractFileResult(AbstractResult):
 
     @property
     @abstractmethod
-    def scanned_import_dependencies(self) -> List[str]:
-        ...
-
-    @property
-    @abstractmethod
     def module_name(self) -> str:
         ...
 
@@ -75,14 +80,20 @@ class AbstractFileResult(AbstractResult):
     def absolute_name(self) -> str:
         ...
 
-    # @classmethod
-    # @abstractmethod
-    # def create_file_result(cls, analysis, scanned_file_name, module_name, scanned_by, scanned_language, scanned_tokens):
-    #     ...
-
+    # pylint: disable=too-many-arguments
     @classmethod
     @abstractmethod
-    def create_file_result(cls, analysis, scanned_file_name, relative_file_path_to_analysis, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens):
+    def create_file_result(
+        cls,
+        analysis,
+        scanned_file_name,
+        relative_file_path_to_analysis,
+        absolute_name,
+        display_name, 
+        module_name, 
+        scanned_by, 
+        scanned_language, 
+        scanned_tokens):
         ...
     
     @abstractmethod
@@ -130,4 +141,13 @@ class AbstractEntityResult(AbstractResult):
     @property
     @abstractmethod
     def scanned_inheritance_dependencies(self) -> List:
+        ...
+
+    @property
+    def parent_file_result(self) -> AbstractFileResult:
+        ...
+
+    # pylint: disable=unused-argument
+    @parent_file_result.setter
+    def parent_file_result(self, value):
         ...

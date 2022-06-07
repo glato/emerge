@@ -77,7 +77,7 @@ class KotlinParser(AbstractParser, ParsingMixin):
         self._results = value
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
-        LOGGER.debug(f'generating file results...')
+        LOGGER.debug('generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
@@ -160,8 +160,13 @@ class KotlinParser(AbstractParser, ParsingMixin):
     def _add_imports_to_result(self, result: AbstractResult, analysis):
         LOGGER.debug(f'extracting imports from base result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
-        source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings, KotlinParsingKeyword.INLINE_COMMENT.value, KotlinParsingKeyword.START_BLOCK_COMMENT.value, KotlinParsingKeyword.STOP_BLOCK_COMMENT.value)
+
+        source_string_no_comments = self._filter_source_tokens_without_comments (
+            list_of_words_with_newline_strings, KotlinParsingKeyword.INLINE_COMMENT.value,
+            KotlinParsingKeyword.START_BLOCK_COMMENT.value,
+            KotlinParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
@@ -173,9 +178,9 @@ class KotlinParser(AbstractParser, ParsingMixin):
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
@@ -189,7 +194,7 @@ class KotlinParser(AbstractParser, ParsingMixin):
                     result.scanned_import_dependencies.append(dependency)
                     LOGGER.debug(f'adding import: {dependency}')
 
-    def _add_package_name_to_result(self, result: AbstractResult) -> str:
+    def _add_package_name_to_result(self, result: AbstractResult):
         LOGGER.debug(f'extracting package name from base result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
         source_string_no_comments = self._filter_source_tokens_without_comments(
@@ -227,22 +232,23 @@ class KotlinParser(AbstractParser, ParsingMixin):
 
                 match_expression = pp.Keyword(KotlinParsingKeyword.CLASS.value) + \
                     entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
-                    pp.Optional(
-                    pp.Keyword(CoreParsingKeyword.COLON.value) +
+                    pp.Optional(pp.Keyword(CoreParsingKeyword.COLON.value) +
                     entity_name.setResultsName(CoreParsingKeyword.INHERITED_ENTITY_NAME.value)
                 ) + pp.SkipTo(pp.FollowedBy(KotlinParsingKeyword.OPEN_SCOPE.value))
 
                 try:
                     parsing_result = match_expression.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {obj} {following[:10]}')
                     continue
 
                 if len(parsing_result) > 0:
                     parsing_result = match_expression.parseString(read_ahead_string)
-                    if getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value) is not None and bool(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)):
+                    
+                    if getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value) is not None and + \
+                         bool(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)):
 
                         result.analysis.statistics.increment(Statistics.Key.PARSING_HITS)
                         LOGGER.debug(
