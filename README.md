@@ -470,6 +470,7 @@ The yaml configuration is basically defined at the following levels:
 | `only_permit_file_extensions`    | explicitly permit the following file extensions you set here, e.g. `.java` |
 | `only_permit_files_matching_absolute_path`    | only the following list of absolute file paths is permitted for the file scan, e.g. `[/Users/user1/source/file1.java]`. The files should follow `source_directory`|
 | `ignore_dependencies_containing` | ignore every dependency included in this list of substrings, e.g. `java.util` |
+| `ignore_entities_containing` | ignore every entity included in this list of substrings, e.g. `NotRelevantClass` |
 | `import_aliases`  | define a list of import aliases, i.e. replace substrings within a full dependency path, e.g. `"@foo": src/foo` will replace any `@foo` alias by `src/foo` |
 | `file_scan`                      | perform a file scan, contains the metrics that should be applied on every source file |
 | `entity_scan`                    | perform an entity scan, contains the metrics that should be applied on every entity (e.g. on every class) |
