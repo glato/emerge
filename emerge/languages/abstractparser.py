@@ -79,6 +79,7 @@ class CoreParsingKeyword(Enum):
     CLOSING_ROUND_BRACKET = ")"
     POSIX_CURRENT_DIRECTORY = "./"
     POSIX_PARENT_DIRECTORY = "../"
+    NEWLINE = "\n"
 
 
 class ParsingMixin(ABC):
@@ -106,7 +107,7 @@ class ParsingMixin(ABC):
                     f"{PosixPath(analysis_source_directory).parent}{CoreParsingKeyword.SLASH.value}", "")
 
                 resolved_dependency = resolved_relative_analysis_dependency_path
-
+        # pylint: disable=broad-except
         except Exception as ex:
             LOGGER.warning(f'{ex}')
 

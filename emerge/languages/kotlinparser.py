@@ -26,6 +26,8 @@ coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 class KotlinParsingKeyword(Enum):
     CLASS = "class"
     OBJECT = "object"
+    COMPOSABLE = "@Composable"
+    FUN = "fun"
     OPEN_SCOPE = "{"
     CLOSE_SCOPE = "}"
     INLINE_COMMENT = "//"
@@ -34,6 +36,7 @@ class KotlinParsingKeyword(Enum):
     IMPORT = "import"
     PACKAGE = "package"
     PACKAGE_NAME = "package_name"
+    PRIVATE = "private"
 
 
 class KotlinParser(AbstractParser, ParsingMixin):
@@ -107,24 +110,36 @@ class KotlinParser(AbstractParser, ParsingMixin):
             entity.unique_name = entity.entity_name
 
     def generate_entity_results_from_analysis(self, analysis):
-        LOGGER.debug(f'generating entity results...')
+        LOGGER.debug('generating entity results...')
         filtered_results = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractFileResult)}
 
         result: AbstractFileResult
         for _, result in filtered_results.items():
 
-            entity_keywords: List[str] = [KotlinParsingKeyword.CLASS.value, KotlinParsingKeyword.OBJECT.value]
+            entity_keywords: List[str] = [KotlinParsingKeyword.CLASS.value, KotlinParsingKeyword.OBJECT.value, KotlinParsingKeyword.COMPOSABLE.value]
             entity_name = pp.Word(pp.alphanums)
 
-            match_expression = (pp.Keyword(KotlinParsingKeyword.CLASS.value) | pp.Keyword(KotlinParsingKeyword.OBJECT.value)) + \
+            match_expression = (
+                pp.Keyword(KotlinParsingKeyword.CLASS.value) |  
+                pp.Keyword(KotlinParsingKeyword.OBJECT.value) |  
+                # consider composable functions as entities
+                (pp.Keyword(KotlinParsingKeyword.COMPOSABLE.value) +
+                    pp.ZeroOrMore(pp.Literal(CoreParsingKeyword.NEWLINE.value)) + 
+                    pp.Optional(pp.Keyword( KotlinParsingKeyword.PRIVATE.value)) +
+                    pp.Keyword(KotlinParsingKeyword.FUN.value) 
+                ) ) + \
                 entity_name.setResultsName(CoreParsingKeyword.ENTITY_NAME.value) + \
-                pp.Optional(
-                pp.Keyword(CoreParsingKeyword.COLON.value) +
-                entity_name.setResultsName(CoreParsingKeyword.INHERITED_ENTITY_NAME.value)
-            ) + pp.SkipTo(pp.FollowedBy(KotlinParsingKeyword.OPEN_SCOPE.value))
+                pp.Optional (
+                    pp.Keyword(CoreParsingKeyword.COLON.value) +
+                    entity_name.setResultsName(CoreParsingKeyword.INHERITED_ENTITY_NAME.value)
+                ) + pp.SkipTo(pp.FollowedBy(KotlinParsingKeyword.OPEN_SCOPE.value))
 
-            comment_keywords: Dict[str, str] = {CoreParsingKeyword.LINE_COMMENT.value: KotlinParsingKeyword.INLINE_COMMENT.value,
-                                                CoreParsingKeyword.START_BLOCK_COMMENT.value: KotlinParsingKeyword.START_BLOCK_COMMENT.value, CoreParsingKeyword.STOP_BLOCK_COMMENT.value: KotlinParsingKeyword.STOP_BLOCK_COMMENT.value}
+            comment_keywords: Dict[str, str] = {
+                CoreParsingKeyword.LINE_COMMENT.value: KotlinParsingKeyword.INLINE_COMMENT.value,
+                CoreParsingKeyword.START_BLOCK_COMMENT.value: KotlinParsingKeyword.START_BLOCK_COMMENT.value,
+                CoreParsingKeyword.STOP_BLOCK_COMMENT.value: KotlinParsingKeyword.STOP_BLOCK_COMMENT.value
+            }
+
             entity_results = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
 
             entity_results: List[EntityResult]

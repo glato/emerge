@@ -9,6 +9,7 @@ from typing import Dict, List
 from pathlib import PosixPath
 import logging
 import coloredlogs
+import pyparsing as pp
 
 from emerge.languages.abstractparser import ParsingMixin, CoreParsingKeyword, LanguageType
 from emerge.abstractresult import AbstractFileResult, AbstractEntityResult
@@ -328,7 +329,6 @@ class FileResult(AbstractFileResult, ParsingMixin):
         open_scope_character: str = CoreParsingKeyword.OPENING_CURVED_BRACKET.value
         close_scope_character: str = CoreParsingKeyword.CLOSING_CURVED_BRACKET.value
 
-        # TODO: make this configurable by parameters for language-specific reasons
         line_comment_keyword: str = comment_keywords[CoreParsingKeyword.LINE_COMMENT.value]
         start_block_comment_keyword: str = comment_keywords[CoreParsingKeyword.START_BLOCK_COMMENT.value]
         stop_block_comment_keyword: str = comment_keywords[CoreParsingKeyword.STOP_BLOCK_COMMENT.value]
@@ -340,6 +340,10 @@ class FileResult(AbstractFileResult, ParsingMixin):
         source_string_no_comments = self._filter_source_tokens_without_comments(
             list_of_words_with_newline_strings, line_comment_keyword, start_block_comment_keyword, stop_block_comment_keyword)
 
+        # workaround to bypass scope false positives
+        source_string_no_comments = source_string_no_comments.replace("{}", "")
+        source_string_no_comments = source_string_no_comments.replace("{ }", "")
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list(source_string_no_comments)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
@@ -348,7 +352,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
 
                 try:
                     parsing_result = entity_expression.parseString(read_ahead_string)
-                except:
+                except pp.ParseException:
                     self.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
                     LOGGER.warning(f'warning: could not parse result {self=}')
                     LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
@@ -361,7 +365,6 @@ class FileResult(AbstractFileResult, ParsingMixin):
                 found_entities[parsing_result.entity_name] = []
                 all_tokens = [obj] + following
                 for token in all_tokens:
-
                     if token == open_scope_character:
                         scope_level += 1
 
