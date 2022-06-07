@@ -35,9 +35,9 @@ class TFIDFMetric(CodeMetric):
         """The following language specific stopwords should be excluded from the TF-IDF calculation."""
         self.language_specific_stopwords = {
             "JAVA":       {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized', 'fi', 'throws', 'long', 'int', 'import', 'new', 'void', 'null', 'char'},
-            "KOTLIN":     {'null', 'val', 'var', 'lateinit', 'fun', 'throw', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'string', 'map', 'int', 'boolean', 'true', 'false', 'abstract'},
-            "OBJC":       {'include', 'struct', 'const', 'new', 'self', 'bool', 'object', 'return', 'nonatomic', 'atomic', 'readonly', 'readwrite', 'case', 'null', 'long', 'nsobject', 'nullable', 'nonnull', 'void', 'yes', 'no', 'id', 'int', 'strong', 'assign'},
-            "SWIFT":      {'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil', 'throws', 'private', 'struct', 'class', 'protocol', 'bool', 'static', 'inout', 'int', 'string'},
+            "KOTLIN":     {'onitemclicklistener', 'otherwise', 'null', 'val', 'var', 'lateinit', 'fun', 'throw', 'private', 'override', 'import', 'sealed', 'const', 'object', 'set', 'return', 'string', 'map', 'int', 'boolean', 'true', 'false', 'abstract'},
+            "OBJC":       {'cgfloat', 'float', 'cgsize', 'include', 'struct', 'const', 'new', 'self', 'bool', 'object', 'return', 'nonatomic', 'atomic', 'readonly', 'readwrite', 'case', 'null', 'long', 'nsobject', 'nullable', 'nonnull', 'void', 'yes', 'no', 'id', 'int', 'strong', 'assign'},
+            "SWIFT":      {'didset', 'cgfloat', 'float', 'cgsize', 'func', 'let', 'var', 'weak', 'return', 'true', 'false', 'line', 'file', 'try', 'override', 'self', 'keypath', 'case', 'guard', 'some', 'void', 'nil', 'throws', 'private', 'struct', 'class', 'protocol', 'bool', 'static', 'inout', 'int', 'string'},
             "RUBY":       {'true', 'false', 'require', 'module', 'class', 'fi', 'unless', 'begin', 'break', 'self', 'nil', 'void', 'super', 'int', 'bytes', 'array', 'string'},
             "GROOVY":     {'true', 'false', 'null', 'throw', 'return', 'static', 'public', 'private', 'protected', 'super', 'final', 'char', 'string', 'synchronized', 'fi', 'throws', 'long', 'int', 'import', 'new', 'void', 'null', 'char'},
             "JAVASCRIPT": {'case', 'break', 'this', 'static', 'throw', 'var', 'let', 'obj', 'const', 'string', 'export', 'true', 'false', 'return', 'require', 'function', 'exports', 'null', 'void', 'undefined', 'void'},
@@ -49,7 +49,7 @@ class TFIDFMetric(CodeMetric):
 
         """The following natural language stopwords should be excluded from the TF-IDF calculation."""
         self.stopwords = {
-            'and', 'the', 'to', 'of', 'or', 'then', 'any', 'use', 'see', 'do', 'this', 'def', 'end', 'with', 'without', 'if', 'a', 'else', 'in', 'where', 'is', 'it', 'by', 'you', 'for', 'or', 'license', 'all', 'from', 'that', 'an', 'get', 'set', 'as', 'when', 'up', 'ok', 'may', 'foo', 'bar', 'baz', 'at', 'too', 'only', 'but', 'just'
+            'switch', 'props', 'id', 'and', 'the', 'to', 'of', 'or', 'then', 'any', 'use', 'see', 'do', 'this', 'def', 'end', 'with', 'without', 'if', 'a', 'else', 'in', 'where', 'is', 'it', 'by', 'you', 'for', 'or', 'license', 'all', 'from', 'that', 'an', 'get', 'set', 'as', 'when', 'up', 'ok', 'may', 'foo', 'bar', 'baz', 'at', 'too', 'only', 'but', 'just'
         }
 
     @property
