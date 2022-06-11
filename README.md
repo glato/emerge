@@ -46,6 +46,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - Dependency graph
     - Inheritance graph
     - Complete graph (composition of dependency and inheritance graph)
+    - Includes the extraction of `SwiftUI` and `Composable` declarative UI entities
   - A Filesystem graph that shows the project filesystem hierarchy as a graph
   - [GraphML](http://graphml.graphdrawing.org)
   - [Graphviz DOT format](https://graphviz.org/doc/info/lang.html)
