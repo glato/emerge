@@ -74,7 +74,7 @@ class JavaParser(AbstractParser, ParsingMixin):
         self._results = value
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
-        LOGGER.debug(f'generating file results...')
+        LOGGER.debug('generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
@@ -107,7 +107,7 @@ class JavaParser(AbstractParser, ParsingMixin):
             entity.unique_name = entity.entity_name
 
     def generate_entity_results_from_analysis(self, analysis):
-        LOGGER.debug(f'generating entity results...')
+        LOGGER.debug('generating entity results...')
         filtered_results = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, FileResult)}
 
         result: FileResult
@@ -121,8 +121,12 @@ class JavaParser(AbstractParser, ParsingMixin):
                             entity_name.setResultsName(CoreParsingKeyword.INHERITED_ENTITY_NAME.value)) + \
                 pp.SkipTo(pp.FollowedBy(JavaParsingKeyword.OPEN_SCOPE.value))
 
-            comment_keywords: Dict[str, str] = {CoreParsingKeyword.LINE_COMMENT.value: JavaParsingKeyword.INLINE_COMMENT.value,
-                                                CoreParsingKeyword.START_BLOCK_COMMENT.value: JavaParsingKeyword.START_BLOCK_COMMENT.value, CoreParsingKeyword.STOP_BLOCK_COMMENT.value: JavaParsingKeyword.STOP_BLOCK_COMMENT.value}
+            comment_keywords: Dict[str, str] = {
+                CoreParsingKeyword.LINE_COMMENT.value: JavaParsingKeyword.INLINE_COMMENT.value,
+                CoreParsingKeyword.START_BLOCK_COMMENT.value: JavaParsingKeyword.START_BLOCK_COMMENT.value,
+                CoreParsingKeyword.STOP_BLOCK_COMMENT.value: JavaParsingKeyword.STOP_BLOCK_COMMENT.value
+            }
+
             entity_results = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
 
             entity_results: List[EntityResult]
@@ -143,8 +147,14 @@ class JavaParser(AbstractParser, ParsingMixin):
     def _add_imports_to_result(self, result: FileResult, analysis):
         LOGGER.debug('extracting imports from file result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
+
         source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings, JavaParsingKeyword.INLINE_COMMENT.value, JavaParsingKeyword.START_BLOCK_COMMENT.value, JavaParsingKeyword.STOP_BLOCK_COMMENT.value)
+            list_of_words_with_newline_strings,
+            JavaParsingKeyword.INLINE_COMMENT.value,
+            JavaParsingKeyword.START_BLOCK_COMMENT.value,
+            JavaParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list(source_string_no_comments)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
@@ -157,9 +167,9 @@ class JavaParser(AbstractParser, ParsingMixin):
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
@@ -188,9 +198,9 @@ class JavaParser(AbstractParser, ParsingMixin):
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {obj} {following[:10]}')
                     continue
 
@@ -213,19 +223,22 @@ class JavaParser(AbstractParser, ParsingMixin):
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {obj} {following[:10]}')
                     continue
 
                 if len(parsing_result) > 0:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                    if getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value) is not None and bool(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)):
+
+                    if getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value) is not None and \
+                    bool(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)):
 
                         result.analysis.statistics.increment(Statistics.Key.PARSING_HITS)
                         LOGGER.debug(
-                            f'found inheritance entity {getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)} for entity name: {getattr(parsing_result, CoreParsingKeyword.ENTITY_NAME.value)} and added to result')
+                            f'found inheritance entity {getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)} ' +
+                            'for entity name: {getattr(parsing_result, CoreParsingKeyword.ENTITY_NAME.value)} and added to result')
                         result.scanned_inheritance_dependencies.append(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value))
 
 

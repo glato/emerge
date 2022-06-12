@@ -47,8 +47,8 @@ class LouvainModularityMetric(GraphMetric):
         LOUVAIN_MODULARITY_ENTITY_INHERITANCE_GRAPH = auto()
         LOUVAIN_MODULARITY_ENTITY_COMPLETE_GRAPH = auto()
 
-    def __init__(self, analysis, graph_representations: Dict):
-        super().__init__(analysis, graph_representations)
+    # def __init__(self, analysis, graph_representations: Dict):
+    #     super().__init__(analysis, graph_representations)
 
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
         self._calculate_metric_data(results)
@@ -104,7 +104,7 @@ class LouvainModularityMetric(GraphMetric):
                             sorted_partion_by_louvain.update(new_partition)
                             new_community_id += 1
 
-                        for node_name in sorted_partion_by_louvain:
+                        for node_name, _ in sorted_partion_by_louvain.items():
                             if node_name in results:
                                 result = results[node_name]
 
@@ -183,6 +183,6 @@ class LouvainModularityMetric(GraphMetric):
                     }
 
                 self.overall_data.update(metric_keys)
-
-            except Exception as ex:
+            
+            except Exception as ex: # pylint: disable=broad-except
                 LOGGER.error(f'something went wrong, skipping metric {self.metric_name}: {ex}')

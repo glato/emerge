@@ -13,14 +13,19 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
+
 with open('emerge/appear.py', 'rb') as f:
-    version = str(ast.literal_eval(_version_re.search(
-        f.read().decode('utf-8')).group(1)))
+    _re_searched = _version_re.search(f.read().decode('utf-8'))
+
+    if _re_searched is None:
+        raise RuntimeError('Cannot find version string')
+
+    VERSION = str(ast.literal_eval(_re_searched.group(1)))
 
 # This call to setup() does all the work
 setup(
     name="emerge-viz",
-    version=version,
+    version=VERSION,
     description="Visualize source code structure and dependencies in an interactive d3 application",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -61,7 +66,15 @@ setup(
         "emerge/metrics/numberofmethods": "./emerge/metrics/numberofmethods",
         "emerge/metrics/sloc": "./emerge/metrics/sloc"
     },
-    packages=['emerge', 'emerge.languages', 'emerge.metrics', 'emerge.metrics.faninout', 'emerge.metrics.modularity', 'emerge.metrics.numberofmethods', 'emerge.metrics.sloc'],
+    packages=[
+        'emerge',
+        'emerge.languages',
+        'emerge.metrics',
+        'emerge.metrics.faninout',
+        'emerge.metrics.modularity',
+        'emerge.metrics.numberofmethods',
+        'emerge.metrics.sloc'
+    ],
     include_package_data=True,
     entry_points={
         "console_scripts": [

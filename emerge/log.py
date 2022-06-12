@@ -44,22 +44,22 @@ class Logger:
         self._logger = logger
 
     def info(self, message: str):
-        self._logger.info(u"\U000023E9" + " " + message)
+        self._logger.info("\U000023E9" + " " + message)
 
     def info_start(self, message: str):
-        self._logger.info(u"\U0001F449" + " " + message)
+        self._logger.info("\U0001F449" + " " + message)
 
     def debug(self, message: str):
-        self._logger.debug(u"\U000023E9" + " " + message)
+        self._logger.debug("\U000023E9" + " " + message)
 
     def error(self, message: str):
-        self._logger.error(u"\U00002757" + " " + message)
+        self._logger.error("\U00002757" + " " + message)
 
     def warning(self, message: str):
-        self._logger.debug(u"\U00002753" + " " + message)
+        self._logger.debug("\U00002753" + " " + message)
 
     def info_done(self, message: str):
-        self._logger.info(u"\U00002705" + " " + message)
+        self._logger.info("\U00002705" + " " + message)
 
     def logger(self):
         return self._logger

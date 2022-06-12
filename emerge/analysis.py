@@ -121,7 +121,7 @@ class Analysis:
         """
         self.overall_metric_results.update(results)
 
-    def duration(self) -> Optional[datetime]:
+    def duration(self) -> Optional[timedelta]:
         """Returns an optinal duration of the whole analysis.
 
         Returns:
@@ -141,7 +141,7 @@ class Analysis:
         Returns:
             bool: True if it contains the metric, False otherwise.
         """
-        if metric_name.lower() in self.metrics_for_file_results.keys():
+        if metric_name.lower() in self.metrics_for_file_results:
             return True
         return False
 
@@ -154,7 +154,7 @@ class Analysis:
         Returns:
             bool: True if it contains the metric, False otherwise.
         """
-        if metric_name.lower() in self.metrics_for_entity_results.keys():
+        if metric_name.lower() in self.metrics_for_entity_results:
             return True
         return False
 
@@ -237,7 +237,10 @@ class Analysis:
         statistics: Dict[str, Any] = self.get_statistics()
         overall_metric_results: Dict[str, Any] = self.get_overall_metric_results()
         local_metric_results: Dict[str, Dict[str, Any]] = self.get_local_metric_results()
-        analysis_name: str = self.analysis_name
+
+        analysis_name = "unnamed_anaylsis"
+        if self.analysis_name:
+            analysis_name = self.analysis_name
 
         if self.export_graphml:
             created_graph_representations = {k: v for (k, v) in self.graph_representations.items() if v is not None}
@@ -247,7 +250,6 @@ class Analysis:
 
         if self.export_dot:
             created_graph_representations = {k: v for (k, v) in self.graph_representations.items() if v is not None}
-            representation: GraphRepresentation
             for _, representation in created_graph_representations.items():
                 DOTExporter.export_graph_as_dot(representation.digraph,
                                                 representation.graph_type.name.lower(), self.export_directory)
@@ -314,7 +316,7 @@ class Analysis:
         """
         return len(self.entity_results)
 
-    def filtered_results(self, result_filter: MetricResultFilter) -> Dict[str, AbstractResult]:
+    def filtered_results(self, result_filter: MetricResultFilter) -> Dict[str, Any]:
         """Returns a filtered set of metric results, based on MetricResultFilter.
 
         Args:
@@ -327,6 +329,7 @@ class Analysis:
             return self.entity_results
         if result_filter == MetricResultFilter.FILE_RESULTS:
             return self.file_results
+        return {}
 
     def result_by_entity_name(self, name: str, results: Any) -> Optional[AbstractEntityResult]:
         """Returns the first found result given by entity name, otherwise None.
@@ -337,7 +340,7 @@ class Analysis:
         Returns:
             Optional[AbstractEntityResult]: the first found result given by entity name, otherwise None.
         """
-        res: Dict[str, AbstractResult] = {k: v for (k, v) in results.items() if isinstance(v, AbstractEntityResult) and v.entity_name == name}
+        res: Dict[str, AbstractEntityResult] = {k: v for (k, v) in results.items() if isinstance(v, AbstractEntityResult) and v.entity_name == name}
         if bool(res):
             return res[list(res.keys())[0]]
         return None
@@ -356,19 +359,19 @@ class Analysis:
             return results[list(results.keys())[0]]
         return None
 
-    @property
-    def graph_representation_exists(self, graph_type: GraphType) -> bool:
-        """Checks if a graph representation given by GraphType already exists in this analysis.
+    # @property
+    # def graph_representation_exists(self, graph_type: GraphType) -> bool:
+    #     """Checks if a graph representation given by GraphType already exists in this analysis.
 
-        Args:
-            graph_type (GraphType): A specific type related to results/graph, e.g. file result dependency graph.
+    #     Args:
+    #         graph_type (GraphType): A specific type related to results/graph, e.g. file result dependency graph.
 
-        Returns:
-            bool: True if the representation exists in this analysis, False otherwise.
-        """
-        if self.graph_representations[graph_type.name.lower()] is not None:
-            return True
-        return False
+    #     Returns:
+    #         bool: True if the representation exists in this analysis, False otherwise.
+    #     """
+    #     if self.graph_representations[graph_type.name.lower()] is not None:
+    #         return True
+    #     return False
 
     def create_graph_representation(self, graph_type: GraphType) -> None:
         """Creates a graph representation in this analysis, given by a graph type.
@@ -384,6 +387,10 @@ class Analysis:
         This filesystem graph is used for further calculations and metric results.
         The filesystem graph does NOT contain file content, only the graph structure. The content is stored in the self.filesyste_nodes dict.
         """
+
+        if self.source_directory is None:
+            raise Exception('source_directory is not set')
+
         LOGGER.info_start(f'starting to create filesystem graph in {self.analysis_name}')
         LOGGER.info(f'starting scan at directory: {truncate_directory(self.source_directory)}')
 
@@ -528,13 +535,14 @@ class Analysis:
                 representation.calculate_inheritance_graph_from_results(entity_results)
 
         # now if necessary compute the compositions
-        representation: GraphRepresentation
         for name, representation in complete_graph_representation.items():
             if name == GraphType.ENTITY_RESULT_COMPLETE_GRAPH.name.lower():
                 if simple_graph_representations[GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower()] is not None and \
                    simple_graph_representations[GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower()] is not None:
-                    representation.calculate_complete_graph(dependency_graph_repr=simple_graph_representations[GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower()],
-                                                            inheritance_graph_repr=simple_graph_representations[GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower()])
+                    representation.calculate_complete_graph(
+                        dependency_graph_repr=simple_graph_representations[GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH.name.lower()],
+                        inheritance_graph_repr=simple_graph_representations[GraphType.ENTITY_RESULT_INHERITANCE_GRAPH.name.lower()]
+                    )
 
     def add_local_metric_results_to_graphs(self) -> None:
         """Adds local metric results to all existing graph representations within this analysis.

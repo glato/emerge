@@ -17,7 +17,7 @@ import pyparsing as pp
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
-from emerge.abstractresult import AbstractResult, AbstractEntityResult
+from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.log import Logger
 from emerge.stats import Statistics
 
@@ -80,7 +80,7 @@ class PythonParser(AbstractParser, ParsingMixin):
         self._results = value
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
-        LOGGER.debug(f'generating file results...')
+        LOGGER.debug('generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
@@ -113,12 +113,17 @@ class PythonParser(AbstractParser, ParsingMixin):
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
     # pylint: disable=too-many-statements
-    def _add_imports_to_result(self, result: AbstractResult, analysis):
+    def _add_imports_to_result(self, result: AbstractFileResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
 
         source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings, PythonParsingKeyword.INLINE_COMMENT.value, PythonParsingKeyword.BLOCK_COMMENT.value, PythonParsingKeyword.BLOCK_COMMENT.value)
+            list_of_words_with_newline_strings,
+            PythonParsingKeyword.INLINE_COMMENT.value,
+            PythonParsingKeyword.BLOCK_COMMENT.value,
+            PythonParsingKeyword.BLOCK_COMMENT.value
+        )
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         # for simplicity we can parse python dependencies just line by line
@@ -131,7 +136,8 @@ class PythonParser(AbstractParser, ParsingMixin):
             else:  # remove the last blank if NEWLINE is found
                 line = line[:-1]
                 # only append relevant lines with 'import'
-                if line is not PythonParsingKeyword.EMPTY.value and PythonParsingKeyword.IMPORT.value in line and PythonParsingKeyword.PYTHON_UNIT_TEST_BRACKET.value not in line and line not in source_import_lines:
+                if line is not PythonParsingKeyword.EMPTY.value and PythonParsingKeyword.IMPORT.value in line \
+                    and PythonParsingKeyword.PYTHON_UNIT_TEST_BRACKET.value not in line and line not in source_import_lines:
                     source_import_lines.append(line)
                 line = PythonParsingKeyword.EMPTY.value
 
@@ -148,10 +154,22 @@ class PythonParser(AbstractParser, ParsingMixin):
             multiple_imports_from_relative_parent_dir = False
             multiple_dependencies = []
 
-            valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value +
-                                 CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
-            valid_name_comma_seperated_imports = pp.Word(pp.alphanums + CoreParsingKeyword.DOT.value +
-                                                         CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value + CoreParsingKeyword.COMMA.value + " ")
+            valid_name = pp.Word(
+                pp.alphanums + \
+                CoreParsingKeyword.DOT.value + \
+                CoreParsingKeyword.UNDERSCORE.value + \
+                CoreParsingKeyword.DASH.value + \
+                CoreParsingKeyword.SLASH.value
+            )
+
+            valid_name_comma_seperated_imports = pp.Word(
+                pp.alphanums + \
+                CoreParsingKeyword.DOT.value + \
+                CoreParsingKeyword.UNDERSCORE.value + \
+                CoreParsingKeyword.DASH.value + \
+                CoreParsingKeyword.SLASH.value + \
+                CoreParsingKeyword.COMMA.value + " "
+            )
 
             # case 'from . import <dependencies>'
             if PythonParsingKeyword.RELATIVE_FROM_CURRENT_DIR.value in line:
@@ -179,7 +197,8 @@ class PythonParser(AbstractParser, ParsingMixin):
                 parsing_result = expression_to_match.parseString(line)
 
                 # if there are multiple dependencies, throw them all in multiple_dependencies
-                if (multiple_imports_from_relative_current_dir or multiple_imports_from_relative_parent_dir) and CoreParsingKeyword.COMMA.value in getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value):
+                if (multiple_imports_from_relative_current_dir or multiple_imports_from_relative_parent_dir) \
+                    and CoreParsingKeyword.COMMA.value in getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value):
                     multiple_results = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
                     multiple_dependencies = multiple_results.split(',')
                     multiple_dependencies = [s.strip() for s in multiple_dependencies]
@@ -187,9 +206,9 @@ class PythonParser(AbstractParser, ParsingMixin):
                     multiple_imports_from_relative_current_dir = False
                     multiple_imports_from_relative_parent_dir = False
 
-            except Exception as some_exception:
+            except pp.ParseException as exception:
                 result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                 continue
 
             analysis.statistics.increment(Statistics.Key.PARSING_HITS)
@@ -215,7 +234,7 @@ class PythonParser(AbstractParser, ParsingMixin):
             # case: 'from . import dependency1, ..., dependencyN
             elif multiple_imports_from_relative_current_dir and not multiple_imports_from_relative_parent_dir:
                 for dep in multiple_dependencies:
-                    resolved_dep = self.create_relative_analysis_path_for_dependency(dep, result.relative_analysis_path)
+                    resolved_dep = self.create_relative_analysis_path_for_dependency(dep, str(result.relative_analysis_path))
 
                     if f'{PythonParsingKeyword.PY_FILE_EXTENSION.value}' not in resolved_dep:
                         resolved_dep = f'{resolved_dep}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'
@@ -236,7 +255,7 @@ class PythonParser(AbstractParser, ParsingMixin):
                     dependency = dependency[1:]
 
                 if not global_import and relative_import and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:
-                    dependency = self.create_relative_analysis_path_for_dependency(dependency, result.relative_analysis_path)
+                    dependency = self.create_relative_analysis_path_for_dependency(dependency, str(result.relative_analysis_path))
                 elif not global_import and CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value not in dependency:
                     posix_dependency = dependency.replace(CoreParsingKeyword.DOT.value, CoreParsingKeyword.SLASH.value)
 
@@ -259,7 +278,7 @@ class PythonParser(AbstractParser, ParsingMixin):
                     continue
 
                 if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:  # contains at least one relative parent element '../'
-                    dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+                    dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)
 
                 if not global_import:
                     dependency = dependency.replace(CoreParsingKeyword.DOT.value, CoreParsingKeyword.SLASH.value)
@@ -273,8 +292,8 @@ class PythonParser(AbstractParser, ParsingMixin):
                     result.scanned_import_dependencies.append(dependency)
                     LOGGER.debug(f'adding import: {dependency}')
 
-    def _add_package_name_to_result(self, result: AbstractResult) -> str:
-        result.module_name = None
+    def _add_package_name_to_result(self, result: FileResult):
+        result.module_name = ""
 
 
 if __name__ == "__main__":

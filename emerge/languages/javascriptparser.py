@@ -76,7 +76,7 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
         self._results = value
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
-        LOGGER.debug(f'generating file results...')
+        LOGGER.debug('generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
@@ -112,8 +112,14 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
 
         # prepare list of tokens
         list_of_words_with_newline_strings = result.scanned_tokens
+        
         source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings, JavaScriptParsingKeyword.INLINE_COMMENT.value, JavaScriptParsingKeyword.START_BLOCK_COMMENT.value, JavaScriptParsingKeyword.STOP_BLOCK_COMMENT.value)
+            list_of_words_with_newline_strings,
+            JavaScriptParsingKeyword.INLINE_COMMENT.value,
+            JavaScriptParsingKeyword.START_BLOCK_COMMENT.value,
+            JavaScriptParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
@@ -128,20 +134,22 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
 
             if obj == JavaScriptParsingKeyword.IMPORT.value:
                 expression_to_match = pp.SkipTo(pp.Literal(JavaScriptParsingKeyword.FROM.value)) + pp.Literal(JavaScriptParsingKeyword.FROM.value) + \
-                    pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
+                    pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | \
+                         pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
                     pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
             elif obj == JavaScriptParsingKeyword.REQUIRE.value:
                 expression_to_match = pp.SkipTo(pp.Literal(CoreParsingKeyword.OPENING_ROUND_BRACKET.value)) + \
                     pp.Literal(CoreParsingKeyword.OPENING_ROUND_BRACKET.value) + \
-                    pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
+                    pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | \
+                         pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
                     pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
 
             try:
                 # parse the dependency based on the expression
                 parsing_result = expression_to_match.parseString(read_ahead_string)
-            except Exception as some_exception:
+            except pp.ParseException as exception:
                 result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                 LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                 continue
 
@@ -160,7 +168,7 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
         # check if there are any configured dependency substrings to be replaced directly, e.g. '@scope/sub/path' -> src/sub/path
-        if analysis.import_aliases_available == True:
+        if analysis.import_aliases_available:
             renamed_dependency = self.replace_substring_if_any_mapping_key_in_string_exists(dependency, analysis.import_aliases)
             if renamed_dependency != dependency:
                 LOGGER.info(f'renamed dependency: {dependency} -> {renamed_dependency}')
@@ -168,7 +176,8 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
 
         # check for module identifiers (@)
         if CoreParsingKeyword.AT.value in dependency:
-            # check if a module identifier with a @scope + subpath combination physically exist, e.g. '@scope/sub/path' (https://nodejs.org/api/modules.html#modules_all_together, LOAD_PACKAGE_EXPORTS)
+            # check if a module identifier with a @scope + subpath combination physically exist,
+            # e.g. '@scope/sub/path' (https://nodejs.org/api/modules.html#modules_all_together, LOAD_PACKAGE_EXPORTS)
             if CoreParsingKeyword.SLASH.value in dependency:
                 subpath = '/'.join(dependency.split('/')[1:])
                 check_package_index_export = f"{analysis.source_directory}/{subpath}/index.js"
@@ -181,22 +190,26 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
                 if os.path.exists(check_package_subpath_import):
                     dependency = self.create_relative_analysis_file_path(analysis.source_directory, check_package_subpath_import)
 
+            # pylint: disable=unnecessary-pass
             pass  # otherwise let the module @-dependency as it is
 
         # check for index.js imports (https://nodejs.org/api/modules.html#modules_all_together)
         elif dependency == CoreParsingKeyword.DOT.value:
             index_dependency = dependency.replace(CoreParsingKeyword.DOT.value, './index.js')
-            index_dependency = self.resolve_relative_dependency_path(index_dependency, result.absolute_dir_path, analysis.source_directory)
+            index_dependency = self.resolve_relative_dependency_path(index_dependency, str(result.absolute_dir_path), analysis.source_directory)
             check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{index_dependency}"
             if os.path.exists(check_dependency_path):  # check if the resolved index_dependency exists, then modify
                 dependency = f"{index_dependency}"
 
-        elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and JavaScriptParsingKeyword.PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
+        elif dependency.count(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value) == 1 and \
+             JavaScriptParsingKeyword.PARENT_DIRECTORY.value not in dependency:  # e.g. ./foo
             dependency = dependency.replace(CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, '')
-            dependency = self.create_relative_analysis_path_for_dependency(dependency, result.relative_analysis_path)  # adjust dependency to have a relative analysis path
+
+            # adjust dependency to have a relative analysis path
+            dependency = self.create_relative_analysis_path_for_dependency(dependency, str(result.relative_analysis_path))
 
         elif JavaScriptParsingKeyword.PARENT_DIRECTORY.value in dependency:  # contains at least one relative parent element '../
-            dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+            dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)
 
         # check and verify if we need to add a remaining .js suffix
         check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.js"
@@ -211,7 +224,7 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
         return dependency
 
     # pylint: disable=unused-argument
-    def _add_package_name_to_result(self, result: AbstractResult) -> str:
+    def _add_package_name_to_result(self, result: AbstractResult):
         LOGGER.warning(f'currently not supported in {self.parser_name}')
 
     # pylint: disable=unused-argument

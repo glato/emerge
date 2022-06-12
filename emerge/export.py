@@ -5,7 +5,7 @@ Contains all classes related to exporters, e.g. GraphExporter.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from collections import OrderedDict
 
 # from logging import Logger
@@ -40,7 +40,12 @@ class TableExporter:
         ...
 
     @staticmethod
-    def export_statistics_and_metrics_to_console(statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], local_metric_results: Dict[str, Dict[str, Any]], analysis_name: str):
+    def export_statistics_and_metrics_to_console(
+            statistics: Dict[str, Any],
+            overall_metric_results: Dict[str, Any],
+            local_metric_results: Optional[Dict[str, Dict[str, Any]]],
+            analysis_name: str
+        ):
         """Prints all collected statistics, overall metric results and local metric results to console by using a prettytable."""
 
         # overall statistics
@@ -102,10 +107,15 @@ class TableExporter:
             print(tab_local_metric_results)
 
     @staticmethod
-    def export_statistics_and_metrics_as_file(statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], local_metric_results: Dict[str, Dict[str, Any]], analysis_name: str, export_dir: str):
+    def export_statistics_and_metrics_as_file(
+            statistics: Dict[str, Any],
+            overall_metric_results: Dict[str, Any],
+            local_metric_results: Dict[str, Dict[str, Any]],
+            analysis_name: str, export_dir: str
+        ):
         """Writes all collected statistics, overall metric results and local metric results to a file, formatted by a prettytable."""
 
-        file = open(export_dir + '/' + 'emerge-' + 'statistics-metrics' + '.txt', 'w')
+        file = open(export_dir + '/' + 'emerge-' + 'statistics-metrics' + '.txt', 'w', encoding="utf-8")
 
         if bool(statistics):
             file.write(f'the following statistics were collected in {analysis_name}\n')
@@ -175,11 +185,16 @@ class JSONExporter:
         ...
 
     @staticmethod
-    def export_statistics_and_metrics(statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], local_metric_results: Dict[str, Dict[str, Any]], analysis_name: str, export_dir: str):
+    def export_statistics_and_metrics(
+            statistics: Dict[str, Any],
+            overall_metric_results: Dict[str, Any],
+            local_metric_results: Dict[str, Dict[str, Any]],
+            analysis_name: str, export_dir: str
+        ):
         """Exports all collected statistics, overall metric results and local metric results in JSON."""
 
         if bool(statistics) or bool(overall_metric_results):
-            with open(export_dir + '/' + 'emerge-' + 'statistics-and-metrics' + '.json', 'w') as file:
+            with open(export_dir + '/' + 'emerge-' + 'statistics-and-metrics' + '.json', 'w', encoding="utf-8") as file:
                 json_output: Dict[str, Any] = {}
                 json_statistics = {}
                 json_metrics = {}
@@ -276,7 +291,7 @@ class D3Exporter:
                 d3_js_string += json.dumps(json_metrics)
 
             # add cluster map of nodes
-            cluster_map = {}
+            cluster_map: Dict[Any, Any] = {}
 
             # count total sloc since we need it to calculate cluster proportions
             total_sloc = 0
@@ -316,14 +331,13 @@ class D3Exporter:
             cluster_map = OrderedDict(sorted(cluster_map.items()))
 
             # add cluster metrics map
-            cluster_metrics_map = {}
+            cluster_metrics_map: Dict[Any, Any] = {}
 
             # eventually create all cluster metrics
             for cluster_id, _ in cluster_map.items():
                 cluster_nodes = cluster_map[cluster_id]
 
                 # define cluster key/metric names
-                # TODO: move this somewhere to a global cluster metric enum
                 sloc_in_cluster = 0.0
                 sloc_proportion_of_total = 0.0
                 avg_cluster_fan_in = 0.0
@@ -401,5 +415,5 @@ class D3Exporter:
         target_export_file_path = export_dir + target_force_graph_subpath + target_graph_subpath + \
             '/' + 'graph_representations' + '_d3_force_graph' + '.js'
 
-        with open(target_export_file_path, 'w') as file:
+        with open(target_export_file_path, 'w', encoding="utf-8") as file:
             file.write(d3_js_string)

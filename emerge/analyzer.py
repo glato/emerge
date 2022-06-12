@@ -7,7 +7,7 @@ Defines 'Analyzer' which brings together the current configuration, analyses, pa
 
 import os
 import logging
-from typing import List
+from typing import Any, List, Dict
 from pathlib import Path
 
 from datetime import datetime
@@ -32,14 +32,14 @@ class Analyzer:
     def __init__(self, config: Configuration, parsers):
         self._config: Configuration = config
         self._parsers = parsers
-        self._results = {}
+        self._results: Dict[str, Any] = {}
 
     def start_analyzing(self):
         """Starts every analysis found in the current configuration.
         """
         analyses_names = [x.analysis_name for x in self._config.analyses]
         LOGGER.info_start(f'starting to analyze {self._config.project_name}')
-        LOGGER.debug(f'found the following analyses: ' + ', '.join(analyses_names))
+        LOGGER.debug('found the following analyses: ' + ', '.join(analyses_names))
 
         analysis: Analysis
         for i, analysis in enumerate(self._config.analyses, start=1):
@@ -65,7 +65,10 @@ class Analyzer:
 
         start_time = datetime.now()
 
-        # check if source directoy really exists, otherwise log error and throw exception
+        if analysis.source_directory is None:
+            raise Exception('source directory is not set')
+
+         # check if source directoy really exists, otherwise log error and throw exception
         if not os.path.isdir(analysis.source_directory):
             LOGGER.error(f'error in analysis {analysis.analysis_name}: source directory not found/ accessible: {analysis.source_directory}')
             raise NotADirectoryError(f'error in analysis {analysis.analysis_name}: source directory not found/ accessible: {analysis.source_directory}')
@@ -129,9 +132,19 @@ class Analyzer:
 
                 if parser_name in self._parsers:
                     parser: AbstractParser = self._parsers[parser_name]
+
                     file_content = project_node.content
 
-                    parser.generate_file_result_from_analysis(analysis, file_name=file_name, full_file_path=project_node.absolute_name, file_content=file_content)
+                    if file_content is None:
+                        raise Exception(f'file content is None for file: {project_node.absolute_name}')
+
+                    parser.generate_file_result_from_analysis(
+                        analysis,
+                        file_name=file_name,
+                        full_file_path=project_node.absolute_name,
+                        file_content=file_content
+                    )
+                    
                     results = self._parsers[parser_name].results
                     analysis.add_results(results)
 

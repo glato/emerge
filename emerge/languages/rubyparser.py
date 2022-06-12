@@ -75,7 +75,7 @@ class RubyParser(AbstractParser, ParsingMixin):
         self._results = value
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
-        LOGGER.debug(f'generating file results...')
+        LOGGER.debug('generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
@@ -106,11 +106,17 @@ class RubyParser(AbstractParser, ParsingMixin):
     def generate_entity_results_from_analysis(self, analysis):
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
-    def _add_imports_to_result(self, result: AbstractResult, analysis):
+    def _add_imports_to_result(self, result: AbstractFileResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
+
         source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings, RubyParsingKeyword.INLINE_COMMENT.value, RubyParsingKeyword.START_BLOCK_COMMENT.value, RubyParsingKeyword.STOP_BLOCK_COMMENT.value)
+            list_of_words_with_newline_strings,
+            RubyParsingKeyword.INLINE_COMMENT.value,
+            RubyParsingKeyword.START_BLOCK_COMMENT.value,
+            RubyParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
@@ -131,16 +137,17 @@ class RubyParser(AbstractParser, ParsingMixin):
                      import_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value) +
                      pp.Keyword(CoreParsingKeyword.DOUBLE_QUOTE.value)) |
 
-                    pp.OneOrMore(ignore_between_require_and_import_name) + pp.Suppress(pp.Keyword(CoreParsingKeyword.SINGLE_QUOTE.value) | pp.Keyword(CoreParsingKeyword.DOUBLE_QUOTE.value)) +
+                    pp.OneOrMore(ignore_between_require_and_import_name) + \
+                         pp.Suppress(pp.Keyword(CoreParsingKeyword.SINGLE_QUOTE.value) | pp.Keyword(CoreParsingKeyword.DOUBLE_QUOTE.value)) +
                     import_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
 
                 )
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
@@ -163,7 +170,7 @@ class RubyParser(AbstractParser, ParsingMixin):
         successfully_resolved_dependency = False
 
         # resolve in pure POSIX way
-        resolved_posix_dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+        resolved_posix_dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)
         if '.rb' not in resolved_posix_dependency:
             resolved_posix_dependency = f"{resolved_posix_dependency}.rb"
 
@@ -180,7 +187,9 @@ class RubyParser(AbstractParser, ParsingMixin):
             # resolve/check by reducing only the first ".." to "."
             if CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value in dependency:
                 non_posix_dependency = dependency.replace(CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value, CoreParsingKeyword.POSIX_CURRENT_DIRECTORY.value, 1)
-                resolved_non_posix_dependency = self.resolve_relative_dependency_path(non_posix_dependency, result.absolute_dir_path, analysis.source_directory)
+                resolved_non_posix_dependency = self.resolve_relative_dependency_path(
+                    non_posix_dependency, str(result.absolute_dir_path), analysis.source_directory
+                )
                 if '.rb' not in resolved_non_posix_dependency:
                     resolved_non_posix_dependency = f"{resolved_non_posix_dependency}.rb"
 

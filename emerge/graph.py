@@ -5,7 +5,7 @@ Defines a graph representations, available graph types and relevant calculations
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 from enum import Enum, unique, auto
 
 import logging
@@ -14,7 +14,6 @@ import coloredlogs
 import networkx as nx
 from networkx import DiGraph
 
-from emerge.abstractresult import AbstractFileResult, AbstractEntityResult
 from emerge.log import Logger
 
 LOGGER = Logger(logging.getLogger('graph'))

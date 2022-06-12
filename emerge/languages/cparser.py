@@ -72,7 +72,7 @@ class CParser(AbstractParser, ParsingMixin):
         self._results = value
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
-        LOGGER.debug(f'generating file results...')
+        LOGGER.debug('generating file results...')
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
@@ -104,11 +104,17 @@ class CParser(AbstractParser, ParsingMixin):
     def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
-    def _add_imports_to_result(self, result: AbstractResult, analysis):
+    def _add_imports_to_result(self, result: AbstractFileResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
+        
         source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings, CParsingKeyword.INLINE_COMMENT.value, CParsingKeyword.START_BLOCK_COMMENT.value, CParsingKeyword.STOP_BLOCK_COMMENT.value)
+            list_of_words_with_newline_strings,
+            CParsingKeyword.INLINE_COMMENT.value,
+            CParsingKeyword.START_BLOCK_COMMENT.value,
+            CParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
@@ -126,9 +132,9 @@ class CParser(AbstractParser, ParsingMixin):
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
                     continue
 
@@ -147,14 +153,14 @@ class CParser(AbstractParser, ParsingMixin):
                     LOGGER.debug(f'adding import: {resolved_dependency}')
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
-        resolved_dependency = self.resolve_relative_dependency_path(dependency, result.absolute_dir_path, analysis.source_directory)
+        resolved_dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)
         check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{resolved_dependency}"
         if os.path.exists(check_dependency_path):
             dependency = resolved_dependency
         return dependency
 
-    def _add_package_name_to_result(self, result: AbstractResult) -> str:
-        result.module_name = None
+    def _add_package_name_to_result(self, result: FileResult):
+        result.module_name = ""
 
 
 if __name__ == "__main__":

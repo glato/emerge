@@ -72,7 +72,7 @@ class LanguageExtension(Enum):
         try:
             LanguageExtension(value)
             return True
-        except:
+        except: # pylint: disable=bare-except
             return False
 
 
@@ -134,14 +134,14 @@ class FileManager:
         if os.path.isdir(target_complete_path):
             try:
                 shutil.rmtree(target_complete_path)
-                pass
-            except Exception as ex:
+                
+            except Exception as ex: # pylint: disable=broad-except
                 LOGGER.error(f'{ex}')
         try:
             shutil.copytree(origin_complete_path, target_complete_path)
-            LOGGER.info_done(f"generated d3 web app for your browser")
-            pass
-        except Exception as ex:
+            LOGGER.info_done("generated d3 web app for your browser")
+            
+        except Exception as ex: # pylint: disable=broad-except
             LOGGER.error(f'{ex}')
 
 

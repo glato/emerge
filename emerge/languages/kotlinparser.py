@@ -194,11 +194,17 @@ class KotlinParser(AbstractParser, ParsingMixin):
                     result.scanned_import_dependencies.append(dependency)
                     LOGGER.debug(f'adding import: {dependency}')
 
-    def _add_package_name_to_result(self, result: AbstractResult):
+    def _add_package_name_to_result(self, result: FileResult):
         LOGGER.debug(f'extracting package name from base result {result.scanned_file_name}...')
         list_of_words_with_newline_strings = result.scanned_tokens
+
         source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings, KotlinParsingKeyword.INLINE_COMMENT.value, KotlinParsingKeyword.START_BLOCK_COMMENT.value, KotlinParsingKeyword.STOP_BLOCK_COMMENT.value)
+            list_of_words_with_newline_strings,
+            KotlinParsingKeyword.INLINE_COMMENT.value,
+            KotlinParsingKeyword.START_BLOCK_COMMENT.value,
+            KotlinParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list(source_string_no_comments)
 
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
@@ -210,9 +216,9 @@ class KotlinParser(AbstractParser, ParsingMixin):
 
                 try:
                     parsing_result = expression_to_match.parseString(read_ahead_string)
-                except Exception as some_exception:
+                except pp.ParseException as exception:
                     result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                    LOGGER.warning(f'warning: could not parse result {result=}\n{some_exception}')
+                    LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
                     LOGGER.warning(f'next tokens: {obj} {following[:10]}')
                     continue
 
@@ -252,7 +258,9 @@ class KotlinParser(AbstractParser, ParsingMixin):
 
                         result.analysis.statistics.increment(Statistics.Key.PARSING_HITS)
                         LOGGER.debug(
-                            f'found inheritance entity {getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)} for entity name: {getattr(parsing_result, CoreParsingKeyword.ENTITY_NAME.value)} and added to result')
+                            f'found inheritance entity {getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value)} ' + 
+                            'for entity name: {getattr(parsing_result, CoreParsingKeyword.ENTITY_NAME.value)} and added to result'
+                        )
                         result.scanned_inheritance_dependencies.append(getattr(parsing_result, CoreParsingKeyword.INHERITED_ENTITY_NAME.value))
 
 

@@ -247,8 +247,8 @@ class AbstractParser(ParsingMixin, ABC):
     def results(self) -> Dict[str, AbstractResult]:
         ...
 
+    # pylint: disable=unused-argument
     @results.setter
-    @abstractmethod
     def results(self, value):
         ...
 

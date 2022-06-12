@@ -14,7 +14,7 @@ import coloredlogs
 from emerge.languages.abstractparser import LanguageType
 
 # interfaces for inputs
-from emerge.analysis import Analysis
+#from emerge.analysis import Analysis
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.log import Logger
 
@@ -57,8 +57,8 @@ class SourceLinesOfCodeMetric(CodeMetric):
         TOTAL_SLOC_IN_FILES = auto()
         TOTAL_SLOC_IN_ENTITIES = auto()
 
-    def __init__(self, analysis: Analysis):
-        super().__init__(analysis)
+    # def __init__(self, analysis: Analysis):
+    #     super().__init__(analysis)
 
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
         self._calculate_local_metric_data(results)
@@ -89,9 +89,9 @@ class SourceLinesOfCodeMetric(CodeMetric):
 
         if len(file_results) > 0:
             total_sloc_count, total_files = 0, 0
-            for _, result in file_results.items():
+            for _, file_result in file_results.items():
                 total_files += 1
-                total_sloc_count += result.metrics[self.Keys.SLOC_IN_FILE.value]
+                total_sloc_count += file_result.metrics[self.Keys.SLOC_IN_FILE.value]
 
             average_sloc_in_file = total_sloc_count / total_files
             self.overall_data[self.Keys.AVG_SLOC_IN_FILE.value] = average_sloc_in_file
@@ -100,9 +100,9 @@ class SourceLinesOfCodeMetric(CodeMetric):
 
         if len(entity_results) > 0:
             total_sloc_count, total_entities = 0, 0
-            for _, result in entity_results.items():
+            for _, entity_result in entity_results.items():
                 total_entities += 1
-                total_sloc_count += result.metrics[self.Keys.SLOC_IN_ENTITY.value]
+                total_sloc_count += entity_result.metrics[self.Keys.SLOC_IN_ENTITY.value]
 
             average_sloc_in_entity = total_sloc_count / total_entities
             self.overall_data[self.Keys.AVG_SLOC_IN_ENTITY.value] = average_sloc_in_entity
@@ -136,7 +136,7 @@ class SourceLinesOfCodeMetric(CodeMetric):
 
         return len(source_lines_without_comments)
 
-    def __get_comment_types(self, result: AbstractResult) -> Dict:
+    def __get_comment_types(self, result: AbstractResult):
         if result.scanned_language == LanguageType.C:
             return SLOCCommentType.C.value
         if result.scanned_language == LanguageType.CPP:

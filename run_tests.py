@@ -10,8 +10,8 @@ from interrogate import coverage
 
 # first check all available unit tests
 loader = unittest.TestLoader()
-start_dir = 'emerge'
-suite = loader.discover(start_dir)
+START_DIRECTORY = 'emerge'
+suite = loader.discover(START_DIRECTORY)
 
 runner = unittest.TextTestRunner(verbosity=2)
 runner.run(suite)

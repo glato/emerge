@@ -71,31 +71,29 @@ class AbstractGraphMetric(AbstractMetric):
     @abstractmethod
     def dependency_graph_representation(self) -> Any:
         ...
+    
+    @dependency_graph_representation.setter
+    def dependency_graph_representation(self, value): # pylint: disable=unused-argument
+        ...
 
     @property
     @abstractmethod
     def inheritance_graph_representation(self) -> Any:
         ...
 
+    @inheritance_graph_representation.setter
+    def inheritance_graph_representation(self, value): # pylint: disable=unused-argument
+        ...
+
     @property
     @abstractmethod
     def complete_graph_representation(self) -> Any:
         ...
-
-    @dependency_graph_representation.setter
-    @abstractmethod
-    def dependency_graph_representation(self, value):
-        ...
-
-    @inheritance_graph_representation.setter
-    @abstractmethod
-    def inheritance_graph_representation(self, value):
-        ...
-
+    
     @complete_graph_representation.setter
-    @abstractmethod
-    def complete_graph_representation(self, value):
+    def complete_graph_representation(self, value): # pylint: disable=unused-argument
         ...
+
 
     @abstractmethod
     def calculate_from_results(self, results: Dict[str, AbstractResult]):

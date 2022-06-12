@@ -205,7 +205,6 @@ class SwiftParser(AbstractParser, ParsingMixin):
                         LOGGER.debug(f'added extension from file result {result=} to entity result: {entity_result=}.')
 
     def _add_imports_to_entity_results(self, analysis) -> None:
-        # TODO: add framework imports
         LOGGER.debug('adding imports to entity result...')
         entity_results: Dict[str, AbstractEntityResult] = {
             k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, AbstractEntityResult)
@@ -235,7 +234,6 @@ class SwiftParser(AbstractParser, ParsingMixin):
         Args:
             analysis (Analysis): A given analysis.
         """
-        # TODO: add framework imports
         LOGGER.debug('adding imports to file results...')
         entity_results: Dict[str, EntityResult] = {}
 
@@ -279,9 +277,9 @@ class SwiftParser(AbstractParser, ParsingMixin):
                 entity_results[entity_result.entity_name] = entity_result
 
         # 2. if entity names are present in scanned tokens of file results, add to import dependencies
-        for entity_name, entity_result in entity_results.items():
+        for name, entity_result in entity_results.items():
             for _, file_result in filtered_results.items():
-                if entity_name in file_result.scanned_tokens and entity_result.scanned_file_name not in file_result.scanned_import_dependencies:
+                if name in file_result.scanned_tokens and entity_result.scanned_file_name not in file_result.scanned_import_dependencies:
 
                     # dependency = os.path.basename(os.path.normpath(entity_result.scanned_file_name))
                     dependency = entity_result.scanned_file_name
@@ -292,7 +290,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
                         file_result.scanned_import_dependencies.append(dependency)
                         LOGGER.debug(f'adding import: {dependency}')
 
-    def _add_package_name_to_result(self, result: FileResult) -> None:
+    def _add_package_name_to_result(self, result: FileResult):
         result.module_name = result.scanned_file_name
         LOGGER.debug(f'added filename as package prefix: {result.scanned_file_name} and added to result')
 

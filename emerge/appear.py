@@ -32,7 +32,7 @@ LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 __version__ = '1.2.3'
-__updated__ = '2022-04-27 21:57:22'
+__updated__ = '2022-06-12 17:33:16'
 
 
 class Emerge:
@@ -85,10 +85,10 @@ class Emerge:
 
         if self.config.has_valid_config_path():
             self.load_config(self.config.yaml_config_path)
-            if self.config.valid == True:
+            if self.config.valid:
                 self.start_analyzing()
             else:
-                LOGGER.error(f'will not start with any analysis due configuration errors')
+                LOGGER.error('will not start with any analysis due configuration errors')
                 return
 
     def start_with_log_level(self, level: LogLevel):

@@ -5,7 +5,7 @@ Defines Configuration, YamlLoader and relevant Enums, which parses and validates
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from enum import Enum, unique, auto
 
 import logging
@@ -125,8 +125,8 @@ class Configuration:
         self.yaml_config_path = ""
         self.valid = False
         self.version = version
-        self.arg_parser = None
-        self.supported_languages = List[str]
+        self.arg_parser: Any = None
+        self.supported_languages: List[str] = []
 
     def _get_own__dict__(self):
         return self.__dict__
@@ -138,7 +138,12 @@ class Configuration:
         self.arg_parser.add_argument('-v', '--verbose', dest='verbose', help='set logging level to INFO', action='store_true')
         self.arg_parser.add_argument('-d', '--debug', dest='debug', help='set logging level to DEBUG', action='store_true')
         self.arg_parser.add_argument('-e', '--error', dest='error', help='set logging level to ERROR', action='store_true')
-        self.arg_parser.add_argument('-a', '--add-config', dest='language', help='add a new config from a template, where LANGUAGE is one of [' + ", ".join(self.supported_languages) + ']')
+        self.arg_parser.add_argument(
+            '-a',
+            '--add-config',
+            dest='language',
+            help='add a new config from a template, where LANGUAGE is one of [' + ", ".join(self.supported_languages) + ']'
+        )
 
     def _options_for_value(self, value: str) -> Optional[List]:
         """Checks if a configuration value has options and returns them.
@@ -161,7 +166,7 @@ class Configuration:
     def parse_args(self) -> None:
         """Parses the command line arguments."""
         args = self.arg_parser.parse_args()
-        no_arguments = all((v == False or v == None) for v in vars(args).values())
+        no_arguments = all((v is False or v is None) for v in vars(args).values())
 
         if no_arguments:
             self.arg_parser.print_help()
@@ -246,25 +251,25 @@ class Configuration:
     @staticmethod
     def all_constant_names_from_config_enums() -> List[str]:
         all_constant_names = []
-        for constant in ConfigKeyProject:
-            if constant.name not in all_constant_names:
-                all_constant_names.append(constant.name)
+        for config_key_project_constant in ConfigKeyProject:
+            if config_key_project_constant.name not in all_constant_names:
+                all_constant_names.append(config_key_project_constant.name)
 
-        for constant in ConfigKeyAnalysis:
-            if constant.name not in all_constant_names:
-                all_constant_names.append(constant.name)
+        for config_key_analysis_constant in ConfigKeyAnalysis:
+            if config_key_analysis_constant.name not in all_constant_names:
+                all_constant_names.append(config_key_analysis_constant.name)
 
-        for constant in ConfigKeyEntityScan:
-            if constant.name not in all_constant_names:
-                all_constant_names.append(constant.name)
+        for config_key_entity_scan_constant in ConfigKeyEntityScan:
+            if config_key_entity_scan_constant.name not in all_constant_names:
+                all_constant_names.append(config_key_entity_scan_constant.name)
 
-        for constant in ConfigKeyFileScan:
-            if constant.name not in all_constant_names:
-                all_constant_names.append(constant.name)
+        for config_key_file_scan_constant in ConfigKeyFileScan:
+            if config_key_file_scan_constant.name not in all_constant_names:
+                all_constant_names.append(config_key_file_scan_constant.name)
 
-        for constant in ConfigKeyExport:
-            if constant.name not in all_constant_names:
-                all_constant_names.append(constant.name)
+        for config_key_export_constant in ConfigKeyExport:
+            if config_key_export_constant.name not in all_constant_names:
+                all_constant_names.append(config_key_export_constant.name)
 
         return all_constant_names
 
@@ -313,7 +318,8 @@ class Configuration:
                 not all(ConfigKeyAnalysis.SOURCE_DIRECTORY.name.lower() in analysis for analysis in analyses) or \
                 not all(isinstance(analysis[ConfigKeyAnalysis.ANALYSIS_NAME.name.lower()], str) for analysis in analyses) or \
                 not all(isinstance(analysis[ConfigKeyAnalysis.SOURCE_DIRECTORY.name.lower()], str) for analysis in analyses) or \
-                not all(ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis or ConfigKeyAnalysis.ENTITY_SCAN.name.lower() in analysis for analysis in analyses):
+                not all(ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis or \
+                    ConfigKeyAnalysis.ENTITY_SCAN.name.lower() in analysis for analysis in analyses):
             self._invalid_yaml_config(yaml_config)
             return False
 
@@ -359,7 +365,7 @@ class Configuration:
     # pylint: disable=too-many-nested-blocks,too-many-statements
     def _update_attributes_from_yaml_config(self):
         """Reads the yaml config, perfoms validity checks and initializes the current configuration."""
-        LOGGER.debug(f'updating config attributes from yaml config...')
+        LOGGER.debug('updating config attributes from yaml config...')
         yaml_config = self.get_config_as_dict()
 
         self.project_name = yaml_config[ConfigKeyProject.PROJECT_NAME.name.lower()]
@@ -424,15 +430,15 @@ class Configuration:
             if ConfigKeyAnalysis.IMPORT_ALIASES.name.lower() in analysis_dict:
                 for mapping in analysis_dict[ConfigKeyAnalysis.IMPORT_ALIASES.name.lower()]:
                     for dependency_substring, replaced_dependency_substring in mapping.items():
-                        if analysis.import_aliases_available == False:
+                        if not analysis.import_aliases_available:
                             analysis.import_aliases_available = True
                         analysis.import_aliases[dependency_substring] = replaced_dependency_substring
 
             # check if the analysis should only consider specified files
             if ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower() in analysis_dict:
-                if type(analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()]) == list:
+                if isinstance(analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()], list):
                     for file in analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()]:
-                        if analysis.only_permit_files_matching_absolute_path_available == False:
+                        if not analysis.only_permit_files_matching_absolute_path_available:
                             analysis.only_permit_files_matching_absolute_path_available = True
                         analysis.only_permit_files_matching_absolute_path.append(file)
                 else:
@@ -491,8 +497,6 @@ class Configuration:
                             tfidf_metric.metric_name: tfidf_metric
                         })
 
-                    # TODO: add more metrics
-
             if ConfigKeyAnalysis.ENTITY_SCAN.name.lower() in analysis_dict:
                 for configured_metric in analysis_dict[ConfigKeyAnalysis.ENTITY_SCAN.name.lower()]:
 
@@ -503,7 +507,6 @@ class Configuration:
                     if configured_metric == ConfigKeyEntityScan.INHERITANCE_GRAPH.name.lower():
                         analysis.create_graph_representation(GraphType.ENTITY_RESULT_INHERITANCE_GRAPH)
 
-                    # TODO: check if dependency/inheritance exist
                     if configured_metric == ConfigKeyEntityScan.COMPLETE_GRAPH.name.lower():
                         analysis.create_graph_representation(GraphType.ENTITY_RESULT_COMPLETE_GRAPH)
 
@@ -553,8 +556,6 @@ class Configuration:
                             tfidf_metric.metric_name: tfidf_metric
                         })
 
-                    # TODO: add more metrics
-
             if ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis_dict:
                 analysis.scan_types.append(ConfigKeyAnalysis.FILE_SCAN.name.lower())
 
@@ -563,8 +564,6 @@ class Configuration:
 
             analysis.analysis_name = analysis_dict[ConfigKeyAnalysis.ANALYSIS_NAME.name.lower()]
             analysis.source_directory = analysis_dict[ConfigKeyAnalysis.SOURCE_DIRECTORY.name.lower()]
-
-            # TODO: check for other optional keys/values and assign
 
             if ConfigKeyAnalysis.ONLY_PERMIT_LANGUAGES.name.lower() in analysis_dict:
                 analysis.only_permit_languages = analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_LANGUAGES.name.lower()]
@@ -583,12 +582,12 @@ class YamlLoader:
         self._schema: Dict = {}
 
     def load_config_from_yaml_file(self, yaml_file_name: str) -> None:
-        LOGGER.debug(f'trying to load yaml config...')
+        LOGGER.debug('trying to load yaml config...')
         self._load_config_file_content(yaml_file_name)
         self._load_yaml_from_config_file_content()
 
     def load_schema_from_yaml_file(self, yaml_file_name: str) -> None:
-        LOGGER.debug(f'trying to load yaml schema...')
+        LOGGER.debug('trying to load yaml schema...')
         self._load_config_file_content(yaml_file_name)
         self._load_yaml_from_config_file_content()
 
@@ -599,12 +598,12 @@ class YamlLoader:
         # now validate schema with cerberus
 
     def _load_schema_file_content(self, yaml_file_name) -> None:
-        with open(yaml_file_name) as yaml_file:
+        with open(yaml_file_name, encoding="utf-8") as yaml_file:
             self._schema_file_content = yaml_file.read()
 
     def _load_config_file_content(self, yaml_file_name) -> None:
         try:
-            with open(yaml_file_name) as yaml_file:
+            with open(yaml_file_name, encoding="utf-8") as yaml_file:
                 self._config_file_content = yaml_file.read()
         except OSError:
             LOGGER.error(f'coould not open file: {yaml_file_name}')

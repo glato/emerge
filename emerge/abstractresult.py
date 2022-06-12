@@ -67,6 +67,11 @@ class AbstractFileResult(AbstractResult):
 
     @property
     @abstractmethod
+    def relative_analysis_path(self) -> PosixPath:
+        ...
+
+    @property
+    @abstractmethod
     def scanned_by(self) -> str:
         ...
 

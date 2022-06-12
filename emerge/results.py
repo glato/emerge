@@ -196,8 +196,29 @@ class FileResult(AbstractFileResult, ParsingMixin):
         metrics: {self._metrics=}'''
 
     @classmethod
-    def create_file_result(cls, analysis, scanned_file_name, relative_file_path_to_analysis, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens) -> 'FileResult':
-        return FileResult(analysis, scanned_file_name, relative_file_path_to_analysis, absolute_name, display_name, module_name, scanned_by, scanned_language, scanned_tokens)
+    def create_file_result(
+            cls,
+            analysis,
+            scanned_file_name,
+            relative_file_path_to_analysis,
+            absolute_name,
+            display_name,
+            module_name,
+            scanned_by,
+            scanned_language,
+            scanned_tokens
+        ) -> 'FileResult':
+        return FileResult(
+            analysis,
+            scanned_file_name,
+            relative_file_path_to_analysis,
+            absolute_name,
+            display_name,
+            module_name,
+            scanned_by,
+            scanned_language,
+            scanned_tokens
+        )
 
     @property
     def unique_name(self) -> str:
