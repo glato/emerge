@@ -286,14 +286,15 @@
                 </div>
 
                 <!-- heatmap -->
+
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
                 <li class="list-group-item small d-flex align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
-                    <small>Heatmap settings</small>
+                    <small>Heatmap settings </small>
                 </li>
-
+                
                 <li class="list-group-item small d-flex align-items-center" style="padding: 0px; border: 0px; margin: 0px;">
                     <div class="form-group small" style="margin-bottom: 5px;">
-                        <label style="margin-bottom: 0px;">Normal</label>
+                        <label style="margin-bottom: 0px;">Normal</label> <span id="badge_heat_map_normal" data-toggle="tooltip" data-placement="bottom" title="" class="badge badge-primary badge-pill"> ?</span>
                         <div>
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="switchActivateHeatmap">
@@ -307,7 +308,7 @@
                     </div>
 
                     <div class="form-group small" style="margin-bottom: 5px;">
-                        <label style="margin-bottom: 0px;">Hybrid</label>
+                        <label style="margin-bottom: 0px;">Hybrid</label> <span id="badge_heat_map_hybrid" data-toggle="tooltip" data-placement="bottom" title="" class="badge badge-primary badge-pill"> ?</span>
                         <div>
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="switchMergeHeatmap">
@@ -505,6 +506,8 @@
         const description_metric_fan_in = '"Fan-in coupling (afferent coupling) the number of entities that depend on a given entity. It estimates in what extent the "external world" depends on the changes in a given entity" (gcc.gnu.org). This metric represents the number of dependencies FROM other files or entities.'
         const description_metric_fan_out = '"Fan-out coupling (efferent coupling) the number of entities the given entity depends upon. It estimates in what extent the given entity depends on the changes in "external world" (gcc.gnu.org). This metric represents the number of dependencies TO other files or entities.'
         const description_metric_louvain_modularity = '"The Louvain method for community detection is a method to extract communities from large networks" (Wikipedia). This metric seperates detected communities by a unique number/ node size.'
+        const description_heat_map_normal = '"A heat map (or heatmap) is a data visualization technique that shows magnitude of a phenomenon as color in two dimensions" (Wikipedia). The heatmap score is based on a weighted score from the fan-out and SLOC metric. Red color indicates a warning (hotspot), that given metric scores may be to high, while decreasing into blue color.'
+        const description_heat_map_hybrid = 'This is a visual (hybrid) combination of the normal graph visualization and a heatmap layer behind it'
 
         /**
          * * When selecting metrics, ever radius is multiplicated/scaled using this map
@@ -531,7 +534,7 @@
         }
 
         // heatmap
-        const heatmapLimit = 350
+        const heatmapLimit = 300
         const heatmapBaseScore = 10
 
         const heatmapMetricWeights = {
@@ -1413,6 +1416,7 @@
             createClusterHullMenu();
             createMetricsMenuEntries();
             addToolTipsToMetricEntries();
+            addToolTipsToHeatMap();
             enableSearchInput();
             enableNodeSelection();
 
@@ -1801,6 +1805,14 @@
 
             $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
             $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();
+        }
+
+        function addToolTipsToHeatMap() {
+            $('#badge_heat_map_normal').attr('title', description_heat_map_normal)
+            $('#badge_heat_map_normal').tooltip();
+
+            $('#badge_heat_map_hybrid').attr('title', description_heat_map_hybrid)
+            $('#badge_heat_map_hybrid').tooltip();
         }
 
         function createStatistics() {
