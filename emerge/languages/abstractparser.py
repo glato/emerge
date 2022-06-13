@@ -203,8 +203,9 @@ class ParsingMixin(ABC):
     @staticmethod
     def _is_dependency_in_ignore_list(dependency: str, analysis) -> bool:
         if bool(analysis.ignore_dependencies_containing):
+            ignored_dependency: str
             for ignored_dependency in analysis.ignore_dependencies_containing:
-                if ignored_dependency in dependency:
+                if ignored_dependency.lower() in dependency.lower():
                     return True
         return False
 
