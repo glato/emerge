@@ -531,12 +531,12 @@
         }
 
         // heatmap
-        const heatmapLimit = 200
+        const heatmapLimit = 350
         const heatmapBaseScore = 10
 
         const heatmapMetricWeights = {
-            "sloc": 1.7,
-            "fan_out": 2.0
+            "sloc": 1.5,
+            "fan_out": 1.7
         }
 
         let heatmapMerged = false
@@ -768,7 +768,13 @@
                 fanoutScore = node.metric_fan_out_complete_graph * heatmapMetricWeights['fan_out']
             }
 
-            return score + slocScore + fanoutScore
+            // limit the total score to the heatmap limit parameter, since the rendering seems to be buggy if this is exceeded
+            let totalScore = score + slocScore + fanoutScore
+            if (totalScore > heatmapLimit) {
+                totalScore = heatmapLimit
+            }
+
+            return totalScore
         }
 
         function drawHeatMap(context) {

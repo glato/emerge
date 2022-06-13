@@ -63,9 +63,9 @@ class SwiftParser(AbstractParser, ParsingMixin):
             ".": ' . ',
         }
 
-        # FIXME: this is only a workaround for harmful parsing rules
+        # WORKAROUND: filter out entities that resulted from obvious parsing errors
         self._ignore_entity_keywords: List[str] = [
-            'class', 'struct', 'protocol', 'enum', 'var', 'let', 'func', 'extension', 'import'
+            'class', 'struct', 'protocol', 'enum', 'var', 'let', 'func', 'extension', 'import', 'fileprivate', 'value'
         ]
 
     @classmethod
@@ -152,8 +152,11 @@ class SwiftParser(AbstractParser, ParsingMixin):
             entity_results_unfiltered = result.generate_entity_results_from_scopes(entity_keywords, match_expression, comment_keywords)
             entity_results: List[AbstractEntityResult] = []
 
-            # TODO: fix this as this results from a bug in the parser
-            for entity_result in entity_results_unfiltered:
+            # WORKAROUND: filter out entities that resulted from obvious parsing errors
+            filtered_entity_results = [x for x in entity_results_unfiltered if not x.entity_name in self._ignore_entity_keywords]
+
+            # filter even more on the basis of a configured ignore list
+            for entity_result in filtered_entity_results:
                 if self.is_entity_in_ignore_list(entity_result.entity_name, analysis):
                     pass
                 else:
