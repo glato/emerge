@@ -510,38 +510,59 @@
         const description_heat_map_hybrid = 'This is a visual (hybrid) combination of the normal graph visualization and a heatmap layer behind it'
 
         /**
-         * * When selecting metrics, ever radius is multiplicated/scaled using this map
+         * * MARK: - Configurable variables / default config
          */
-        const metricScale = {
-            "metric_fan_in_dependency_graph": 0.1,
-            "metric_fan_in_inheritance_graph": 0.1,
-            "metric_fan_in_complete_graph": 0.1,
 
-            "metric_fan_out_dependency_graph": 0.1,
-            "metric_fan_out_inheritance_graph": 0.1,
-            "metric_fan_out_complete_graph": 0.1,
+         let analysis_config = {
 
-            "metric_entity_result_dependency_graph_louvain_modularity_in_entity": 0.02,
-            "metric_entity_result_inheritance_graph_louvain_modularity_in_entity": 0.02,
-            "metric_entity_result_complete_graph_louvain_modularity_in_entity": 0.02,
-            "metric_entity_result_dependency_graph_louvain_modularity_in_file": 0.02,
+	        analysis_name: 'unnamed analysis',
+	        analysis_date: '',
+	        emerge_version: '',
 
-            "metric_sloc_in_file": 0.005,
-            "metric_sloc_in_entity": 0.005,
+            metrics: {
+                    radius_multiplication: {
+                        "metric_fan_in_dependency_graph": 0.1,
+                        "metric_fan_in_inheritance_graph": 0.1,
+                        "metric_fan_in_complete_graph": 0.1,
 
-            "metric_number_of_methods_in_file": 0.05,
-            "metric_number_of_methods_in_entity": 0.05,
-        }
+                        "metric_fan_out_dependency_graph": 0.1,
+                        "metric_fan_out_inheritance_graph": 0.1,
+                        "metric_fan_out_complete_graph": 0.1,
 
-        // heatmap
-        const heatmapLimit = 300
-        const heatmapBaseScore = 10
+                        "metric_entity_result_dependency_graph_louvain_modularity_in_entity": 0.02,
+                        "metric_entity_result_inheritance_graph_louvain_modularity_in_entity": 0.02,
+                        "metric_entity_result_complete_graph_louvain_modularity_in_entity": 0.02,
+                        "metric_entity_result_dependency_graph_louvain_modularity_in_file": 0.02,
 
-        const heatmapMetricWeights = {
-            "sloc": 1.5,
-            "fan_out": 1.7
-        }
+                        "metric_sloc_in_file": 0.005,
+                        "metric_sloc_in_entity": 0.005,
 
+                        "metric_number_of_methods_in_file": 0.05,
+                        "metric_number_of_methods_in_entity": 0.05,
+                    }
+            },
+
+            heatmap: {
+                metrics: {
+                    active: {
+                        sloc: true,
+                        fan_out: true
+                    },
+                    weights: {
+                        sloc: 1.5,
+                        fan_out: 1.7
+                    }
+                },
+                score: {
+			        limit: 300,
+			        base: 10
+		        }
+            }
+	    }
+
+        /**
+         * * MARK: - Unconfigurabe variables
+         */
         let heatmapMerged = false
         let heatmapActive = false
 
@@ -634,7 +655,7 @@
 
         // heatmap
         var heat = simpleheat('mainCanvas');
-        heat.max(heatmapLimit);
+        heat.max(analysis_config.heatmap.score.limit);
 
         // bring back d3 schemeCategory20 to live
         const schemeCategory20 = "1f77b4aec7e8ff7f0effbb782ca02c98df8ad62728ff98969467bdc5b0d58c564bc49c94e377c2f7b6d27f7f7fc7c7c7bcbd22dbdb8d17becf9edae5"
@@ -748,33 +769,37 @@
          */
 
          function calculateHeatmapScore(node) {
-            let score = heatmapBaseScore
+            let score = analysis_config.heatmap.score.base
             let slocScore = 0
             let fanoutScore = 0
 
-            // add weighted sloc metric if present
-            if ('metric_sloc_in_entity' in node) {
-                slocScore = node.metric_sloc_in_entity * heatmapMetricWeights['sloc']
-            }
-            if ('metric_sloc_in_file' in node) {
-                slocScore = node.metric_sloc_in_file * heatmapMetricWeights['sloc']
+            if (analysis_config.heatmap.metrics.active.sloc == true) {
+                // add weighted sloc metric if present
+                if ('metric_sloc_in_entity' in node) {
+                    slocScore = node.metric_sloc_in_entity * analysis_config.heatmap.metrics.weights.sloc
+                }
+                if ('metric_sloc_in_file' in node) {
+                    slocScore = node.metric_sloc_in_file * analysis_config.heatmap.metrics.weights.sloc
+                }
             }
 
-            // add weighted fan-out metric is present
-            if ('metric_fan_out_dependency_graph' in node) {
-                fanoutScore = node.metric_fan_out_dependency_graph * heatmapMetricWeights['fan_out']
-            }
-            if ('metric_fan_out_inheritance_graph' in node) {
-                fanoutScore = node.metric_fan_out_inheritance_graph * heatmapMetricWeights['fan_out']
-            }
-            if ('metric_fan_out_complete_graph' in node) {
-                fanoutScore = node.metric_fan_out_complete_graph * heatmapMetricWeights['fan_out']
+            if (analysis_config.heatmap.metrics.active.fan_out == true) {
+                // add weighted fan-out metric is present
+                if ('metric_fan_out_dependency_graph' in node) {
+                    fanoutScore = node.metric_fan_out_dependency_graph * analysis_config.heatmap.metrics.weights.fan_out
+                }
+                if ('metric_fan_out_inheritance_graph' in node) {
+                    fanoutScore = node.metric_fan_out_inheritance_graph * analysis_config.heatmap.metrics.weights.fan_out
+                }
+                if ('metric_fan_out_complete_graph' in node) {
+                    fanoutScore = node.metric_fan_out_complete_graph * analysis_config.heatmap.metrics.weights.fan_out
+                }
             }
 
             // limit the total score to the heatmap limit parameter, since the rendering seems to be buggy if this is exceeded
             let totalScore = score + slocScore + fanoutScore
-            if (totalScore > heatmapLimit) {
-                totalScore = heatmapLimit
+            if (totalScore > analysis_config.heatmap.score.limit) {
+                totalScore = analysis_config.heatmap.score.limit
             }
 
             return totalScore
@@ -1659,12 +1684,12 @@
 
                         // now interpolate for every x between f(0) and f(1): f(x) = f(0) * (1-x) + f(1) * x
                         if (addedMetric) {
-                            newRadius = node.radius * (1 - t) + (node.radius + (node.metrics[metricName] * metricScale[metricName])) * t;
+                            newRadius = node.radius * (1 - t) + (node.radius + (node.metrics[metricName] * analysis_config.metrics.radius_multiplication[metricName] )) * t;
                             if (newRadius > node.radius) {
                                 node.radius = newRadius
                             }
                         } else {
-                            newRadius = node.radius * (1 - t) + (node.radius - (node.metrics[metricName] * metricScale[metricName])) * t;
+                            newRadius = node.radius * (1 - t) + (node.radius - (node.metrics[metricName] * analysis_config.metrics.radius_multiplication[metricName] )) * t;
                             if (newRadius > radius) {
                                 node.radius = newRadius
                             } else {
