@@ -53,6 +53,21 @@
             font-size: 8px;
         }
 
+        #projectNameListElement {
+            padding-bottom: 1px;
+            padding-top: 2px;
+        }
+
+        #analysisNameListElement {
+            padding-bottom: 1px;
+            padding-top: 1px;
+        }
+
+        #analysisDateTimeListElement {
+            padding-top: 1px;
+            padding-bottom: 4px;
+        }
+
         #graphDiv {
             position: relative;
         }
@@ -96,7 +111,7 @@
                     <path d="M2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM0 2a2 2 0 0 1 3.937-.5h8.126A2 2 0 1 1 14.5 3.937v8.126a2 2 0 1 1-2.437 2.437H3.937A2 2 0 1 1 1.5 12.063V3.937A2 2 0 0 1 0 2zm2.5 1.937v8.126c.703.18 1.256.734 1.437 1.437h8.126a2.004 2.004 0 0 1 1.437-1.437V3.937A2.004 2.004 0 0 1 12.063 2.5H3.937A2.004 2.004 0 0 1 2.5 3.937zM14 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM2 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
                 </svg>                
                 <span>
-                    <small>Emerge v1.3.0</small>
+                    <small><span id="configEmergeVersion"></span></small>
                 </span>
             </span>
         </h6>
@@ -110,8 +125,16 @@
                 </span>
                 </li>
 
-                <li class="list-group-item small d-flex justify-content-between align-items-center py-1">
+                <li id="projectNameListElement" class="list-group-item small d-flex justify-content-between align-items-center">
+                    <small><span id="configProjectName">project</span></small>
+                </li>
+
+                <li id="analysisNameListElement" class="list-group-item small d-flex justify-content-between align-items-center">
                     <small><span id="analysisName"></span></small>
+                </li>
+
+                <li id="analysisDateTimeListElement" class="list-group-item small d-flex justify-content-between align-items-center">
+                    <small><span id="configAnalysisDateTime">bar</span></small>
                 </li>
 
                 <li class="list-group-item small d-flex justify-content-between align-items-center disabled py-1">
@@ -509,60 +532,6 @@
         const description_heat_map_normal = '"A heat map (or heatmap) is a data visualization technique that shows magnitude of a phenomenon as color in two dimensions" (Wikipedia). The heatmap score is based on a weighted score from the fan-out and SLOC metric. Red color indicates a warning (hotspot), that given metric scores may be to high, while decreasing into blue color.'
         const description_heat_map_hybrid = 'This is a visual (hybrid) combination of the normal graph visualization and a heatmap layer behind it'
 
-        /**
-         * * MARK: - Configurable variables / default config
-         */
-
-         let analysis_config = {
-
-	        analysis_name: 'unnamed analysis',
-	        analysis_date: '',
-	        emerge_version: '',
-
-            metrics: {
-                    radius_multiplication: {
-                        "metric_fan_in_dependency_graph": 0.1,
-                        "metric_fan_in_inheritance_graph": 0.1,
-                        "metric_fan_in_complete_graph": 0.1,
-
-                        "metric_fan_out_dependency_graph": 0.1,
-                        "metric_fan_out_inheritance_graph": 0.1,
-                        "metric_fan_out_complete_graph": 0.1,
-
-                        "metric_entity_result_dependency_graph_louvain_modularity_in_entity": 0.02,
-                        "metric_entity_result_inheritance_graph_louvain_modularity_in_entity": 0.02,
-                        "metric_entity_result_complete_graph_louvain_modularity_in_entity": 0.02,
-                        "metric_entity_result_dependency_graph_louvain_modularity_in_file": 0.02,
-
-                        "metric_sloc_in_file": 0.005,
-                        "metric_sloc_in_entity": 0.005,
-
-                        "metric_number_of_methods_in_file": 0.05,
-                        "metric_number_of_methods_in_entity": 0.05,
-                    }
-            },
-
-            heatmap: {
-                metrics: {
-                    active: {
-                        sloc: true,
-                        fan_out: true
-                    },
-                    weights: {
-                        sloc: 1.5,
-                        fan_out: 1.7
-                    }
-                },
-                score: {
-			        limit: 300,
-			        base: 10
-		        }
-            }
-	    }
-
-        /**
-         * * MARK: - Unconfigurabe variables
-         */
         let heatmapMerged = false
         let heatmapActive = false
 
@@ -631,6 +600,7 @@
         let statistics
         let overall_metric_results
 
+        initAppConfig()
         initHeatmapSwitches()
         initSemanticSearchSwitch()
         setInitialDarkMode()
@@ -655,7 +625,7 @@
 
         // heatmap
         var heat = simpleheat('mainCanvas');
-        heat.max(analysis_config.heatmap.score.limit);
+        heat.max(analysis_config['heatmap']['score']['limit']);
 
         // bring back d3 schemeCategory20 to live
         const schemeCategory20 = "1f77b4aec7e8ff7f0effbb782ca02c98df8ad62728ff98969467bdc5b0d58c564bc49c94e377c2f7b6d27f7f7fc7c7c7bcbd22dbdb8d17becf9edae5"
@@ -769,37 +739,37 @@
          */
 
          function calculateHeatmapScore(node) {
-            let score = analysis_config.heatmap.score.base
+            let score = analysis_config['heatmap']['score']['base']
             let slocScore = 0
             let fanoutScore = 0
 
-            if (analysis_config.heatmap.metrics.active.sloc == true) {
+            if (analysis_config['heatmap']['metrics']['active']['sloc'] == true) {
                 // add weighted sloc metric if present
                 if ('metric_sloc_in_entity' in node) {
-                    slocScore = node.metric_sloc_in_entity * analysis_config.heatmap.metrics.weights.sloc
+                    slocScore = node.metric_sloc_in_entity * analysis_config['heatmap']['metrics']['weights']['sloc']
                 }
                 if ('metric_sloc_in_file' in node) {
-                    slocScore = node.metric_sloc_in_file * analysis_config.heatmap.metrics.weights.sloc
+                    slocScore = node.metric_sloc_in_file * analysis_config['heatmap']['metrics']['weights']['sloc']
                 }
             }
 
-            if (analysis_config.heatmap.metrics.active.fan_out == true) {
+            if (analysis_config['heatmap']['metrics']['active']['fan_out'] == true) {
                 // add weighted fan-out metric is present
                 if ('metric_fan_out_dependency_graph' in node) {
-                    fanoutScore = node.metric_fan_out_dependency_graph * analysis_config.heatmap.metrics.weights.fan_out
+                    fanoutScore = node.metric_fan_out_dependency_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
                 }
                 if ('metric_fan_out_inheritance_graph' in node) {
-                    fanoutScore = node.metric_fan_out_inheritance_graph * analysis_config.heatmap.metrics.weights.fan_out
+                    fanoutScore = node.metric_fan_out_inheritance_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
                 }
                 if ('metric_fan_out_complete_graph' in node) {
-                    fanoutScore = node.metric_fan_out_complete_graph * analysis_config.heatmap.metrics.weights.fan_out
+                    fanoutScore = node.metric_fan_out_complete_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
                 }
             }
 
             // limit the total score to the heatmap limit parameter, since the rendering seems to be buggy if this is exceeded
             let totalScore = score + slocScore + fanoutScore
-            if (totalScore > analysis_config.heatmap.score.limit) {
-                totalScore = analysis_config.heatmap.score.limit
+            if (totalScore > analysis_config['heatmap']['score']['limit']) {
+                totalScore = analysis_config['heatmap']['score']['limit']
             }
 
             return totalScore
@@ -1465,7 +1435,6 @@
 
             addGraphTypeSelectionToMenu()
             setGraphProperties()
-            setAnalysisName()
 
             d3.select(graphCanvas)
                 .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
@@ -1684,12 +1653,12 @@
 
                         // now interpolate for every x between f(0) and f(1): f(x) = f(0) * (1-x) + f(1) * x
                         if (addedMetric) {
-                            newRadius = node.radius * (1 - t) + (node.radius + (node.metrics[metricName] * analysis_config.metrics.radius_multiplication[metricName] )) * t;
+                            newRadius = node.radius * (1 - t) + (node.radius + (node.metrics[metricName] * analysis_config['metrics']['radius_multiplication'][metricName] )) * t;
                             if (newRadius > node.radius) {
                                 node.radius = newRadius
                             }
                         } else {
-                            newRadius = node.radius * (1 - t) + (node.radius - (node.metrics[metricName] * analysis_config.metrics.radius_multiplication[metricName] )) * t;
+                            newRadius = node.radius * (1 - t) + (node.radius - (node.metrics[metricName] * analysis_config['metrics']['radius_multiplication'][metricName] )) * t;
                             if (newRadius > radius) {
                                 node.radius = newRadius
                             } else {
@@ -1921,7 +1890,7 @@
         }
 
         function setAnalysisName() {
-            let analysisName = analysis_name
+            let analysisName = analysis_config['analysis_name']
             if (analysisName.length > 24) {
                 analysisName = analysisName.slice(0, 24) + '...'
             }
@@ -1977,6 +1946,13 @@
                 simulationUpdate();
                 $('#inputNodeSearchLabel').text(searchResults + ' nodes found')                
             })
+        }
+
+        function initAppConfig() {
+            $('#configEmergeVersion').text('Emerge ' + analysis_config['emerge_version'])
+            $('#configProjectName').text(analysis_config['project_name'])
+            setAnalysisName()
+            $('#configAnalysisDateTime').text(analysis_config['analysis_date'])
         }
 
         function initHeatmapSwitches() {

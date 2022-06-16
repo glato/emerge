@@ -40,6 +40,7 @@ class Analysis:
         self.metrics_for_entity_results: Dict[str, AbstractMetric] = {}
 
         self.analysis_name: Optional[str] = None
+        self.project_name: Optional[str] = None
         self.source_directory: Optional[str] = None
 
         self.export_directory: Optional[str] = None
@@ -49,6 +50,23 @@ class Analysis:
         self.export_tabular_console: bool = False
         self.analysis_date: Optional[str] = None
         self.analysis_runtime: Optional[str] = None
+
+        # additional config / node radius multiplication by metric
+        self.radius_fan_in: Optional[float] = 0.1
+        self.radius_fan_out: Optional[float] = 0.1
+        self.radius_louvain: Optional[float] = 0.02
+        self.radius_sloc: Optional[float] = 0.005
+        self.radius_number_of_methods: Optional[float] = 0.05
+
+        # additional config / heatmap
+        self.heatmap_sloc_active: Optional[bool] = True
+        self.heatmap_fan_out_active: Optional[bool] = True
+        self.heatmap_sloc_weight: Optional[float] = 1.5
+        self.heatmap_fan_out_weight: Optional[float] = 1.7
+        self.heatmap_score_base: Optional[int] = 10
+        self.heatmap_score_limit: Optional[int] = 300
+
+        self.emerge_version: Optional[str] = None
 
         self.export_json: bool = False
         self.export_dot: bool = False
@@ -258,7 +276,7 @@ class Analysis:
             created_graph_representations = {k: v for (k, v) in self.graph_representations.items() if v is not None}
             FileManager.copy_force_graph_template_to_export_dir(self.export_directory)
             D3Exporter.export_d3_force_directed_graph(
-                created_graph_representations, statistics, overall_metric_results, analysis_name, self.export_directory
+                created_graph_representations, statistics, overall_metric_results, self, self.export_directory
             )
 
         if self.export_tabular_file:

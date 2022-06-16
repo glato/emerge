@@ -252,7 +252,7 @@ class D3Exporter:
 
     # pylint: disable=too-many-statements
     @staticmethod
-    def export_d3_force_directed_graph(graph_representations, statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], analysis_name, export_dir):
+    def export_d3_force_directed_graph(graph_representations, statistics: Dict[str, Any], overall_metric_results: Dict[str, Any], analysis, export_dir):
         """Exports all given graph representations to a JavaScript syntax ready to be used within a D3 force graph simulation."""
 
         d3_js_string = ''
@@ -408,7 +408,59 @@ class D3Exporter:
 
         d3_js_string = d3_js_string.replace('-', '_')  # kebab case variable names are evil
 
-        d3_js_string += "const analysis_name = '" + analysis_name + "'"
+        d3_js_string += "const analysis_name = '" + analysis.analysis_name + "'"
+        d3_js_string += '\n\n'
+
+        # now export all the appconfig
+        
+        app_config = {
+            'project_name': analysis.project_name,
+            'analysis_name': analysis.analysis_name,
+            'analysis_date': analysis.analysis_date,
+            'emerge_version': analysis.emerge_version,
+
+            'metrics': {
+                'radius_multiplication': {
+                    'metric_fan_in_dependency_graph': analysis.radius_fan_in,
+                    'metric_fan_in_inheritance_graph': analysis.radius_fan_in,
+                    'metric_fan_in_complete_graph': analysis.radius_fan_in,
+
+                    'metric_fan_out_dependency_graph': analysis.radius_fan_out,
+                    'metric_fan_out_inheritance_graph': analysis.radius_fan_out,
+                    'metric_fan_out_complete_graph': analysis.radius_fan_out,
+
+                    'metric_entity_result_dependency_graph_louvain_modularity_in_entity': analysis.radius_louvain,
+                    'metric_entity_result_inheritance_graph_louvain_modularity_in_entity': analysis.radius_louvain,
+                    'metric_entity_result_complete_graph_louvain_modularity_in_entity': analysis.radius_louvain,
+                    'metric_entity_result_dependency_graph_louvain_modularity_in_file': analysis.radius_louvain,
+
+                    'metric_sloc_in_file': analysis.radius_sloc,
+                    'metric_sloc_in_entity': analysis.radius_sloc,
+
+                    'metric_number_of_methods_in_file': analysis.radius_number_of_methods,
+                    'metric_number_of_methods_in_entity': analysis.radius_number_of_methods
+                }
+            },
+            'heatmap': {
+                'metrics': {
+                    'active': {
+                        'sloc': analysis.heatmap_sloc_active,
+                        'fan_out': analysis.heatmap_fan_out_active
+                    },
+                    'weights': {
+                        'sloc': analysis.heatmap_sloc_weight,
+                        'fan_out': analysis.heatmap_fan_out_weight
+                    }
+                },
+                'score': {
+                    'limit': analysis.heatmap_score_limit,
+                    'base': analysis.heatmap_score_base
+                }
+            }
+        }
+
+        d3_js_string += "let analysis_config = "
+        d3_js_string += json.dumps(app_config) 
 
         target_force_graph_subpath = "/html"
         target_graph_subpath = "/resources/js"

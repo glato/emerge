@@ -45,6 +45,8 @@ class Analyzer:
         for i, analysis in enumerate(self._config.analyses, start=1):
             LOGGER.info(f'performing analysis {i}/{len(analyses_names)}: {analysis.analysis_name}')
 
+            analysis.analysis_date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+
             analysis.start_timer()
             self.start_scanning(analysis)
             analysis.stop_timer()

@@ -76,6 +76,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     FILE_SCAN = auto()
     ENTITY_SCAN = auto()
     EXPORT = auto()
+    APPCONFIG = auto()
 
 
 @unique
@@ -114,6 +115,22 @@ class ConfigKeyExport(EnumKeyValid, Enum):
     TABULAR_CONSOLE_OVERALL = auto()
     JSON = auto()
     D3 = auto()
+
+
+@unique
+class ConfigKeyAppConfig(EnumKeyValid, Enum):
+    """Config key checks of the app config level."""
+    RADIUS_FAN_IN = auto()
+    RADIUS_FAN_OUT = auto()
+    RADIUS_LOUVAIN = auto()
+    RADIUS_SLOC = auto()
+    RADIUS_NUMBER_OF_METHODS = auto()
+    HEATMAP_SLOC_ACTIVE = auto()
+    HEATMAP_FAN_OUT_ACTIVE = auto()
+    HEATMAP_SLOC_WEIGHT = auto()
+    HEATMAP_FAN_OUT_WEIGHT = auto()
+    HEATMAP_SCORE_BASE = auto()
+    HEATMAP_SCORE_LIMIT = auto()
 
 
 class Configuration:
@@ -385,6 +402,9 @@ class Configuration:
         for analysis_dict in yaml_analyses:
             analysis: Analysis = Analysis()
 
+            analysis.project_name = self.project_name
+            analysis.emerge_version = self.version
+
             # check export config
             if ConfigKeyAnalysis.EXPORT.name.lower() in analysis_dict:
                 for export_config in analysis_dict[ConfigKeyAnalysis.EXPORT.name.lower()]:
@@ -405,6 +425,53 @@ class Configuration:
                         analysis.export_json = True
                     if ConfigKeyExport.D3.name.lower() in export_config:
                         analysis.export_d3 = True
+
+            # check app config
+            if ConfigKeyAnalysis.APPCONFIG.name.lower() in analysis_dict:
+                for appconfig in analysis_dict[ConfigKeyAnalysis.APPCONFIG.name.lower()]:
+                    if ConfigKeyAppConfig.RADIUS_FAN_IN.name.lower() in appconfig:
+                        radius_fan_in = appconfig[ConfigKeyAppConfig.RADIUS_FAN_IN.name.lower()]
+                        analysis.radius_fan_in = radius_fan_in
+
+                    if ConfigKeyAppConfig.RADIUS_FAN_OUT.name.lower() in appconfig:
+                        radius_fan_out = appconfig[ConfigKeyAppConfig.RADIUS_FAN_OUT.name.lower()]
+                        analysis.radius_fan_out = radius_fan_out
+
+                    if ConfigKeyAppConfig.RADIUS_LOUVAIN.name.lower() in appconfig:
+                        radius_louvain = appconfig[ConfigKeyAppConfig.RADIUS_LOUVAIN.name.lower()]
+                        analysis.radius_louvain = radius_louvain
+
+                    if ConfigKeyAppConfig.RADIUS_SLOC.name.lower() in appconfig:
+                        radius_sloc = appconfig[ConfigKeyAppConfig.RADIUS_SLOC.name.lower()]
+                        analysis.radius_sloc = radius_sloc
+
+                    if ConfigKeyAppConfig.RADIUS_NUMBER_OF_METHODS.name.lower() in appconfig:
+                        radius_number_of_methods = appconfig[ConfigKeyAppConfig.RADIUS_NUMBER_OF_METHODS.name.lower()]
+                        analysis.radius_number_of_methods = radius_number_of_methods
+
+                    if ConfigKeyAppConfig.HEATMAP_SLOC_ACTIVE.name.lower() in appconfig:
+                        heatmap_sloc_active = appconfig[ConfigKeyAppConfig.HEATMAP_SLOC_ACTIVE.name.lower()]
+                        analysis.heatmap_sloc_active = heatmap_sloc_active
+
+                    if ConfigKeyAppConfig.HEATMAP_FAN_OUT_ACTIVE.name.lower() in appconfig:
+                        heatmap_fan_out_active = appconfig[ConfigKeyAppConfig.HEATMAP_FAN_OUT_ACTIVE.name.lower()]
+                        analysis.heatmap_fan_out_active = heatmap_fan_out_active
+
+                    if ConfigKeyAppConfig.HEATMAP_SLOC_WEIGHT.name.lower() in appconfig:
+                        heatmap_sloc_weight = appconfig[ConfigKeyAppConfig.HEATMAP_SLOC_WEIGHT.name.lower()]
+                        analysis.heatmap_sloc_weight = heatmap_sloc_weight
+
+                    if ConfigKeyAppConfig.HEATMAP_FAN_OUT_WEIGHT.name.lower() in appconfig:
+                        heatmap_fan_out_weight = appconfig[ConfigKeyAppConfig.HEATMAP_FAN_OUT_WEIGHT.name.lower()]
+                        analysis.heatmap_fan_out_weight = heatmap_fan_out_weight
+
+                    if ConfigKeyAppConfig.HEATMAP_SCORE_BASE.name.lower() in appconfig:
+                        heatmap_score_base = appconfig[ConfigKeyAppConfig.HEATMAP_SCORE_BASE.name.lower()]
+                        analysis.heatmap_score_base = heatmap_score_base
+
+                    if ConfigKeyAppConfig.HEATMAP_SCORE_LIMIT.name.lower() in appconfig:
+                        heatmap_score_limit = appconfig[ConfigKeyAppConfig.HEATMAP_SCORE_LIMIT.name.lower()]
+                        analysis.heatmap_score_limit = heatmap_score_limit
 
             # exclude directories and files from scanning
             if ConfigKeyAnalysis.IGNORE_DIRECTORIES_CONTAINING.name.lower() in analysis_dict:
