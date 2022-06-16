@@ -475,7 +475,8 @@ The yaml configuration is basically defined at the following levels:
 | `import_aliases`  | define a list of import aliases, i.e. replace substrings within a full dependency path, e.g. `"@foo": src/foo` will replace any `@foo` alias by `src/foo` |
 | `file_scan`                      | perform a file scan, contains the metrics that should be applied on every source file |
 | `entity_scan`                    | perform an entity scan, contains the metrics that should be applied on every entity (e.g. on every class) |
-| `export`                         | contains any export formats that should be create as output |
+| `export`                         | contains any export formats that should be created as output |
+| `appconfig`                      | contains any configurable app config parameters|
 |                                  | |
 
 ## file_scan metrics
@@ -517,6 +518,23 @@ The yaml configuration is basically defined at the following levels:
 | `dot`                     | create a DOT file that contains the graph structure and metric results mapped to the nodes of the graph |
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
+
+## appconfig
+
+| key                         | value/ description |
+|-----------------------------|--------------------|
+| `radius_fan_out`            | node radius multiplication factor for the fan-out metric, default: `0.1`  |
+| `radius_fan_in`             | node radius multiplication factor for the fan-in metric, default: `0.1`   |
+| `radius_louvain`            | node radius multiplication factor for the louvain metric, default: `0.02` |
+| `radius_sloc`               | node radius multiplication factor for the sloc metric, default: `0.005` |
+| `radius_number_of_methods`  | node radius multiplication factor for the number of methods metric, default: `0.05` |
+| `heatmap_sloc_active`       | should the sloc metric be included in the heatmap score calculation? default: `true` |
+| `heatmap_fan_out_active`    | should the fan-out metric be included in the heatmap score calculation? default: `true` |
+| `heatmap_sloc_weight`       | weight factor of the sloc metric within the heatmap score calculation, default: `1.5` |
+| `heatmap_fan_out_weight`    | weight factor of the fan-out metric within the heatmap score calculation, default: `1.7` |
+| `heatmap_score_base`        | min score threshold for the heatmap color mapping, default: `10` |
+| `heatmap_score_limit`       | max score threshold for the heatmap color mapping, default: `300` |
+|                             | |
 
 ## Supported scan types and file extensions
 
