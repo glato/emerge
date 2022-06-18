@@ -58,7 +58,8 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - Fast full-screen UI rendering on HTML canvas
     - Visualization of files, entities and given metrics
     - [Dark mode support](https://github.com/coliff/dark-mode-switch)
-    - Reactive visual live search of files/ entities (e.g. classes)
+    - Visual live search (OR'ed with multiple search terms) of entities
+    - The option to include a semantic search based on [term frequency-inverse document frequency](https://en.wikipedia.org/wiki/Tf–idf)
     - Selection and highlighting of individual nodes
     - [Concave hull](https://github.com/AndriiHeonia/hull) visualization of single clusters
     - [Heatmap](https://github.com/mourner/simpleheat) visualization support of potentially harmful nodes based on a SLOC/Fan-Out score
@@ -98,11 +99,19 @@ apt-get install graphviz graphviz-dev
 
 ### 1️⃣.2️⃣ ~ Install with pip
 
+Either install as new package with:
+
 ```text
 pip install emerge-viz
 ```
 
-and then simply execute it like this
+or if it's already installed, just update with:
+
+```text
+pip install -U emerge-viz
+```
+
+and then simply execute it like this:
 
 ```text
 (emerge) user@host ~ % emerge
