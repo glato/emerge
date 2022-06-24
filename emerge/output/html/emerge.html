@@ -1032,14 +1032,18 @@
             let searchedTag = 'metric_tag_' + string
             let found = false
 
-            propertyNames.forEach(function(name) {
-                if (name.toLowerCase().includes(searchedTag.toLowerCase() )) {
+            let tagProperties = propertyNames.filter(function(property) {
+                return property.startsWith('metric_tag_')
+            })
+
+            tagProperties.forEach(function(propertyName) {
+                if (propertyName.toLowerCase().includes(string.toLowerCase())) {
                     found = true
                 }
             })
        
             return found
-        } 
+        }
 
         function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
             const fontSize = 14
