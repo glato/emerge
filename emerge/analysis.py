@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 import logging
 from datetime import datetime, timedelta
 import os
-from pathlib import Path, PosixPath
+from pathlib import Path
 import coloredlogs
 
 from emerge.languages.abstractparser import AbstractResult, AbstractParser, LanguageType
@@ -290,7 +290,7 @@ class Analysis:
         elif self.export_tabular_console:
             TableExporter.export_statistics_and_metrics_to_console(statistics, overall_metric_results, local_metric_results, analysis_name)
 
-        resolved_export_path = PosixPath(self.export_directory).resolve()
+        resolved_export_path = Path(self.export_directory).resolve()
 
         LOGGER.info_done(f'all your generated/exported data can be found here: {resolved_export_path}')
         if self.export_d3:
@@ -419,7 +419,7 @@ class Analysis:
 
         # create a root directory filesystem node, add to project graph
 
-        parent_analysis_source_path = f"{PosixPath(self.source_directory).parent}/"
+        parent_analysis_source_path = f"{Path(self.source_directory).parent}/"
         relative_file_path_to_analysis = self.source_directory.replace(parent_analysis_source_path, "")
 
         filesystem_root_node = FileSystemNode(FileSystemNodeType.DIRECTORY, relative_file_path_to_analysis)
@@ -442,10 +442,10 @@ class Analysis:
                 absolute_path_to_directory = os.path.join(root, directory)
 
                 # create relative analysis paths to exactly match the same path of nodes in other graphs (and get their metrics)
-                parent_analysis_source_path = f"{PosixPath(absolute_path_to_directory).parent}/"
+                parent_analysis_source_path = f"{Path(absolute_path_to_directory).parent}/"
                 relative_file_path_to_analysis = absolute_path_to_directory.replace(parent_analysis_source_path, "")
-                relative_path_parent = f'{PosixPath(root)}'.replace(f'{ PosixPath(self.source_directory).parent}/', "")
-                relative_path_directoy_node = f'{PosixPath(root)}/{relative_file_path_to_analysis}'.replace(f"{PosixPath(self.source_directory).parent}/", "")
+                relative_path_parent = f'{Path(root)}'.replace(f'{ Path(self.source_directory).parent}/', "")
+                relative_path_directoy_node = f'{Path(root)}/{relative_file_path_to_analysis}'.replace(f"{Path(self.source_directory).parent}/", "")
 
                 directory_node = FileSystemNode(FileSystemNodeType.DIRECTORY, relative_path_directoy_node)
                 filesystem_graph.filesystem_nodes[directory_node.absolute_name] = directory_node
@@ -488,9 +488,9 @@ class Analysis:
                 file_name, file_extension = os.path.splitext(absolute_path_to_file)
 
                 # create relative analysis path to exactly match the same path of nodes in other graphs (and get their metrics)
-                parent_analysis_source_path = f"{PosixPath(absolute_path_to_file).parent}/"
-                relative_root = f'{PosixPath(root)}'.replace(f'{ PosixPath(self.source_directory).parent}/', "")
-                relative_file_path_to_analysis = absolute_path_to_file.replace(f'{PosixPath(self.source_directory).parent}/', "")
+                parent_analysis_source_path = f"{Path(absolute_path_to_file).parent}/"
+                relative_root = f'{Path(root)}'.replace(f'{ Path(self.source_directory).parent}/', "")
+                relative_file_path_to_analysis = absolute_path_to_file.replace(f'{Path(self.source_directory).parent}/', "")
 
                 if not self.file_extension_allowed(file_extension):
                     if not file_extension.strip():
