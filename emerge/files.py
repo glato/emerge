@@ -14,6 +14,7 @@ import shutil
 import logging
 
 import coloredlogs
+from emerge.languages.goparser import GoParser
 
 from emerge.languages.javaparser import JavaParser
 from emerge.languages.swiftparser import SwiftParser
@@ -55,6 +56,7 @@ class LanguageExtension(Enum):
     RUBY = '.rb'
     C_HEADER = '.h'
     PYTHON = '.py'
+    GO = '.go'
 
     @staticmethod
     def valid_key(key) -> bool:
@@ -105,6 +107,8 @@ class FileScanMapper:
             return RubyParser.parser_name()
         if file_extension == LanguageExtension.PYTHON.value:
             return PythonParser.parser_name()
+        if file_extension == LanguageExtension.GO.value:
+            return GoParser.parser_name()
         if file_extension == LanguageExtension.C_HEADER.value:
             if only_permit_languages:
                 if 'objc' in only_permit_languages:

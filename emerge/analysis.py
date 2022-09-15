@@ -5,7 +5,7 @@ An Analysis holds configuration, metrics and the generated results.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 import logging
 from datetime import datetime, timedelta
 import os
@@ -84,6 +84,8 @@ class Analysis:
         self.import_aliases: Dict[str, str] = {}
 
         self.results: Dict[str, AbstractResult] = {}
+
+        self.absolute_scanned_file_names: Set[str] = set()
 
         self.local_metric_results: Dict[str, Dict[str, Any]] = {}
         self.overall_metric_results: Dict[str, Any] = {}
@@ -376,20 +378,6 @@ class Analysis:
         if bool(results):
             return results[list(results.keys())[0]]
         return None
-
-    # @property
-    # def graph_representation_exists(self, graph_type: GraphType) -> bool:
-    #     """Checks if a graph representation given by GraphType already exists in this analysis.
-
-    #     Args:
-    #         graph_type (GraphType): A specific type related to results/graph, e.g. file result dependency graph.
-
-    #     Returns:
-    #         bool: True if the representation exists in this analysis, False otherwise.
-    #     """
-    #     if self.graph_representations[graph_type.name.lower()] is not None:
-    #         return True
-    #     return False
 
     def create_graph_representation(self, graph_type: GraphType) -> None:
         """Creates a graph representation in this analysis, given by a graph type.

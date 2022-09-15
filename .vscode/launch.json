@@ -126,6 +126,17 @@
             ]
         },
         {
+            "name": "Go / emerge",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/emerge.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "emerge/myconfigs/go-template.yaml"
+            ]
+        },
+        {
             "name": "--",
             "type": "python",
             "request": "launch"

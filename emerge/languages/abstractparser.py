@@ -34,6 +34,7 @@ class LanguageType(Enum):
     C = auto()
     CPP = auto()
     PY = auto()
+    GO = auto()
 
 
 @unique
@@ -49,6 +50,7 @@ class Parser(Enum):
     RUBY_PARSER = auto()
     GROOVY_PARSER = auto()
     PYTHON_PARSER = auto()
+    GO_PARSER = auto()
 
 
 @unique

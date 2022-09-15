@@ -44,7 +44,8 @@ class TFIDFMetric(CodeMetric):
             "TYPESCRIPT": {'break', 'var', 'case', 'this', 'import', 'let', 'const', 'return', 'public', 'private', 'function', 'null', 'true', 'false', 'string', 'export', 'new', 'void', 'readonly', 'abstract', 'static', 'require', 'exports', 'boolean', 'obj', 'index', 'undefined', 'number'},
             "C":          {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsigned', 'extern', 'char', 'float', 'sizeof', 'unsinged', 'undef', 'define'},
             "CPP":        {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsigned', 'extern', 'char', 'float', 'sizeof', 'string', 'bool', 'virtual', 'override', 'nullptr', 'final', 'inline', 'template'},
-            "PY":         {'return', 'self', 'import', 'enum', 'true', 'false', 'none', 'class', 'cls', 'super', 'not'}
+            "PY":         {'return', 'self', 'import', 'enum', 'true', 'false', 'none', 'class', 'cls', 'super', 'not'},
+            "GO":         {}
         }
 
         """The following natural language stopwords should be excluded from the TF-IDF calculation."""

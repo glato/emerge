@@ -22,6 +22,7 @@ from emerge.languages.kotlinparser import KotlinParser
 from emerge.languages.objcparser import ObjCParser
 from emerge.languages.rubyparser import RubyParser
 from emerge.languages.pyparser import PythonParser
+from emerge.languages.goparser import GoParser
 
 from emerge.config import Configuration
 from emerge.analyzer import Analyzer
@@ -31,8 +32,8 @@ from emerge.log import Logger, LogLevel
 LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
-__version__ = '1.3.0'
-__updated__ = '2022-06-16 20:22:29'
+__version__ = '1.4.0'
+__updated__ = '2022-09-15 20:37:57'
 
 
 class Emerge:
@@ -54,7 +55,8 @@ class Emerge:
             KotlinParser.parser_name(): KotlinParser(),
             ObjCParser.parser_name(): ObjCParser(),
             RubyParser.parser_name(): RubyParser(),
-            PythonParser.parser_name(): PythonParser()
+            PythonParser.parser_name(): PythonParser(),
+            GoParser.parser_name(): GoParser()
         }
 
         self.config.supported_languages = [x.language_type() for x in self._parsers.values()]
