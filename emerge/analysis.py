@@ -493,6 +493,9 @@ class Analysis:
                     skipped_files += 1
                     continue
 
+                # build up a set of relative names to speed up computational checks later
+                self.absolute_scanned_file_names.add(relative_file_path_to_analysis)    
+
                 with open(absolute_path_to_file, encoding="ISO-8859-1") as file:
                     file_content = file.read()
                     file_node = FileSystemNode(FileSystemNodeType.FILE, relative_file_path_to_analysis, file_content)

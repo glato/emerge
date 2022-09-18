@@ -13,6 +13,7 @@ import os
 
 import pyparsing as pp
 import coloredlogs
+from emerge.graph import GraphType
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
 from emerge.results import FileResult
@@ -97,6 +98,8 @@ class GoParser(AbstractParser, ParsingMixin):
 
     def after_generated_file_results(self, analysis) -> None:
         pass
+        # correct imports relative to created file results
+        #for result in self._results:
 
     def generate_entity_results_from_analysis(self, analysis):
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
@@ -106,6 +109,9 @@ class GoParser(AbstractParser, ParsingMixin):
 
     def _add_imports_to_result(self, result: AbstractFileResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
+
+        filesystem_graph = analysis.graph_representations[GraphType.FILESYSTEM_GRAPH.name.lower()]
+
         list_of_words_with_newline_strings = result.scanned_tokens
         
         source_string_no_comments = self._filter_source_tokens_without_comments(
@@ -124,15 +130,18 @@ class GoParser(AbstractParser, ParsingMixin):
                 # pylint: disable=invalid-name
                 IMPORT_NAME = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value +
                                  CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
+                IMPORT_ALIAS = IMPORT_NAME
 
                 NL = pp.Suppress(pp.LineEnd())
-                MULTILINE = pp.Suppress(pp.Literal('"')) + pp.OneOrMore(IMPORT_NAME) + pp.Suppress(pp.Literal('"')) + NL | NL
+                MULTILINE = pp.Suppress(pp.Optional(pp.OneOrMore(IMPORT_ALIAS))) + \
+                     pp.Suppress(pp.Literal('"')) + pp.OneOrMore(IMPORT_NAME) + pp.Suppress(pp.Literal('"')) + NL | NL
                 MULTILINES = pp.OneOrMore(pp.Group(MULTILINE))
+                
                 grammar = (
-                    (   # multiline go import
+                    (   # a) multiline go import
                         pp.Suppress( pp.Literal(GoParsingKeyword.IMPORT.value) + pp.Keyword('(')) + MULTILINES + pp.Suppress(pp.Keyword(')'))
                     ) | 
-                    (   # single line go import
+                    (   # b) single line go import
                         pp.Suppress( pp.Literal(GoParsingKeyword.IMPORT.value)) + MULTILINE
                     )
                 )
@@ -148,14 +157,54 @@ class GoParser(AbstractParser, ParsingMixin):
                 
                 parsed_list = list(parsing_result)
 
-                for parsed in parsed_list:
+                for parsed_dependency in parsed_list:
                     analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
-                    if self._is_dependency_in_ignore_list(parsed[0], analysis):
-                        LOGGER.debug(f'ignoring dependency from {result.unique_name} to {parsed[0]}')
+                    # consider dependency a pure string, if we get a string result from b) single line go import
+                    if isinstance(parsed_dependency, str):
+                        dependency = parsed_dependency
+                    else: # otherwise if we get a list of ParseResults, use the string name of the dependency
+                        dependency = parsed_dependency[0]
+
+                    if self._is_dependency_in_ignore_list(dependency, analysis):
+                        LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
                     else:
-                        result.scanned_import_dependencies.append(parsed[0])
-                        LOGGER.debug(f'adding import: {parsed[0]}')
+                        corrected = False
+                        if '/' in dependency:
+                            for scanned_dependency in analysis.absolute_scanned_file_names:
+                                check_for_scanned_dependency = scanned_dependency.replace('.go', '')
+                                if dependency.endswith(check_for_scanned_dependency):
+                                    dependency = f'{check_for_scanned_dependency}.go'
+                                    corrected = True
+
+                            if corrected is False:
+                                some_nodes = filesystem_graph.digraph.nodes
+
+                                for node in some_nodes:
+                                    if dependency.endswith(node):
+                                        path_components = node.count('/') + 1
+                                        # now give us all files from this directory node
+                                        file_nodes_from_dir_node = [
+                                            v for v in filesystem_graph.digraph.nodes if node in v and '.go' in v and path_components == v.count('/')
+                                        ]
+                                        
+                                        for found_package_dependency in file_nodes_from_dir_node:
+                                            result.scanned_import_dependencies.append(found_package_dependency)
+                                            LOGGER.debug(f'adding import: {found_package_dependency}')
+                                            corrected = True
+
+                                if corrected is False:
+                                    result.scanned_import_dependencies.append(dependency)
+                                    LOGGER.debug(f'adding import: {dependency}')
+                                    
+                            else:
+                                result.scanned_import_dependencies.append(dependency)
+                                LOGGER.debug(f'adding import: {dependency}')
+
+                        else:
+                            result.scanned_import_dependencies.append(dependency)
+                            LOGGER.debug(f'adding import: {dependency}')
+                            
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
         resolved_dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)

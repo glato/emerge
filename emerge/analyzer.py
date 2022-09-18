@@ -140,9 +140,6 @@ class Analyzer:
                     if file_content is None:
                         raise Exception(f'file content is None for file: {project_node.absolute_name}')
                     
-                    parent_analysis_source_path = f"{PosixPath(project_node.absolute_name).parent}/"
-                    analysis.absolute_scanned_file_names.add(parent_analysis_source_path)    
-
                     parser.generate_file_result_from_analysis(
                         analysis,
                         file_name=file_name,
