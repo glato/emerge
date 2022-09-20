@@ -494,6 +494,7 @@ class Analysis:
                     continue
 
                 # build up a set of relative names to speed up computational checks later
+                # also add it as property to the filesystem graph
                 self.absolute_scanned_file_names.add(relative_file_path_to_analysis)    
 
                 with open(absolute_path_to_file, encoding="ISO-8859-1") as file:
@@ -505,7 +506,8 @@ class Analysis:
                         file_node.absolute_name,
                         directory=False,
                         file=True,
-                        display_name=Path(file_node.absolute_name).name
+                        display_name=Path(file_node.absolute_name).name,
+                        result_name=relative_file_path_to_analysis
                     )
 
                     filesystem_graph.digraph.add_edge(relative_root, file_node.absolute_name)

@@ -172,7 +172,6 @@ class FileSystemNode:
     def __init__(self, node_type: FileSystemNodeType, absolute_name: str, content: Optional[str] = None):
         self.type: FileSystemNodeType = node_type
         self.absolute_name: str = absolute_name
-
         self.content: Optional[str] = content
 
     def __hash__(self):

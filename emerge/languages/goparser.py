@@ -5,11 +5,18 @@ Contains the implementation of the Go language parser and a relevant keyword enu
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import Dict
+from __future__ import unicode_literals
+from asyncio.constants import LOG_THRESHOLD_FOR_CONNLOST_WRITES
+
+from string import printable, whitespace
+from typing import Dict, List, Literal, Optional
 from enum import Enum, unique
 import logging
 from pathlib import PosixPath
 import os
+import string
+
+from datetime import datetime
 
 import pyparsing as pp
 import coloredlogs
@@ -93,19 +100,66 @@ class GoParser(AbstractParser, ParsingMixin):
         )
 
         self._add_package_name_to_result(file_result)
-        self._add_imports_to_result(file_result, analysis)
+        # self._add_imports_to_result(file_result, analysis)
         self._results[file_result.unique_name] = file_result
 
     def after_generated_file_results(self, analysis) -> None:
-        pass
-        # correct imports relative to created file results
-        #for result in self._results:
+
+        file_result: AbstractFileResult
+        for _, file_result in self._results.items():
+            self._add_imports_to_result(file_result, analysis)
 
     def generate_entity_results_from_analysis(self, analysis):
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
 
     def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         raise NotImplementedError(f'currently not implemented in {self.parser_name()}')
+
+    def parse_grammar(self, analysis, grammar, preprocessed_source_string: str) -> List[str]:
+        try:
+            # searchString: skim through the input looking for matches, instead of requiring a complete match of all the content in the input string
+            parsing_result = grammar.searchString(preprocessed_source_string)
+        except pp.ParseException as exception:
+            analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
+            LOGGER.warning(f'warning: could not parse result: {exception}')
+            return []
+            
+        list_parsing_result = parsing_result.asList()
+        list_parsing_result = [item for sublist in list_parsing_result for item in sublist] # flatten list
+
+        return list_parsing_result
+
+    # e.g. "type encbuf struct {"
+    @staticmethod
+    def create_golang_struct_grammar():
+        # pylint: disable=invalid-name
+        STRUCT_NAME = pp.Word(pp.alphanums + '_')
+        STRUCT_LINE = pp.Suppress(pp.Keyword('type')) + STRUCT_NAME + pp.Suppress(pp.Keyword('struct'))
+        grammar = STRUCT_LINE
+        # pylint: enable=invalid-name
+        return grammar
+
+    # e.g. "func DefaultTenantConfigs() *TenantConfigs {" or "func (o *TenantConfigs) LogPushRequest(userID string) bool {"
+    @staticmethod
+    def create_golang_func_grammar():
+        # pylint: disable=invalid-name
+        FUNC_NAME = pp.Word(pp.alphanums + '_')
+        PARAMETER_DEF = pp.Word(pp.alphanums + '_' + '*' + '.' + ',' )
+        FUNC_LINE = pp.Suppress(pp.Keyword('func')) + pp.Optional( pp.Suppress( pp.Keyword('(') + pp.ZeroOrMore(PARAMETER_DEF) + pp.Keyword(')')) ) + FUNC_NAME
+        grammar = FUNC_LINE
+        # pylint: enable=invalid-name
+        return grammar
+
+    def preprocess_golang_source(self, scanned_tokens) -> str:
+        source_string_no_comments = self._filter_source_tokens_without_comments(
+            scanned_tokens,
+            GoParsingKeyword.INLINE_COMMENT.value,
+            GoParsingKeyword.START_BLOCK_COMMENT.value,
+            GoParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+        filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
+        preprocessed_source_string = " ".join(filtered_list_no_comments)
+        return preprocessed_source_string
 
     def _add_imports_to_result(self, result: AbstractFileResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
@@ -123,6 +177,8 @@ class GoParser(AbstractParser, ParsingMixin):
 
         filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
 
+        preprocessed_source_string = " ".join(filtered_list_no_comments)
+
         for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
             if obj == GoParsingKeyword.IMPORT.value:
                 read_ahead_string = self.create_read_ahead_string(obj, following)
@@ -136,7 +192,7 @@ class GoParser(AbstractParser, ParsingMixin):
                 MULTILINE = pp.Suppress(pp.Optional(pp.OneOrMore(IMPORT_ALIAS))) + \
                      pp.Suppress(pp.Literal('"')) + pp.OneOrMore(IMPORT_NAME) + pp.Suppress(pp.Literal('"')) + NL | NL
                 MULTILINES = pp.OneOrMore(pp.Group(MULTILINE))
-                
+
                 grammar = (
                     (   # a) multiline go import
                         pp.Suppress( pp.Literal(GoParsingKeyword.IMPORT.value) + pp.Keyword('(')) + MULTILINES + pp.Suppress(pp.Keyword(')'))
@@ -179,19 +235,64 @@ class GoParser(AbstractParser, ParsingMixin):
 
                             if corrected is False:
                                 some_nodes = filesystem_graph.digraph.nodes
+                              
 
-                                for node in some_nodes:
-                                    if dependency.endswith(node):
-                                        path_components = node.count('/') + 1
-                                        # now give us all files from this directory node
-                                        file_nodes_from_dir_node = [
-                                            v for v in filesystem_graph.digraph.nodes if node in v and '.go' in v and path_components == v.count('/')
-                                        ]
+                                for node_name, filesystem_node in some_nodes.items():
+                                    if filesystem_node['directory'] is False:
+                                        continue
+                                    
+                                    if dependency.endswith(node_name):
                                         
-                                        for found_package_dependency in file_nodes_from_dir_node:
-                                            result.scanned_import_dependencies.append(found_package_dependency)
-                                            LOGGER.debug(f'adding import: {found_package_dependency}')
-                                            corrected = True
+                                        path_components = node_name.count('/') + 1
+                                        # now give us all files from this directory node
+                                        file_nodes_from_dir_node = {
+                                            k: v for (k, v) in filesystem_graph.digraph.nodes.items() if node_name in k and '.go' in k and path_components == k.count('/')
+                                        }
+
+                                        potential_imported_results = []
+                                        for _, filesystem_result in file_nodes_from_dir_node.items():
+                                            results: Dict[str, AbstractResult] = {k: v for (k, v) in self._results.items() if v.unique_name == filesystem_result['result_name']}
+                                            if bool(results):
+                                                potential_imported_result = results[list(results.keys())[0]]
+                                                potential_imported_results.append(potential_imported_result)
+
+                                        # TODO: extract/check if dependencies really exist within file results
+                                        # extract struct and func definitions
+                                        # TODO: "As long as the files are next to each other, you can call the function without needing to import explicitly"
+                                        
+                                        dateTimeObj1 = datetime.now()
+                                        print(f'start resolving package dependency...{dateTimeObj1}')
+                                        for potential_imported_result in potential_imported_results:
+                                            
+                                            preprocessed_golang_source = self.preprocess_golang_source(potential_imported_result.scanned_tokens)
+
+                                            struct_grammar = self.create_golang_struct_grammar()
+                                            func_grammar = self.create_golang_func_grammar()
+
+                                            structs = self.parse_grammar(analysis, struct_grammar, preprocessed_golang_source)
+                                            funcs = self.parse_grammar(analysis, func_grammar, preprocessed_golang_source)
+                                            
+                                            # TODO: now check if any found token exists in scanned_tokens of the original result
+                                            all_tokens = structs + funcs
+                                            
+                                            should_add_dependency = False
+                                            for possibe_token in all_tokens:
+                                                if possibe_token in preprocessed_source_string:
+                                                    should_add_dependency = True
+                                                    break
+                                            
+                                            if should_add_dependency is True:
+                                                result.scanned_import_dependencies.append(potential_imported_result.unique_name)
+                                                LOGGER.debug(f'adding import: {potential_imported_result.unique_name}')
+                                                corrected = True
+                                            
+                                        dateTimeObj2 = datetime.now()
+                                        print(f'stop resolving package dependency... {dateTimeObj2}') 
+
+                                        # for found_package_dependency in file_nodes_from_dir_node:
+                                        #     result.scanned_import_dependencies.append(found_package_dependency)
+                                        #     LOGGER.debug(f'adding import: {found_package_dependency}')
+                                        #     corrected = True
 
                                 if corrected is False:
                                     result.scanned_import_dependencies.append(dependency)
@@ -204,6 +305,7 @@ class GoParser(AbstractParser, ParsingMixin):
                         else:
                             result.scanned_import_dependencies.append(dependency)
                             LOGGER.debug(f'adding import: {dependency}')
+                    print(f'parsed dependency: {parsed_dependency}')
                             
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
