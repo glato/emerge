@@ -31,6 +31,8 @@ class AbstractResult(ABC):
     @abstractmethod
     def scanned_tokens(self) -> List[str]:
         ...
+    
+    
 
     @property
     @abstractmethod
@@ -58,6 +60,11 @@ class AbstractFileResult(AbstractResult):
     @property
     @abstractmethod
     def relative_file_path_to_analysis(self) -> str:
+        ...
+    
+    @property
+    @abstractmethod
+    def preprocessed_source(self) -> str:
         ...
 
     @property
@@ -97,8 +104,10 @@ class AbstractFileResult(AbstractResult):
         display_name, 
         module_name, 
         scanned_by, 
-        scanned_language, 
-        scanned_tokens):
+        scanned_language,
+        scanned_tokens,
+        preprocessed_source
+        ):
         ...
     
     @abstractmethod

@@ -171,6 +171,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
                  scanned_by,
                  scanned_language,
                  scanned_tokens,
+                 preprocessed_source
                  ):
         self._analysis = anaylsis
         self._scanned_file_name = scanned_file_name
@@ -184,6 +185,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
         self._scanned_language = scanned_language
         self._scanned_by = scanned_by
         self._scanned_tokens = scanned_tokens
+        self._preprocessed_source = preprocessed_source
         self._scanned_import_dependencies: List[str] = []
         self._metrics: Dict = {}
 
@@ -206,7 +208,8 @@ class FileResult(AbstractFileResult, ParsingMixin):
             module_name,
             scanned_by,
             scanned_language,
-            scanned_tokens
+            scanned_tokens,
+            preprocessed_source
         ) -> 'FileResult':
         return FileResult(
             analysis,
@@ -217,7 +220,8 @@ class FileResult(AbstractFileResult, ParsingMixin):
             module_name,
             scanned_by,
             scanned_language,
-            scanned_tokens
+            scanned_tokens,
+            preprocessed_source
         )
 
     @property
@@ -275,6 +279,10 @@ class FileResult(AbstractFileResult, ParsingMixin):
     @property
     def scanned_tokens(self) -> List[str]:
         return self._scanned_tokens
+
+    @property
+    def preprocessed_source(self) -> str:
+        return self._preprocessed_source
 
     @property
     def scanned_import_dependencies(self) -> List[str]:

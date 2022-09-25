@@ -87,6 +87,9 @@ class Analysis:
 
         self.absolute_scanned_file_names: Set[str] = set()
 
+        # memoization
+        self.scanned_files_nodes_in_directories = {}
+
         self.local_metric_results: Dict[str, Dict[str, Any]] = {}
         self.overall_metric_results: Dict[str, Any] = {}
 
@@ -495,8 +498,14 @@ class Analysis:
 
                 # build up a set of relative names to speed up computational checks later
                 # also add it as property to the filesystem graph
-                self.absolute_scanned_file_names.add(relative_file_path_to_analysis)    
+                self.absolute_scanned_file_names.add(relative_file_path_to_analysis)
 
+                if relative_root not in self.scanned_files_nodes_in_directories:
+                    self.scanned_files_nodes_in_directories[relative_root] = []
+                    self.scanned_files_nodes_in_directories[relative_root].append(relative_file_path_to_analysis)
+                else:
+                    self.scanned_files_nodes_in_directories[relative_root].append(relative_file_path_to_analysis)
+                   
                 with open(absolute_path_to_file, encoding="ISO-8859-1") as file:
                     file_content = file.read()
                     file_node = FileSystemNode(FileSystemNodeType.FILE, relative_file_path_to_analysis, file_content)
