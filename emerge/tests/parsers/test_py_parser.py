@@ -5,20 +5,15 @@ All unit tests that are related to PythonParser.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-import unittest
 from typing import Dict
-import logging
-import coloredlogs
+import unittest
+
+from tests.testdata.py import PYTHON_TEST_FILES
 
 from emerge.languages.pyparser import PythonParser
 from emerge.results import FileResult
 from emerge.languages.abstractparser import LanguageType
 from emerge.analysis import Analysis
-
-from tests.testdata.py import PYTHON_TEST_FILES
-
-LOGGER = logging.getLogger('TESTS')
-coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 class PythonParserTestCase(unittest.TestCase):
@@ -53,5 +48,3 @@ class PythonParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.PY)
-
-        LOGGER.info(f'test successful')

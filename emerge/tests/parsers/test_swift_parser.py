@@ -5,22 +5,15 @@ All unit tests that are related to SwiftParser.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
+from typing import Dict
 import unittest
+
+from tests.testdata.swift import SWIFT_TEST_FILES
+
 from emerge.languages.swiftparser import SwiftParser
 from emerge.languages.abstractparser import LanguageType
 from emerge.results import FileResult, EntityResult
-
 from emerge.analysis import Analysis
-from tests.testdata.swift import SWIFT_TEST_FILES
-from typing import Dict
-import coloredlogs
-import logging
-
-import coloredlogs
-import logging
-
-LOGGER = logging.getLogger('TESTS')
-coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 class SwiftParserTestCase(unittest.TestCase):
@@ -55,7 +48,6 @@ class SwiftParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_language == LanguageType.SWIFT)
             self.assertTrue(all(isinstance(dependency, str) for dependency in result.scanned_import_dependencies))
 
-        LOGGER.info(f'test successful')
 
     def test_generate_entity_results(self):
         """Generate entity results and check basic attributes."""
@@ -83,7 +75,6 @@ class SwiftParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.SWIFT)
             self.assertTrue(all(isinstance(dependency, str) for dependency in result.scanned_import_dependencies))
-        LOGGER.info(f'test successful')
 
 
 if __name__ == '__main__':

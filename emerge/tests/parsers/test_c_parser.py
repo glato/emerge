@@ -7,18 +7,13 @@ All unit tests that are related to CParser.
 
 import unittest
 from typing import Dict
-import coloredlogs
-import logging
+
+from tests.testdata.c import C_TEST_FILES
 
 from emerge.languages.cparser import CParser
 from emerge.results import FileResult
 from emerge.languages.abstractparser import LanguageType
 from emerge.analysis import Analysis
-
-from tests.testdata.c import C_TEST_FILES
-
-LOGGER = logging.getLogger('TESTS')
-coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 class CParserTestCase(unittest.TestCase):
@@ -53,5 +48,3 @@ class CParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.C)
-
-        LOGGER.info(f'test successful')

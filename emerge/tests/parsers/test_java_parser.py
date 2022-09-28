@@ -5,18 +5,15 @@ All unit tests that are related to JavaParser.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
+from typing import Dict
 import unittest
+
+from tests.testdata.java import JAVA_TEST_FILES
+
 from emerge.languages.javaparser import JavaParser
 from emerge.results import FileResult, EntityResult
 from emerge.languages.abstractparser import LanguageType
 from emerge.analysis import Analysis
-from tests.testdata.java import JAVA_TEST_FILES
-from typing import Dict
-import coloredlogs
-import logging
-
-LOGGER = logging.getLogger('TESTS')
-coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 class JavaParserTestCase(unittest.TestCase):
@@ -51,7 +48,6 @@ class JavaParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.JAVA)
-        LOGGER.info(f'test successful')
 
     def test_generate_entity_results(self):
         """Generate entity results and check basic attributes."""
@@ -78,4 +74,3 @@ class JavaParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.JAVA)
-        LOGGER.info(f'test successful')

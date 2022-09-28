@@ -5,18 +5,15 @@ All unit tests that are related to TypeScriptParser.
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
+from typing import Dict
 import unittest
+
+from tests.testdata.typescript import TYPESCRIPT_TEST_FILES
+
 from emerge.languages.typescriptparser import TypeScriptParser
 from emerge.results import FileResult
 from emerge.languages.abstractparser import LanguageType
 from emerge.analysis import Analysis
-from tests.testdata.typescript import TYPESCRIPT_TEST_FILES
-from typing import Dict
-import coloredlogs
-import logging
-
-LOGGER = logging.getLogger('TESTS')
-coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 class TypeScriptParserTestCase(unittest.TestCase):
@@ -51,4 +48,3 @@ class TypeScriptParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.TYPESCRIPT)
-        LOGGER.info(f'test successful')

@@ -7,18 +7,13 @@ All unit tests that are related to CPPParser.
 
 import unittest
 from typing import Dict
-import coloredlogs
-import logging
+
+from tests.testdata.cpp import CPP_TEST_FILES
 
 from emerge.languages.cppparser import CPPParser
 from emerge.results import FileResult
 from emerge.languages.abstractparser import LanguageType
 from emerge.analysis import Analysis
-
-from tests.testdata.cpp import CPP_TEST_FILES
-
-LOGGER = logging.getLogger('TESTS')
-coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 class CPPParserTestCase(unittest.TestCase):
@@ -53,5 +48,3 @@ class CPPParserTestCase(unittest.TestCase):
             self.assertTrue(result.scanned_file_name.strip())
             self.assertTrue(result.scanned_by.strip())
             self.assertTrue(result.scanned_language == LanguageType.CPP)
-
-        LOGGER.info(f'test successful')

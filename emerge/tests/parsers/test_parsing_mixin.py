@@ -6,17 +6,10 @@ All unit tests that are related to the ParsingMixin.
 # License: MIT
 
 import unittest
-from typing import Dict
-import coloredlogs
-import logging
-
 
 from emerge.results import FileResult
 from emerge.analysis import Analysis
 from emerge.languages.abstractparser import LanguageType, ParsingMixin
-
-LOGGER = logging.getLogger('TESTS')
-coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 class ParsingMixinTestCase(unittest.TestCase):
@@ -73,8 +66,18 @@ class ParsingMixinTestCase(unittest.TestCase):
             preprocessed_source=""
         )
 
-        resolved_dependency1 = ParsingMixin.resolve_relative_dependency_path(dependency1_before_resolve, file_result.absolute_dir_path, self.analysis.source_directory)
+        resolved_dependency1 = ParsingMixin.resolve_relative_dependency_path(
+            dependency1_before_resolve,
+            file_result.absolute_dir_path,
+            self.analysis.source_directory
+        )
+
         self.assertTrue(resolved_dependency1 == expected_resolved_dependency1_path)
 
-        resolved_dependency2 = ParsingMixin.resolve_relative_dependency_path(dependency2_before_resolve, file_result.absolute_dir_path, self.analysis.source_directory)
+        resolved_dependency2 = ParsingMixin.resolve_relative_dependency_path(
+            dependency2_before_resolve,
+            file_result.absolute_dir_path,
+            self.analysis.source_directory
+        )
+        
         self.assertTrue(resolved_dependency2 == expected_resolved_dependency2_path)
