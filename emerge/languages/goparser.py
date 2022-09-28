@@ -11,10 +11,7 @@ import logging
 import re
 from pathlib import PosixPath
 
-from datetime import datetime
-
 import pyparsing as pp
-
 
 import coloredlogs
 from emerge.graph import GraphType
@@ -59,8 +56,6 @@ class GoParser(AbstractParser, ParsingMixin):
             '...': ' ... '
         }
         self.dependencies_grammar = self.create_golang_dependencies_grammar()
-        self.struct_grammar = self.create_golang_struct_grammar()
-        self.func_grammar = self.create_golang_func_grammar()
         self.compiled_func_grammar = self.compile_golang_func_grammar_with_re()
         self.compiled_struct_grammar = self.compile_golang_struct_grammar_with_re()
 
@@ -79,6 +74,17 @@ class GoParser(AbstractParser, ParsingMixin):
     @results.setter
     def results(self, value):
         self._results = value
+
+    def preprocess_golang_source(self, scanned_tokens) -> str:
+        source_string_no_comments = self._filter_source_tokens_without_comments(
+            scanned_tokens,
+            GoParsingKeyword.INLINE_COMMENT.value,
+            GoParsingKeyword.START_BLOCK_COMMENT.value,
+            GoParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+        filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
+        preprocessed_source_string = " ".join(filtered_list_no_comments)
+        return preprocessed_source_string
 
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
         LOGGER.debug('generating file results...')
@@ -131,6 +137,7 @@ class GoParser(AbstractParser, ParsingMixin):
         return list_parsing_result
 
     # e.g. "type encbuf struct {"
+    # method is readably but unfortunately very slow
     @staticmethod
     def create_golang_struct_grammar():
         # pylint: disable=invalid-name
@@ -141,6 +148,7 @@ class GoParser(AbstractParser, ParsingMixin):
         return grammar
 
     # e.g. "func DefaultTenantConfigs() *TenantConfigs {" or "func (o *TenantConfigs) LogPushRequest(userID string) bool {"
+    # method is readably but unfortunately very slow
     @staticmethod
     def create_golang_func_grammar():
         # pylint: disable=invalid-name
@@ -184,17 +192,6 @@ class GoParser(AbstractParser, ParsingMixin):
         # pylint: enable=invalid-name
         return grammar
 
-    def preprocess_golang_source(self, scanned_tokens) -> str:
-        source_string_no_comments = self._filter_source_tokens_without_comments(
-            scanned_tokens,
-            GoParsingKeyword.INLINE_COMMENT.value,
-            GoParsingKeyword.START_BLOCK_COMMENT.value,
-            GoParsingKeyword.STOP_BLOCK_COMMENT.value
-        )
-        filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
-        preprocessed_source_string = " ".join(filtered_list_no_comments)
-        return preprocessed_source_string
-
     def _add_imports_to_result(self, result: AbstractFileResult, analysis):
         LOGGER.debug(f'extracting imports from file result {result.scanned_file_name}...')
 
@@ -213,16 +210,22 @@ class GoParser(AbstractParser, ParsingMixin):
             if self._is_dependency_in_ignore_list(dependency, analysis):
                 LOGGER.debug(f'ignoring dependency from {result.unique_name} to {dependency}')
             else:
-                corrected = False
+                dependency_is_resolved = False
                 if '/' in dependency:
-
+                    
+                    # we already have hashed all scanned dependency paths, if the new dependency was already
+                    # scanned before and we can resolve it by checking if it fits at the end of the new dependency
                     for scanned_dependency in analysis.absolute_scanned_file_names:
                         check_for_scanned_dependency = scanned_dependency.replace('.go', '')
                         if dependency.endswith(check_for_scanned_dependency):
                             dependency = f'{check_for_scanned_dependency}.go'
-                            corrected = True
+                            dependency_is_resolved = True
 
-                    if corrected is False:
+                    # otherwise we have to try resolving a package dependency based on our constructed file graph
+                    # where a package may use symbols from all golang source files only in the imported target directory
+                    # the approach here is: check if any important symbols (e.g. methods, structs) from each source file
+                    # in the given directory is used in the new dependency. if so, add to its imported dependencies.
+                    if dependency_is_resolved is False:
                         some_nodes = filesystem_graph.digraph.nodes
 
                         for node_name, filesystem_node in some_nodes.items():
@@ -234,7 +237,8 @@ class GoParser(AbstractParser, ParsingMixin):
                                 file_nodes_from_dir_node = []
                                 if node_name in analysis.scanned_files_nodes_in_directories:
                                     file_nodes_from_dir_node = analysis.scanned_files_nodes_in_directories[node_name]
-                                    
+                                
+                                # get all possible source files that might be an import candidate
                                 potential_imported_results = []
                                 for filesystem_result in file_nodes_from_dir_node:
                                     results: Dict[str, AbstractFileResult] = {k: v for (k, v) in self._results.items() if v.unique_name == filesystem_result}
@@ -245,7 +249,8 @@ class GoParser(AbstractParser, ParsingMixin):
                                 for potential_imported_result in potential_imported_results:
                                     
                                     preprocessed_golang_source = potential_imported_result.preprocessed_source
-
+                                    
+                                    # now we get all possible function and struct names
                                     funcs = self.compiled_func_grammar.findall(preprocessed_golang_source)
                                     funcs = [x for x in funcs if x]
 
@@ -253,6 +258,7 @@ class GoParser(AbstractParser, ParsingMixin):
                                     structs = [x for x in funcs if x]
                                     all_tokens = structs + funcs
                                     
+                                    # check if any of those tokes is contained in the source of the new dependency
                                     should_add_dependency = False
                                     for possibe_token in all_tokens:
                                         if possibe_token in result.preprocessed_source:
@@ -262,9 +268,9 @@ class GoParser(AbstractParser, ParsingMixin):
                                     if should_add_dependency is True:
                                         result.scanned_import_dependencies.append(potential_imported_result.unique_name)
                                         LOGGER.debug(f'adding import: {potential_imported_result.unique_name}')
-                                        corrected = True
+                                        dependency_is_resolved = True
 
-                        if corrected is False:
+                        if dependency_is_resolved is False:
                             result.scanned_import_dependencies.append(dependency)
                             LOGGER.debug(f'adding import: {dependency}')
                             

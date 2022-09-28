@@ -88,7 +88,8 @@ class CPPParser(AbstractParser, ParsingMixin):
             module_name="",
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.CPP,
-            scanned_tokens=scanned_tokens
+            scanned_tokens=scanned_tokens,
+            preprocessed_source=""
         )
 
         self._add_package_name_to_result(file_result)

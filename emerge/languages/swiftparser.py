@@ -84,6 +84,17 @@ class SwiftParser(AbstractParser, ParsingMixin):
     def results(self, value):
         self._results = value
 
+    def preprocess_swift_source(self, scanned_tokens) -> str:
+        source_string_no_comments = self._filter_source_tokens_without_comments(
+            scanned_tokens,
+            SwiftParsingKeyword.INLINE_COMMENT.value,
+            SwiftParsingKeyword.START_BLOCK_COMMENT.value,
+            SwiftParsingKeyword.STOP_BLOCK_COMMENT.value
+        )
+        filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
+        preprocessed_source_string = " ".join(filtered_list_no_comments)
+        return preprocessed_source_string
+
     def generate_file_result_from_analysis(self, analysis, *, file_name: str, full_file_path: str, file_content: str) -> None:
         LOGGER.debug('generating file results...')
 
@@ -103,7 +114,8 @@ class SwiftParser(AbstractParser, ParsingMixin):
             module_name="",
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.SWIFT,
-            scanned_tokens=scanned_tokens
+            scanned_tokens=scanned_tokens,
+            preprocessed_source=""
         )
 
         self._add_package_name_to_result(file_result)

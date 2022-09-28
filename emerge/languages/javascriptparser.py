@@ -91,7 +91,8 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
             module_name="",
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.JAVASCRIPT,
-            scanned_tokens=scanned_tokens
+            scanned_tokens=scanned_tokens,
+            preprocessed_source=""
         )
 
         self._add_package_name_to_result(file_result)

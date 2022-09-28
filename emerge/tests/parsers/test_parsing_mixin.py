@@ -69,7 +69,8 @@ class ParsingMixinTestCase(unittest.TestCase):
             module_name="",
             scanned_by="parser_name",
             scanned_language=LanguageType.JAVASCRIPT,
-            scanned_tokens="token1 token2"
+            scanned_tokens="token1 token2",
+            preprocessed_source=""
         )
 
         resolved_dependency1 = ParsingMixin.resolve_relative_dependency_path(dependency1_before_resolve, file_result.absolute_dir_path, self.analysis.source_directory)

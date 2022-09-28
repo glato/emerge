@@ -91,7 +91,8 @@ class RubyParser(AbstractParser, ParsingMixin):
             module_name="",
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.RUBY,
-            scanned_tokens=scanned_tokens
+            scanned_tokens=scanned_tokens,
+            preprocessed_source=""
         )
 
         self._add_imports_to_result(file_result, analysis)
