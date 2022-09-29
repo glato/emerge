@@ -53,7 +53,7 @@ class GoParser(AbstractParser, ParsingMixin):
             '>': ' > ',
             '"': ' " ',
             '&': ' & ',
-            '...': ' ... '
+            '...': ' ... ',
         }
         self.dependencies_grammar = self.create_golang_dependencies_grammar()
         self.compiled_func_grammar = self.compile_golang_func_grammar_with_re()
@@ -255,7 +255,7 @@ class GoParser(AbstractParser, ParsingMixin):
                                     funcs = [x for x in funcs if x]
 
                                     structs = self.compiled_struct_grammar.findall(preprocessed_golang_source)
-                                    structs = [x for x in funcs if x]
+                                    structs = [x for x in structs if x]
                                     all_tokens = structs + funcs
                                     
                                     # check if any of those tokes is contained in the source of the new dependency
