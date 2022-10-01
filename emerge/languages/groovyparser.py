@@ -8,7 +8,7 @@ Contains the implementation of the Groovy language parser and a relevant keyword
 from typing import Dict, List
 from enum import Enum, unique
 import logging
-from pathlib import PosixPath
+from pathlib import Path
 
 import pyparsing as pp
 import coloredlogs
@@ -79,7 +79,7 @@ class GroovyParser(AbstractParser, ParsingMixin):
         scanned_tokens = self.preprocess_file_content_and_generate_token_list(file_content)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
-        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        parent_analysis_source_path = f"{Path(analysis.source_directory).parent}/"
         relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
 
         file_result = FileResult.create_file_result(

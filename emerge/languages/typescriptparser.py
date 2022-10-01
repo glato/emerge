@@ -9,7 +9,7 @@ This is basically a copy of the JavaScript parser with some nice modifications.
 from typing import Dict
 from enum import Enum, unique
 import logging
-from pathlib import PosixPath
+from pathlib import Path
 import os
 
 import pyparsing as pp
@@ -207,12 +207,12 @@ class TypeScriptParser(AbstractParser, ParsingMixin):
             dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)
 
         # verify if the dependency physically exist, then add the remaining suffix
-        check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.ts"
+        check_dependency_path = f"{ Path(analysis.source_directory).parent}/{dependency}.ts"
         if os.path.exists(check_dependency_path):
             dependency = f"{dependency}.ts"
 
         # check if the dependency maybe results from an index.ts import
-        check_dependency_path_for_index_file = f"{ PosixPath(analysis.source_directory).parent}/{dependency}/index.ts"
+        check_dependency_path_for_index_file = f"{ Path(analysis.source_directory).parent}/{dependency}/index.ts"
         if os.path.exists(check_dependency_path_for_index_file):
             dependency = f"{dependency}/index.ts"
 

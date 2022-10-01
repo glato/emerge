@@ -8,7 +8,7 @@ Contains the implementation of the JavaScript language parser and a relevant key
 from typing import Dict
 from enum import Enum, unique
 import logging
-from pathlib import PosixPath
+from pathlib import Path
 import os
 
 import pyparsing as pp
@@ -198,7 +198,7 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
         elif dependency == CoreParsingKeyword.DOT.value:
             index_dependency = dependency.replace(CoreParsingKeyword.DOT.value, './index.js')
             index_dependency = self.resolve_relative_dependency_path(index_dependency, str(result.absolute_dir_path), analysis.source_directory)
-            check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{index_dependency}"
+            check_dependency_path = f"{ Path(analysis.source_directory).parent}/{index_dependency}"
             if os.path.exists(check_dependency_path):  # check if the resolved index_dependency exists, then modify
                 dependency = f"{index_dependency}"
 
@@ -213,12 +213,12 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
             dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)
 
         # check and verify if we need to add a remaining .js suffix
-        check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{dependency}.js"
-        if PosixPath(dependency).suffix != ".js" and os.path.exists(check_dependency_path):
+        check_dependency_path = f"{ Path(analysis.source_directory).parent}/{dependency}.js"
+        if Path(dependency).suffix != ".js" and os.path.exists(check_dependency_path):
             dependency = f"{dependency}.js"
 
         # check if the dependency maybe results from an index.js import
-        check_dependency_path_for_index_file = f"{ PosixPath(analysis.source_directory).parent}/{dependency}/index.js"
+        check_dependency_path_for_index_file = f"{ Path(analysis.source_directory).parent}/{dependency}/index.js"
         if os.path.exists(check_dependency_path_for_index_file):
             dependency = f"{dependency}/index.js"
 

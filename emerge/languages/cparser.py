@@ -8,7 +8,7 @@ Contains the implementation of the C language parser and a relevant keyword enum
 from typing import Dict
 from enum import Enum, unique
 import logging
-from pathlib import PosixPath
+from pathlib import Path
 import os
 
 import pyparsing as pp
@@ -76,7 +76,7 @@ class CParser(AbstractParser, ParsingMixin):
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
-        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        parent_analysis_source_path = f"{Path(analysis.source_directory).parent}/"
         relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
 
         file_result = FileResult.create_file_result(
@@ -155,7 +155,7 @@ class CParser(AbstractParser, ParsingMixin):
 
     def try_resolve_dependency(self, dependency: str, result: AbstractFileResult, analysis) -> str:
         resolved_dependency = self.resolve_relative_dependency_path(dependency, str(result.absolute_dir_path), analysis.source_directory)
-        check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{resolved_dependency}"
+        check_dependency_path = f"{ Path(analysis.source_directory).parent}/{resolved_dependency}"
         if os.path.exists(check_dependency_path):
             dependency = resolved_dependency
         return dependency
