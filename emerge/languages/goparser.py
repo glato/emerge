@@ -9,7 +9,7 @@ from typing import Dict, List, Any
 from enum import Enum, unique
 import logging
 import re
-from pathlib import PosixPath
+from pathlib import Path
 
 import pyparsing as pp
 
@@ -91,7 +91,7 @@ class GoParser(AbstractParser, ParsingMixin):
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
-        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        parent_analysis_source_path = f"{Path(analysis.source_directory).parent}/"
         relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
         preprocessed_source = self.preprocess_golang_source(scanned_tokens)
 

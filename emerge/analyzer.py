@@ -8,7 +8,7 @@ Defines 'Analyzer' which brings together the current configuration, analyses, pa
 import os
 import logging
 from typing import Any, List, Dict
-from pathlib import Path, PosixPath
+from pathlib import Path
 
 from datetime import datetime
 import coloredlogs
