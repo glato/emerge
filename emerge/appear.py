@@ -33,7 +33,7 @@ LOGGER = Logger(logging.getLogger('emerge'))
 coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 __version__ = '1.4.0'
-__updated__ = '2022-09-17 22:54:47'
+__updated__ = '2022-10-01 21:04:38'
 
 
 class Emerge:

@@ -9,7 +9,7 @@
 ![PyPI](https://img.shields.io/pypi/dw/emerge-viz)
 ![PyPI](https://img.shields.io/pypi/dm/emerge-viz)
 
-**Emerge** (or **emerge-viz**) is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. Emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
+**Emerge** (or **emerge-viz**) is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. Emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`, `Go`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
 ![screenshot 1](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-3-0-screenshot-01.png)
 ![screenshot 2](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-3-0-screenshot-02.png)
@@ -129,7 +129,7 @@ options:
   -e, --error           set logging level to ERROR
   -a LANGUAGE, --add-config LANGUAGE
                         add a new config from a template, where LANGUAGE is one of [JAVA, SWIFT, C, CPP, GROOVY, JAVASCRIPT,
-                        TYPESCRIPT, KOTLIN, OBJC, RUBY, PY]
+                        TYPESCRIPT, KOTLIN, OBJC, RUBY, PY, GO]
 ```
 
 ### 2️⃣ ~ Create and adjust project configuration
@@ -298,7 +298,7 @@ options:
   -e, --error           set logging level to ERROR
   -a LANGUAGE, --add-config LANGUAGE
                         add a new config from a template, where LANGUAGE is one of [JAVA, SWIFT, C, CPP, GROOVY, JAVASCRIPT,
-                        TYPESCRIPT, KOTLIN, OBJC, RUBY, PY]
+                        TYPESCRIPT, KOTLIN, OBJC, RUBY, PY, GO]
 ```
 
 ### 7️⃣ ~ You're ready to go
@@ -579,6 +579,7 @@ Emerge supports the following file extensions and scan types per language, where
 | `.m` / `.h`               | Objective-C     | ✅ | ❌
 | `.rb`                     | Ruby            | ✅ | ❌
 | `.py`                     | Python          | ✅ | ❌
+| `.go`                     | Go              | ✅ | ❌
 
 ## Interpretation of graphs
 
