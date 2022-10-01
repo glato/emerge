@@ -6,7 +6,7 @@ Defines non-abstract result classes, e.g. FileResult or EntityResult.
 # License: MIT
 
 from typing import Dict, List
-from pathlib import PosixPath
+from pathlib import Path
 import logging
 import coloredlogs
 import pyparsing as pp
@@ -174,9 +174,9 @@ class FileResult(AbstractFileResult, ParsingMixin):
                  ):
         self._analysis = anaylsis
         self._scanned_file_name = scanned_file_name
-        self._absolute_dir_path = PosixPath(f'{ PosixPath(anaylsis.source_directory).parent}/{PosixPath(absolute_name).parent}')
+        self._absolute_dir_path = Path(f'{ Path(anaylsis.source_directory).parent}/{Path(absolute_name).parent}')
         self._relative_file_path_to_analysis = relative_file_path_to_analysis
-        self._relative_analysis_path = PosixPath(relative_file_path_to_analysis).parent
+        self._relative_analysis_path = Path(relative_file_path_to_analysis).parent
         self._absolute_name = absolute_name
         self._display_name = display_name
         self._unique_name = relative_file_path_to_analysis  # os.path.basename(os.path.normpath(self._scanned_file_name))
@@ -245,7 +245,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
         self._relative_file_path_to_analysis = value
 
     @property
-    def absolute_dir_path(self) -> PosixPath:
+    def absolute_dir_path(self) -> Path:
         return self._absolute_dir_path
 
     @absolute_dir_path.setter
@@ -253,7 +253,7 @@ class FileResult(AbstractFileResult, ParsingMixin):
         self._absolute_dir_path = value
 
     @property
-    def relative_analysis_path(self) -> PosixPath:
+    def relative_analysis_path(self) -> Path:
         return self._relative_analysis_path
 
     @property

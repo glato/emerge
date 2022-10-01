@@ -9,7 +9,7 @@ from typing import Dict
 from enum import Enum, unique
 
 import logging
-from pathlib import PosixPath
+from pathlib import Path
 import os
 
 import coloredlogs
@@ -84,7 +84,7 @@ class PythonParser(AbstractParser, ParsingMixin):
         scanned_tokens = self.preprocess_file_content_and_generate_token_list_by_mapping(file_content, self._token_mappings)
 
         # make sure to create unique names by using the relative analysis path as a base for the result
-        parent_analysis_source_path = f"{PosixPath(analysis.source_directory).parent}/"
+        parent_analysis_source_path = f"{Path(analysis.source_directory).parent}/"
         relative_file_path_to_analysis = full_file_path.replace(parent_analysis_source_path, "")
 
         file_result = FileResult.create_file_result(
@@ -262,9 +262,9 @@ class PythonParser(AbstractParser, ParsingMixin):
                     if analysis.source_directory == CoreParsingKeyword.DOT.value:
                         relative_path = posix_dependency
                     else:
-                        relative_path = f'{PosixPath(analysis.source_directory).name}/{posix_dependency}'
+                        relative_path = f'{Path(analysis.source_directory).name}/{posix_dependency}'
 
-                    check_dependency_path = f"{ PosixPath(analysis.source_directory).parent}/{relative_path}"
+                    check_dependency_path = f"{ Path(analysis.source_directory).parent}/{relative_path}"
                     if os.path.exists(f'{check_dependency_path}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'):
                         dependency = f'{relative_path}{PythonParsingKeyword.PY_FILE_EXTENSION.value}'
                     else:
