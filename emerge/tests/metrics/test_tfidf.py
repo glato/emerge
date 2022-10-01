@@ -10,24 +10,7 @@ from typing import Dict
 import logging
 import coloredlogs
 
-from emerge.languages.cparser import CParser
-from emerge.languages.cppparser import CPPParser
-from emerge.languages.groovyparser import GroovyParser
-from emerge.languages.javaparser import JavaParser
-from emerge.languages.javascriptparser import JavaScriptParser
-from emerge.languages.typescriptparser import TypeScriptParser
-from emerge.languages.kotlinparser import KotlinParser
-from emerge.languages.objcparser import ObjCParser
-from emerge.languages.rubyparser import RubyParser
-from emerge.languages.swiftparser import SwiftParser
-from emerge.languages.pyparser import PythonParser
-from emerge.languages.abstractparser import AbstractParser
-
-from emerge.analysis import Analysis
-from emerge.analyzer import Analyzer
-from emerge.metrics.tfidf.tfidf import TFIDFMetric
-from emerge.results import FileResult
-
+from tests.testdata.go import GO_TEST_FILES
 from tests.testdata.c import C_TEST_FILES
 from tests.testdata.cpp import CPP_TEST_FILES
 from tests.testdata.groovy import GROOVY_TEST_FILES
@@ -40,6 +23,24 @@ from tests.testdata.ruby import RUBY_TEST_FILES
 from tests.testdata.swift import SWIFT_TEST_FILES
 from tests.testdata.py import PYTHON_TEST_FILES
 
+from emerge.languages.cparser import CParser
+from emerge.languages.cppparser import CPPParser
+from emerge.languages.groovyparser import GroovyParser
+from emerge.languages.javaparser import JavaParser
+from emerge.languages.javascriptparser import JavaScriptParser
+from emerge.languages.typescriptparser import TypeScriptParser
+from emerge.languages.kotlinparser import KotlinParser
+from emerge.languages.objcparser import ObjCParser
+from emerge.languages.rubyparser import RubyParser
+from emerge.languages.swiftparser import SwiftParser
+from emerge.languages.pyparser import PythonParser
+from emerge.languages.goparser import GoParser
+from emerge.languages.abstractparser import AbstractParser
+
+from emerge.analysis import Analysis
+from emerge.analyzer import Analyzer
+from emerge.metrics.tfidf.tfidf import TFIDFMetric
+from emerge.results import FileResult
 
 LOGGER = logging.getLogger('TESTS')
 coloredlogs.install(level='INFO', logger=LOGGER, fmt='\n%(asctime)s %(name)s %(levelname)s %(message)s')
@@ -60,7 +61,8 @@ class TFIDFTestCase(unittest.TestCase):
             ObjCParser.parser_name(): OBJC_TEST_FILES,
             RubyParser.parser_name(): RUBY_TEST_FILES,
             SwiftParser.parser_name(): SWIFT_TEST_FILES,
-            PythonParser.parser_name(): PYTHON_TEST_FILES
+            PythonParser.parser_name(): PYTHON_TEST_FILES,
+            GoParser.parser_name(): GO_TEST_FILES
         }
 
         self.parsers: Dict[str, AbstractParser] = {
@@ -74,7 +76,8 @@ class TFIDFTestCase(unittest.TestCase):
             ObjCParser.parser_name(): ObjCParser(),
             RubyParser.parser_name(): RubyParser(),
             SwiftParser.parser_name(): SwiftParser(),
-            PythonParser.parser_name(): PythonParser()
+            PythonParser.parser_name(): PythonParser(),
+            GoParser.parser_name(): GoParser()
         }
 
         self.analysis = Analysis()

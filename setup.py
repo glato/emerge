@@ -64,7 +64,8 @@ setup(
         "emerge/metrics/faninout": "./emerge/metrics/faninout",
         "emerge/metrics/modularity": "./emerge/metrics/modularity",
         "emerge/metrics/numberofmethods": "./emerge/metrics/numberofmethods",
-        "emerge/metrics/sloc": "./emerge/metrics/sloc"
+        "emerge/metrics/sloc": "./emerge/metrics/sloc",
+        "emerge/metrics/tfidf": ".emerge/metrics/tfidf"
     },
     packages=[
         'emerge',
@@ -73,7 +74,8 @@ setup(
         'emerge.metrics.faninout',
         'emerge.metrics.modularity',
         'emerge.metrics.numberofmethods',
-        'emerge.metrics.sloc'
+        'emerge.metrics.sloc',
+        'emerge.metrics.tfidf'
     ],
     include_package_data=True,
     entry_points={
