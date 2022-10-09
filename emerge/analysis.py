@@ -79,7 +79,9 @@ class Analysis:
         self.ignore_directories_containing: List = []
         self.ignore_files_containing: List = []
         self.ignore_dependencies_containing: List[str] = []
+        self.ignore_dependencies_matching: List[str] = []
         self.ignore_entities_containing: List[str] = []
+        self.ignore_entities_matching: List[str] = []
         self.import_aliases_available: bool = False
         self.import_aliases: Dict[str, str] = {}
 
