@@ -71,7 +71,9 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     IGNORE_DIRECTORIES_CONTAINING = auto()
     IGNORE_FILES_CONTAINING = auto()
     IGNORE_DEPENDENCIES_CONTAINING = auto()
+    IGNORE_DEPENDENCIES_MATCHING = auto()
     IGNORE_ENTITIES_CONTAINING = auto()
+    IGNORE_ENTITIES_MATCHING = auto()
     IMPORT_ALIASES = auto()
     FILE_SCAN = auto()
     ENTITY_SCAN = auto()
@@ -488,10 +490,20 @@ class Configuration:
                 for ignored_dependency in analysis_dict[ConfigKeyAnalysis.IGNORE_DEPENDENCIES_CONTAINING.name.lower()]:
                     analysis.ignore_dependencies_containing.append(ignored_dependency)
 
+            # ignore dependencies (by regex) if given in the configuration
+            if ConfigKeyAnalysis.IGNORE_DEPENDENCIES_MATCHING.name.lower() in analysis_dict:
+                for ignored_dependency_re_str in analysis_dict[ConfigKeyAnalysis.IGNORE_DEPENDENCIES_MATCHING.name.lower()]:
+                    analysis.ignore_dependencies_matching.append(re.compile(ignored_dependency_re_str))
+
             # ignore entities if given in the configuration
             if ConfigKeyAnalysis.IGNORE_ENTITIES_CONTAINING.name.lower() in analysis_dict:
                 for ignored_entity in analysis_dict[ConfigKeyAnalysis.IGNORE_ENTITIES_CONTAINING.name.lower()]:
                     analysis.ignore_entities_containing.append(ignored_entity)
+
+            # ignore entities (by regex) if given in the configuration
+            if ConfigKeyAnalysis.IGNORE_ENTITIES_MATCHING.name.lower() in analysis_dict:
+                for ignored_entity_re_str in analysis_dict[ConfigKeyAnalysis.IGNORE_ENTITIES_MATCHING.name.lower()]:
+                    analysis.ignore_entities_matching.append(re.compile(ignored_entity_re_str))
 
             # add replace dependency substring mappings
             if ConfigKeyAnalysis.IMPORT_ALIASES.name.lower() in analysis_dict:

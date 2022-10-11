@@ -392,6 +392,8 @@ analyses:
   - .h
   ignore_dependencies_containing:
   - string.h
+  ignore_dependencies_matching:
+  - ^test_(.*)\.h$
   file_scan:
   - number_of_methods
   - source_lines_of_code
@@ -497,7 +499,9 @@ The yaml configuration is basically defined at the following levels:
 | `only_permit_file_extensions`    | explicitly permit the following file extensions you set here, e.g. `.java` |
 | `only_permit_files_matching_absolute_path`    | only the following list of absolute file paths is permitted for the file scan, e.g. `[/Users/user1/source/file1.java]`. The files should follow `source_directory`|
 | `ignore_dependencies_containing` | ignore every dependency included in this list of substrings, e.g. `java.util` |
+| `ignore_dependencies_matching` | ignore every dependency matching any of the regular expressions in this list of substrings, e.g. `^java\.util\.` |
 | `ignore_entities_containing` | ignore every entity included in this list of substrings, e.g. `NotRelevantClass` |
+| `ignore_entities_matching` | ignore every entity matching any of the regular expressions in this list of substrings, e.g. `^Test` |
 | `import_aliases`  | define a list of import aliases, i.e. replace substrings within a full dependency path, e.g. `"@foo": src/foo` will replace any `@foo` alias by `src/foo` |
 | `file_scan`                      | perform a file scan, contains the metrics that should be applied on every source file |
 | `entity_scan`                    | perform an entity scan, contains the metrics that should be applied on every entity (e.g. on every class) |
@@ -619,7 +623,7 @@ The magic of uncovering modularity lies in applying a community detection algori
 Sometimes it can help to better understand the complexity of a software architecture if irrelevant dependencies are ignored.
 
 1. Besides being shocked to see the Big Ball of Mud with irrelevant dependencies like java.lang, java.util or any third party dependencies that does not directly belong to a project ...
-2. ... you can remove irrelevant dependencies configuratively with the key `ignore_dependencies_containing`. With a comparatively activated fan-out metric, one recognizes more scattering, some distant hub nodes and clearer clusters. All of these are possible clues to the real (= often more understandable) architecture underneath.
+2. ... you can remove irrelevant dependencies configuratively with the key `ignore_dependencies_containing` (or `ignore_dependencies_matching` if you prefer regular expressions). With a comparatively activated fan-out metric, one recognizes more scattering, some distant hub nodes and clearer clusters. All of these are possible clues to the real (= often more understandable) architecture underneath.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/glato/assets/emerge/ball_of_mud_all_dependencies.png" width="43%"/> &ensp; <img src="https://raw.githubusercontent.com/glato/assets/emerge/cleaner_graph_hub_nodes.png" width="36%"/>
