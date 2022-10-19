@@ -11,6 +11,7 @@ from enum import Enum, unique
 import logging
 from pathlib import Path
 import os
+import sys
 
 import coloredlogs
 import pyparsing as pp
@@ -247,6 +248,11 @@ class PythonParser(AbstractParser, ParsingMixin):
 
             # all other cases
             elif not multiple_imports_from_relative_current_dir and not multiple_imports_from_relative_parent_dir:
+
+                # assumption: if a dependency is in sys.modules, assume its global and do not try to resolve/add any paths
+                if dependency in sys.modules:
+                    global_import = True
+
                 if PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value in dependency:
                     relative_import = True
                     dependency = dependency.replace(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value, CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value)
