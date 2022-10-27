@@ -209,6 +209,9 @@ class ParsingMixin(ABC):
             for ignored_dependency in analysis.ignore_dependencies_containing:
                 if ignored_dependency.lower() in dependency.lower():
                     return True
+            for ignored_dependency_re in analysis.ignore_dependencies_matching:
+                if ignored_dependency_re.match(dependency):
+                    return True
         return False
 
     @staticmethod
@@ -216,6 +219,9 @@ class ParsingMixin(ABC):
         if bool(analysis.ignore_entities_containing):
             for ignored_entity in analysis.ignore_entities_containing:
                 if ignored_entity in entity:
+                    return True
+            for ignored_entity_re in analysis.ignore_entities_matching:
+                if ignored_entity_re.match(entity):
                     return True
         return False
 
