@@ -83,6 +83,9 @@ class Analysis:
         self.import_aliases_available: bool = False
         self.import_aliases: Dict[str, str] = {}
 
+        self.override_resolve_dependencies: List[str] = []
+        self.override_do_not_resolve_dependencies: List[str] = []
+
         self.results: Dict[str, AbstractResult] = {}
 
         self.absolute_scanned_file_names: Set[str] = set()
