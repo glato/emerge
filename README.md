@@ -503,6 +503,8 @@ The yaml configuration is basically defined at the following levels:
 | `ignore_entities_containing` | ignore every entity included in this list of substrings, e.g. `NotRelevantClass` |
 | `ignore_entities_matching` | ignore every entity matching any of the regular expressions in this list of substrings, e.g. `^Test` |
 | `import_aliases`  | define a list of import aliases, i.e. replace substrings within a full dependency path, e.g. `"@foo": src/foo` will replace any `@foo` alias by `src/foo` |
+| `override_resolve_dependencies` | if supported by the language parser, force every dependency in this list to be resolved |
+| `override_do_not_resolve_dependencies` | if supported by the language parser, force every dependency in this list NOT to be resolved (i.e. treated as a global dependency) |
 | `file_scan`                      | perform a file scan, contains the metrics that should be applied on every source file |
 | `entity_scan`                    | perform an entity scan, contains the metrics that should be applied on every entity (e.g. on every class) |
 | `export`                         | contains any export formats that should be created as output |
