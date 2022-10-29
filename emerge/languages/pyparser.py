@@ -66,7 +66,7 @@ class PythonParser(AbstractParser, ParsingMixin):
             '>': ' > ',
             '"': ' " '
         }
-        self.global_depenency_autodetect_set: Set[str] = self.create_autotetect_set()
+        self.global_depenency_autodetect_set: Set[str] = self.create_autodetect_set()
 
     @classmethod
     def parser_name(cls) -> str:
@@ -306,7 +306,7 @@ class PythonParser(AbstractParser, ParsingMixin):
     def _add_package_name_to_result(self, result: FileResult):
         result.module_name = ""
 
-    def create_autotetect_set(self) -> Set[str]:
+    def create_autodetect_set(self) -> Set[str]:
         global_depenency_autodetect_set: Set[str] = set()
    
         # first global dependency detection attempt
