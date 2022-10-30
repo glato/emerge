@@ -5,12 +5,16 @@ Contains the implementation of the Python language parser and a relevant keyword
 # Authors: Grzegorz Lato <grzegorz.lato@gmail.com>
 # License: MIT
 
-from typing import Dict
+from typing import Dict, Set
 from enum import Enum, unique
 
 import logging
 from pathlib import Path
 import os
+import sys
+
+import pkg_resources
+from pip._internal.operations.freeze import freeze
 
 import coloredlogs
 import pyparsing as pp
@@ -62,6 +66,7 @@ class PythonParser(AbstractParser, ParsingMixin):
             '>': ' > ',
             '"': ' " '
         }
+        self.global_dependency_autodetect_set: Set[str] = self.create_autodetect_set()
 
     @classmethod
     def parser_name(cls) -> str:
@@ -247,6 +252,11 @@ class PythonParser(AbstractParser, ParsingMixin):
 
             # all other cases
             elif not multiple_imports_from_relative_current_dir and not multiple_imports_from_relative_parent_dir:
+                
+                # try to autodetect | override if a dependency should be resolved or kept as global_import
+                if self.dependency_is_global(dependency, analysis):
+                    global_import = True
+
                 if PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value in dependency:
                     relative_import = True
                     dependency = dependency.replace(PythonParsingKeyword.PYTHON_IMPORT_PARENT_DIR.value, CoreParsingKeyword.POSIX_PARENT_DIRECTORY.value)
@@ -295,6 +305,51 @@ class PythonParser(AbstractParser, ParsingMixin):
 
     def _add_package_name_to_result(self, result: FileResult):
         result.module_name = ""
+
+    def create_autodetect_set(self) -> Set[str]:
+        global_dependency_autodetect_set: Set[str] = set()
+   
+        # first global dependency detection attempt
+        for module in pkg_resources.working_set:
+            
+            try:
+                # pylint: disable=protected-access
+                module_name_from_metadata = next(pkg_resources.get_distribution(module.key)._get_metadata('top_level.txt')) # type: ignore
+
+            except: # pylint: disable=bare-except
+                module_name_from_metadata = None
+            
+            if module_name_from_metadata:
+                if '-' not in module_name_from_metadata and '__' not in module_name_from_metadata and not module_name_from_metadata.startswith('_'):
+                    global_dependency_autodetect_set.add(module_name_from_metadata)
+
+        # second global dependency detection attempt
+        second_global_module_detection_appempt = list(freeze())
+        processed_result_second_detection = [x.split('==', 1)[0].replace('-','_').lower() for x in second_global_module_detection_appempt]
+        for element in processed_result_second_detection:
+            global_dependency_autodetect_set.add(element)
+
+        # third global dependency (built-in module) detection attempt
+        for builtin_module in sys.modules:
+            if not builtin_module.startswith('_') and not '.' in builtin_module:
+                global_dependency_autodetect_set.add(builtin_module)
+
+        return global_dependency_autodetect_set
+
+
+    def dependency_is_global(self, dependency: str, analysis) -> bool:
+        assumption = False # assume the dependency is global or not
+
+        if dependency in self.global_dependency_autodetect_set:
+            assumption = True
+
+        # now check if our configuration forces us to treat the dependency as global or not
+        if dependency in analysis.override_resolve_dependencies and not dependency in analysis.override_do_not_resolve_dependencies:
+            assumption = False
+        elif dependency in analysis.override_do_not_resolve_dependencies and not dependency in analysis.override_resolve_dependencies:
+            assumption = True
+        
+        return assumption
 
 
 if __name__ == "__main__":

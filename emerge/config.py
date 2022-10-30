@@ -74,6 +74,8 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     IGNORE_DEPENDENCIES_MATCHING = auto()
     IGNORE_ENTITIES_CONTAINING = auto()
     IGNORE_ENTITIES_MATCHING = auto()
+    OVERRIDE_RESOLVE_DEPENDENCIES = auto()
+    OVERRIDE_DO_NOT_RESOLVE_DEPENDENCIES = auto()
     IMPORT_ALIASES = auto()
     FILE_SCAN = auto()
     ENTITY_SCAN = auto()
@@ -523,6 +525,16 @@ class Configuration:
                 else:
                     raise Exception(f'❗️{ConfigKeyAnalysis.ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH.name.lower()} '
                                       f'must be a list of strings.')
+
+            # check if our config forces us to resolve a given subset of dependencies
+            if ConfigKeyAnalysis.OVERRIDE_RESOLVE_DEPENDENCIES.name.lower() in analysis_dict:
+                for overridden_resolve_dependency in analysis_dict[ConfigKeyAnalysis.OVERRIDE_RESOLVE_DEPENDENCIES.name.lower()]:
+                    analysis.override_resolve_dependencies.append(overridden_resolve_dependency)
+
+            # check if our config forces us to NOT resolve a given subset of dependencies
+            if ConfigKeyAnalysis.OVERRIDE_DO_NOT_RESOLVE_DEPENDENCIES.name.lower() in analysis_dict:
+                for overridden_dont_resolve_dependency in analysis_dict[ConfigKeyAnalysis.OVERRIDE_DO_NOT_RESOLVE_DEPENDENCIES.name.lower()]:
+                    analysis.override_do_not_resolve_dependencies.append(overridden_dont_resolve_dependency)
 
             # load metrics from analysis
             if ConfigKeyAnalysis.FILE_SCAN.name.lower() in analysis_dict:
