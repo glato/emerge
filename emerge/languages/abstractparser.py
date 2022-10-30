@@ -204,11 +204,12 @@ class ParsingMixin(ABC):
 
     @staticmethod
     def _is_dependency_in_ignore_list(dependency: str, analysis) -> bool:
+        ignored_dependency: str
         if bool(analysis.ignore_dependencies_containing):
-            ignored_dependency: str
             for ignored_dependency in analysis.ignore_dependencies_containing:
                 if ignored_dependency.lower() in dependency.lower():
                     return True
+        if bool(analysis.ignore_dependencies_matching):
             for ignored_dependency_re in analysis.ignore_dependencies_matching:
                 if ignored_dependency_re.match(dependency):
                     return True
@@ -220,6 +221,7 @@ class ParsingMixin(ABC):
             for ignored_entity in analysis.ignore_entities_containing:
                 if ignored_entity in entity:
                     return True
+        if bool(analysis.ignore_entities_matching):
             for ignored_entity_re in analysis.ignore_entities_matching:
                 if ignored_entity_re.match(entity):
                     return True
