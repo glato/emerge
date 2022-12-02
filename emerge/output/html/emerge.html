@@ -75,6 +75,8 @@
         #inputNodeSearchLabel,
         #selectNodesLabel,
         #resetSelectionLabel,
+        #expandSelectionLabel,
+        #hoverSelectionLabel,
         #fadeUnselectedNodesLabel,
         #clusterHullLabel {
             font-size: 10px;
@@ -356,6 +358,16 @@
                         <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
                     </svg>
                     + <b>r</b> reset selected nodes</label>
+                <label id="expandSelectionLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
+                        <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
+                    </svg>
+                    + <b>e</b> selects all nodes linked to selected nodes</label>
+                <label id="hoverSelectionLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
+                        <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
+                    </svg>
+                    + <b>h</b> selects all nodes linked to hovered node</label>
                 <label id="fadeUnselectedNodesLabel">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
                         <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
@@ -1767,10 +1779,14 @@
 
         // setup keyboard shortcut keys for node selection
         // shift + 's' key: select/unselect node
+        // shift + 'e' key: expand selected nodes level deeper
+        // shift + 'h' key: expand hovered nodes level deeper
         // shift + 'r' key: reset current selection
         // shift + 'f' key: fade unselected nodes
         function enableNodeSelection() {
             let keySelectUnselect = 'S'
+            let keyExpandSelection = 'E'
+            let keyExpandHoveredNode = 'H'
             let keyResetCurrentSelection = 'R'
             let keyFadeUnselectedNodes = 'F'
 
@@ -1784,6 +1800,35 @@
                             } else {
                                 selectedNodesMap[closeNode.id.toLowerCase()] = true
                             }
+                            simulationUpdate()
+                        }
+                    }
+
+                    if (event.key == keyExpandSelection) {
+                        if (selectedNodesMap.length != 0) {
+                            let newSelectedNodesMap = {...selectedNodesMap}
+                            currentGraph.links.forEach(function(d) {
+                                if (d.source.id.toLowerCase() in selectedNodesMap || d.target.id.toLowerCase() in selectedNodesMap) {
+                                    newSelectedNodesMap[d.source.id.toLowerCase()] = true
+                                    newSelectedNodesMap[d.target.id.toLowerCase()] = true
+                                }
+                            })
+                            selectedNodesMap = newSelectedNodesMap
+                            simulationUpdate()
+                        }
+                    }
+
+                    if (event.key == keyExpandHoveredNode) {
+                        if (closeNode != null) {
+                            selectedNodesMap[closeNode.id.toLowerCase()] = true
+                            let newSelectedNodesMap = {...selectedNodesMap}
+                            currentGraph.links.forEach(function(d) {
+                                if (d.source.id == closeNode.id || d.target.id == closeNode.id) {
+                                    newSelectedNodesMap[d.source.id.toLowerCase()] = true
+                                    newSelectedNodesMap[d.target.id.toLowerCase()] = true
+                                }
+                            })
+                            selectedNodesMap = newSelectedNodesMap
                             simulationUpdate()
                         }
                     }
