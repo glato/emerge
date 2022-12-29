@@ -40,7 +40,7 @@ autopep8
 coloredlogs
 interrogate
 networkx
-sklearn
+scikit-learn
 numpy
 prettytable
 py
