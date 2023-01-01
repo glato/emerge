@@ -379,6 +379,12 @@
                         <small>Search</small>
                     </li>
 
+                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
+                <li class="list-group-item small d-flex align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
+                    <small>Unselected opacity</small>
+                </li>
+                <input type="range" min="1" max="100" value="20" class="slider" id="unselected-opacity" oninput="unselectedOpacityChange(this.value)" onchange="unselectedOpacityChange(this.value)">
+
                 <label id="inputNodeSearchLabel" for="inputNodeSearch">0 nodes found</label>
                 <div class="input-group input-group-sm">
 
@@ -548,6 +554,7 @@
         let heatmapActive = false
 
         let selectedNodesMap = {}
+        var unselectedNodesOpacity = 0.20
         let fadeUnselectedNodes = false
         let currentActiveNodeLabelColor = activeNodeLabelColor
         let currentPassiveNodeLabelColor = passiveNodeLabelColor
@@ -750,7 +757,7 @@
                     context.lineWidth = 2.0;
                 } else {
                     if (fadeUnselectedNodes == true || normalHeatmapIsActive() ) { // also fade away non-relevant egdes
-                        context.fillStyle = context.strokeStyle = nodeColorByModularity(d.source, 0.2)
+                        context.fillStyle = context.strokeStyle = nodeColorByModularity(d.source, unselectedNodesOpacity)
                     } 
                     context.lineWidth = 1.0;
                 }
@@ -819,13 +826,13 @@
 
                 if (fadeUnselectedNodes == true || normalHeatmapIsActive() ) {
                     context.strokeStyle = nodeStrokeStyle
-                    context.fillStyle = hexToRGB(nodeStrokeStyle, 0.2)
+                    context.fillStyle = hexToRGB(nodeStrokeStyle, unselectedNodesOpacity)
                     context.stroke();
 
                     if (nodeLabelsEnabled) {
                         context.fillStyle = currentPassiveNodeLabelColor;
                         drawNodeLabel(d.id, d.x + 14, d.y - 7)
-                        context.fillStyle = nodeColorByModularity(d, 0.2)
+                        context.fillStyle = nodeColorByModularity(d, unselectedNodesOpacity)
                     }
 
                 } else {
@@ -1415,6 +1422,15 @@
                     simulationUpdate()
                     break;
             }
+        }
+
+        /**
+         * * MARK: - Adjusting style 
+         */
+
+        function unselectedOpacityChange(val) {
+            unselectedNodesOpacity = val / 100.0
+            simulationUpdate()
         }
 
         /**
