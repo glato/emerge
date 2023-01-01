@@ -5,10 +5,14 @@ Everyone that contributes to emerge can be named here with a short contribution 
 
 ## Contributors
 
-- Grzegorz Lato
-- Nicolas Carlo
-- Andrea Scuderi
-
+- Andrea Scuderi - https://github.com/Andrea-Scuderi
+- Andrew Dunai - https://github.com/and3rson
+- funduck - https://github.com/funduck
+- Grzegorz Lato - https://github.com/glato
+- Israel Teneda - https://github.com/israteneda
+- Mikoláš Stuchlík - https://github.com/mikolasstuchlik
+- Nicolas Carlo - https://github.com/nicoespeon
+- Travis Dart - https://github.com/TravisDart
 
 ## emerge contains third party code from the following people 
 
@@ -21,7 +25,6 @@ emerge contains third party code from the following people/projects
 - Scott Johnson / https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197
 
 If I missed someone or gave wrong credit, please contact me and I'll update this.
-
 
 ## emerge uses the following third party libraries/frameworks/tools
 
