@@ -32,6 +32,11 @@
             width: 100%;
         }
 
+        body {
+            overflow-y: hidden;
+            overflow-x: hidden;
+        }
+
         .card-body {
             padding-top: 4px;
             padding-bottom: 12px;
@@ -89,8 +94,8 @@
         
         #cardMenu {
             position: absolute;
-            top: 4px;
-            right: 4px;
+            top: 6px;
+            right: 5px;
             width: 200px;
         }
         
@@ -109,7 +114,7 @@
 <body>
     <div id="graphDiv"></div>
 
-    <div id="cardMenu" class="card">
+    <div id="cardMenu" class="card border-dark">
         <h6 class="card-header align-items-center text-center">
             <span aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-bounding-box-circles" viewBox="0 0 16 16">
@@ -132,6 +137,16 @@
 
                 </li>
 
+                <li class="list-group-item small d-flex justify-content-between align-items-center">
+                    <small><span id="projectInfo">Project info</span></small> <span id="badge_project_info" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> i</span></span>
+                </li>
+
+                <li class="list-group-item small d-flex justify-content-between align-items-center">
+                    <small><span id="graphProperties">Graph properties</span></small> <span id="badge_graph_properties" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> i</span></span>
+                </li>
+
+
+<!-- 
                 <li id="projectNameListElement" class="list-group-item small d-flex justify-content-between align-items-center">
                     <small><span id="configProjectName">project</span></small>
                 </li>
@@ -146,8 +161,10 @@
 
                 <li class="list-group-item small d-flex justify-content-between align-items-center disabled py-1">
                     <small>Graph properties</small>
-                </li>
-                <li class="list-group-item small d-flex justify-content-between align-items-center py-1">
+                </li> -->
+
+
+                <!-- <li class="list-group-item small d-flex justify-content-between align-items-center py-1">
                     <small>Nodes</small>
                     <span class="badge badge-primary badge-pill" id="numberNodes">0</span>
                 </li>
@@ -158,10 +175,12 @@
                 <li class="list-group-item small d-flex justify-content-between align-items-center py-1">
                     <small>Charge force</small>
                     <span class="badge badge-primary badge-pill" id="chargeForce">0</span>
-                </li>
+                </li> -->
+
+
             </ul>
 
-            <div id="menuButtonGroup" class="btn-group-vertical col-sm-2">
+            <div id="menuButtonGroup" class="btn-group-vertical" style="min-width: 80px;">
                 <div class="btn-group">
                      
                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing shadow-none" id="selectGraphButton" data-bs-toggle="dropdown">
@@ -319,62 +338,40 @@
                     </ul>
                 </div>
 
+               <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
+
+                <!-- Shortcuts -->
+                <li class="list-group-item small d-flex justify-content-between align-items-center">
+                      <label style="margin-bottom: 0px; padding-right: 4px;"> <small>Shortcuts</small> </label> <span id="badge_shortcuts" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
+                </li>
+
+                <li class="list-group-item small d-flex align-items-center py-1" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
+                    <small>Unselected opacity</small> <span id="badge_unselected_opacity" style="margin-left: 4px;" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
+                </li>
+                <input type="range" min="1" max="100" value="20" class="form-range" id="unselected-opacity" oninput="unselectedOpacityChange(this.value)" onchange="unselectedOpacityChange(this.value)">
+
                 <!-- heatmap -->
 
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
                 <li class="list-group-item small d-flex align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
-                    <small>Heatmap settings </small>
+                    <small style="font-size: 10px;">Heatmap settings </small>
                 </li>
                 
-                <li class="list-group-item small d-flex align-items-center" style="padding: 0px; border: 0px; margin: 0px;">
-                    <div class="form-group small" style="margin-bottom: 5px;">
-                        <label style="margin-bottom: 0px;">Normal</label> <span id="badge_heat_map_normal" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
-                        <div>
-                            
-                            <div class="form-check form-switch"> 
-                                <input type="checkbox" class="form-check-input" id="switchActivateHeatmap">
-                                <label class="form-check-label" for="switchActivateHeatmap"></label>
-                            </div>
+                <div class="form-check form-switch small float-right"> 
+                    <input type="checkbox" class="form-check-input" id="switchActivateHeatmap">
+                    <label class="form-check-label" for="switchActivateHeatmap"><small>Normal Heatmap </small> <span id="badge_heat_map_normal" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                </div>
 
-                         </div>
-                    </div>
-
-                    <div>
-                        <span style="padding: 5px;"></span>
-                    </div>
-
-                    <div class="form-group small" style="margin-bottom: 5px;">
-                        <label style="margin-bottom: 0px;">Hybrid</label> <span id="badge_heat_map_hybrid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" title="" class="badge rounded-pill text-bg-primary"> ?</span>
-                        <div>
-                            
-                            <div class="form-check form-switch"> 
-                                <input type="checkbox" class="form-check-input" id="switchMergeHeatmap">
-                                <label class="form-check-label" for="switchMergeHeatmap"></label>
-                            </div>
-
-                         </div>
-                    </div>
-                </li>
-
-                <div style="width: 100%; padding-top: 2px; padding-bottom: 0px;"></div>
-                <li class="list-group-item small d-flex align-items-center" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px; padding-top: 2px;">
-                      <label style="margin-bottom: 0px; padding-right: 4px;"> <small>Shortcuts</small> </label> <span id="badge_shortcuts" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
-
-                </li>
-
-                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
-
-                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
-                <li class="list-group-item small d-flex align-items-center py-1" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
-                    <small>Unselected opacity</small>
-                </li>
-                <input type="range" min="1" max="100" value="20" class="slider" id="unselected-opacity" oninput="unselectedOpacityChange(this.value)" onchange="unselectedOpacityChange(this.value)">
+                <div class="form-check form-switch small float-right"> 
+                    <input type="checkbox" class="form-check-input" id="switchMergeHeatmap">
+                    <label class="form-check-label" for="switchMergeHeatmap"><small>Hybrid Heatmap</small> <span id="badge_heat_map_hybrid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                </div>
 
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
 
                 <label id="inputNodeSearchLabel" for="inputNodeSearch">0 nodes found</label>
                 
-                <div class="input-group mb-3 input-group-sm">
+                <div class="input-group mb-1 input-group-sm">
                     <input id="inputNodeSearch" type="text" class="form-control" placeholder="Search nodes" aria-label="Search" aria-describedby="search-addon">
                     <button class="btn btn-primary " type="button" id="inputNodeSearchCancel">
                         <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -382,28 +379,18 @@
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                         </svg>
                     </button>
-                </div>
-     
-                <div class="form-group small" style="width: 100%; margin-bottom: 0px;">
-                    <label style="margin-bottom: 0px; padding-top: 2px;"><small>Add semantic search</small></label>
-                    <div>
-                        <div class="form-check form-switch"> 
-                            <input type="checkbox" class="form-check-input" id="switchAddSemanticSearch">
-                            <label class="form-check-label" for="switchAddSemanticSearch"></label>
-                        </div>
 
-                     </div>
+                    <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
+                    <div class="form-check form-switch small float-right"> 
+                        <input type="checkbox" class="form-check-input" id="switchAddSemanticSearch">
+                        <label class="form-check-label" for="switchAddSemanticSearch"><small>Semantic search </small> <span id="badge_semantic_search" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                    </div>
+
                 </div>
 
-                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
-                
-                <li class="list-group-item small d-flex align-items-center disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px; padding-top: 2px;">
-                    <small>Cluster hulls</small>
-                </li>
-
-                <div id="clusterHullMenu">
+                     <div id="clusterHullMenu">
                     <!-- cluster hull selection / injected by javascript -->
-                </div>
+                    </div>
 
             </div>
 
@@ -526,10 +513,8 @@
             }
         }
 
-        // $(document).ready(function() {
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-        // });
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
         /**
          * * MARK: - Metric info badge tooltip descriptions
@@ -1339,6 +1324,7 @@
             if ("0" in clusterMap) {
                 // build menu
                 let clusterMenuHtml = "<label id=\"clusterHullLabel\" for=\"clusterHullContainer\">Hover/select cluster hulls</label> \
+                                        <span id=\"badge_cluster_hulls\" data-bs-toggle=\"tooltip\" data-bs-placement=\"bottom\" data-bs-html=\"true\" class=\"badge rounded-pill text-bg-primary\"> ?</span> \
                                         <div id=\"clusterHullContainer\"> \
                                         <div class=\"row\">"
 

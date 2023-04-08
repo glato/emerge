@@ -17,7 +17,6 @@
 
 [data-theme="dark"] .card {
     background-color: #0e0e0e !important;
-    outline: 2px solid #121212;
 }
 
 [data-theme="dark"] .jumbotron {
