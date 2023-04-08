@@ -26,6 +26,7 @@
 
 [data-theme="dark"] .list-group-item {
     background-color: #0e0e0e !important;
+    color: #eeeeee !important;
 }
 
 [data-theme="dark"] .card-header {

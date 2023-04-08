@@ -2,21 +2,24 @@
 <meta charset="utf-8">
 
 <head>
-    <!-- bootstrap css -->
+    <!-- bootstrap css v5.2.3 -->
     <link rel="stylesheet" type="text/css" href="vendors/bootstrap/css/bootstrap.css">
-    <!-- custom css -->
+
     <link rel="stylesheet" type="text/css" href="resources/css/custom.css" />
+
     <!-- dark-mode-switch css -->
     <link rel="stylesheet" href="vendors/dark-mode-switch/css/dark-mode.css">
 
     <!-- jquery js -->
     <script type="text/javascript" src="vendors/jquery/jquery-3.6.0.min.js"></script>
-    <!-- popper js -->
+    <!-- popperjs/core v2.11.6 -->
     <script type="text/javascript" src="vendors/popper/popper.min.js"></script>
-    <!-- bootstrap js -->
+    <!-- bootstrap js v5.2.3 -->
     <script type="text/javascript" src="vendors/bootstrap/js/bootstrap.min.js"></script>
+
     <!-- d3 js -->
-    <script src="vendors/d3/d3.v7.min.js"></script>
+    <script src="vendors/d3/d3.v7.8.4.min.js"></script>
+
     <!-- Hull.js -->
     <script type="text/javascript" src="vendors/hull/hull.js"></script>
     <!-- simpleheat.hs -->
@@ -28,7 +31,7 @@
         div.graphDiv {
             width: 100%;
         }
-        
+
         .card-body {
             padding-top: 4px;
             padding-bottom: 12px;
@@ -38,7 +41,7 @@
             background-color: white;
             color: black;
             font-size: smaller;
-            min-width: 220px;
+            min-width: 320px;
         }
         
         .bs-tooltip-bottom {
@@ -120,11 +123,13 @@
 
         <div class="card-body">
             <ul class="list-group list-group-flush">
-                <li class="list-group-item small d-flex justify-content-between align-items-center disabled py-1">
-                    <span class="custom-control custom-switch float-right"> 
-                    <input type="checkbox" class="custom-control-input" id="darkSwitch">
-                    <label class="custom-control-label" for="darkSwitch"><small>Dark Mode</small></label>
-                </span>
+                <li class="list-group-item small d-flex justify-content-between align-items-center py-1">
+                
+                    <div class="form-check form-switch float-right"> 
+                        <input type="checkbox" class="form-check-input" id="darkSwitch">
+                        <label class="form-check-label" for="darkSwitch"><small>Dark Mode</small></label>
+                    </div>
+
                 </li>
 
                 <li id="projectNameListElement" class="list-group-item small d-flex justify-content-between align-items-center">
@@ -158,12 +163,15 @@
 
             <div id="menuButtonGroup" class="btn-group-vertical col-sm-2">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing shadow-none" id="selectGraphButton" data-toggle="dropdown">
+                     
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing shadow-none" id="selectGraphButton" data-bs-toggle="dropdown">
                         <span id="selectedGraph">selected graph</span>
-                </button>
+                    </button>
+
                     <div class="dropdown-menu" id="dropdown-graph" aria-labelledby="dropdown-graph">
-                        <!-- injected by js -->
+                        <!-- injected by JS -->
                     </div>
+
                 </div>
 
                 <button type="button" class="btn btn-primary btn-sm btn-with-spacing shadow-none" onclick="toggleNodeLabels();">
@@ -256,7 +264,7 @@
                     </svg>
                 </span>
             </button>
-                <button id="buttonShowOverallStatistics" type="button" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-toggle="modal" data-target="#overallStatisticsModal">
+                <button id="buttonShowOverallStatistics" type="button" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#overallStatisticsModal">
                 <span aria-hidden="true">
                     <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
@@ -270,7 +278,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="overallStatisticsModalLabel">Overall statistics</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                             </button>
                             </div>
@@ -288,23 +296,24 @@
                                 </table>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- end modal -->
-                <button type="button" id="buttonShowOverallMetrics" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-toggle="modal" data-target="#overallMetricsModal">
-                <span aria-hidden="true">
-                    <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
-                    </svg>
-                </span>
-                Overall metrics
-            </button>
+
+                <button type="button" id="buttonShowOverallMetrics" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#overallMetricsModal">
+                    <span aria-hidden="true">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    </span>
+                    Overall metrics
+                </button>
 
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" data-toggle="dropdown"><span></span> <span class="caret"></span>Apply metrics</button>
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" data-bs-toggle="dropdown"><span></span> <span class="caret"></span>Apply metrics</button>
                     <ul id="dropdown-apply-metric" class="dropdown-menu">
                         <!-- injected by js -->
                     </ul>
@@ -319,12 +328,14 @@
                 
                 <li class="list-group-item small d-flex align-items-center" style="padding: 0px; border: 0px; margin: 0px;">
                     <div class="form-group small" style="margin-bottom: 5px;">
-                        <label style="margin-bottom: 0px;">Normal</label> <span id="badge_heat_map_normal" data-toggle="tooltip" data-placement="bottom" title="" class="badge badge-primary badge-pill"> ?</span>
+                        <label style="margin-bottom: 0px;">Normal</label> <span id="badge_heat_map_normal" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
                         <div>
-                            <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="switchActivateHeatmap">
-                                <label class="custom-control-label" for="switchActivateHeatmap"></label>
+                            
+                            <div class="form-check form-switch"> 
+                                <input type="checkbox" class="form-check-input" id="switchActivateHeatmap">
+                                <label class="form-check-label" for="switchActivateHeatmap"></label>
                             </div>
+
                          </div>
                     </div>
 
@@ -333,48 +344,25 @@
                     </div>
 
                     <div class="form-group small" style="margin-bottom: 5px;">
-                        <label style="margin-bottom: 0px;">Hybrid</label> <span id="badge_heat_map_hybrid" data-toggle="tooltip" data-placement="bottom" title="" class="badge badge-primary badge-pill"> ?</span>
+                        <label style="margin-bottom: 0px;">Hybrid</label> <span id="badge_heat_map_hybrid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" title="" class="badge rounded-pill text-bg-primary"> ?</span>
                         <div>
-                            <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="switchMergeHeatmap">
-                                <label class="custom-control-label" for="switchMergeHeatmap" style="margin-bottom: 0px;"></label>
+                            
+                            <div class="form-check form-switch"> 
+                                <input type="checkbox" class="form-check-input" id="switchMergeHeatmap">
+                                <label class="form-check-label" for="switchMergeHeatmap"></label>
                             </div>
+
                          </div>
                     </div>
                 </li>
 
                 <div style="width: 100%; padding-top: 2px; padding-bottom: 0px;"></div>
-                <li class="list-group-item small d-flex align-items-center disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px; padding-top: 2px;">
-                    <small>Shortcuts & search</small>
+                <li class="list-group-item small d-flex align-items-center" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px; padding-top: 2px;">
+                      <label style="margin-bottom: 0px; padding-right: 4px;"> <small>Shortcuts</small> </label> <span id="badge_shortcuts" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
+
                 </li>
 
-                <label id="selectNodesLabel">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
-                        <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
-                    </svg>
-                    + <b>s</b> (de)select hovered nodes</label>
-                <label id="resetSelectionLabel">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
-                        <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
-                    </svg>
-                    + <b>r</b> reset selected nodes</label>
-                <label id="expandSelectionLabel">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
-                        <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
-                    </svg>
-                    + <b>e</b> selects all nodes linked to selected nodes</label>
-                <label id="hoverSelectionLabel">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
-                        <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
-                    </svg>
-                    + <b>h</b> selects all nodes linked to hovered node</label>
-                <label id="fadeUnselectedNodesLabel">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-shift" viewBox="0 0 16 16">
-                        <path d="M7.27 2.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-3H1.654C.78 10.5.326 9.455.924 8.816L7.27 2.047zM14.346 9.5 8 2.731 1.654 9.5H4.5a1 1 0 0 1 1 1v3h5v-3a1 1 0 0 1 1-1h2.846z"/>
-                    </svg>
-                    + <span id="fadeUnselectedNodesLabelText"><b>f</b> fade unselected nodes</span></label>
-
-                    <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
+                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
 
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
                 <li class="list-group-item small d-flex align-items-center py-1" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
@@ -385,32 +373,30 @@
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
 
                 <label id="inputNodeSearchLabel" for="inputNodeSearch">0 nodes found</label>
-                <div class="input-group input-group-sm">
-
-                    <input id="inputNodeSearch" name="inputNodeSearch" type="text" class="form-control" placeholder="Search nodes" aria-label="Search" aria-describedby="search-addon" />
-
-                    <div class="input-group-append">
-                        <button id="inputNodeSearchCancel" class="btn btn-primary" type="button">
-                            <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                        </button>
-
-                    </div>
-                </div>
                 
+                <div class="input-group mb-3 input-group-sm">
+                    <input id="inputNodeSearch" type="text" class="form-control" placeholder="Search nodes" aria-label="Search" aria-describedby="search-addon">
+                    <button class="btn btn-primary " type="button" id="inputNodeSearchCancel">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                </div>
+     
                 <div class="form-group small" style="width: 100%; margin-bottom: 0px;">
                     <label style="margin-bottom: 0px; padding-top: 2px;"><small>Add semantic search</small></label>
                     <div>
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="switchAddSemanticSearch">
-                            <label class="custom-control-label" for="switchAddSemanticSearch"></label>
+                        <div class="form-check form-switch"> 
+                            <input type="checkbox" class="form-check-input" id="switchAddSemanticSearch">
+                            <label class="form-check-label" for="switchAddSemanticSearch"></label>
                         </div>
+
                      </div>
                 </div>
 
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
+                
                 <li class="list-group-item small d-flex align-items-center disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px; padding-top: 2px;">
                     <small>Cluster hulls</small>
                 </li>
@@ -425,12 +411,12 @@
             <div class="modal fade" id="overallMetricsModal" tabindex="-1" role="dialog" aria-labelledby="overallMetricsModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
+
                         <div class="modal-header">
-                            <h5 class="modal-title" id="overallMetricsModalLabel">Overall metrics</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Overall metrics</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+
                         <div class="modal-body">
                             <table class="card-table table table-condensed">
                                 <thead class="table-borderless">
@@ -444,9 +430,11 @@
                                 </tbody>
                             </table>
                         </div>
+
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -538,6 +526,11 @@
             }
         }
 
+        // $(document).ready(function() {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        // });
+
         /**
          * * MARK: - Metric info badge tooltip descriptions
          */
@@ -546,8 +539,26 @@
         const description_metric_fan_in = '"Fan-in coupling (afferent coupling) the number of entities that depend on a given entity. It estimates in what extent the "external world" depends on the changes in a given entity" (gcc.gnu.org). This metric represents the number of dependencies FROM other files or entities.'
         const description_metric_fan_out = '"Fan-out coupling (efferent coupling) the number of entities the given entity depends upon. It estimates in what extent the given entity depends on the changes in "external world" (gcc.gnu.org). This metric represents the number of dependencies TO other files or entities.'
         const description_metric_louvain_modularity = '"The Louvain method for community detection is a method to extract communities from large networks" (Wikipedia). This metric seperates detected communities by a unique number/ node size.'
-        const description_heat_map_normal = '"A heat map (or heatmap) is a data visualization technique that shows magnitude of a phenomenon as color in two dimensions" (Wikipedia). The heatmap score is based on a weighted score from the fan-out and SLOC metric. Red color indicates a warning (hotspot), that given metric scores may be to high, while decreasing into blue color.'
-        const description_heat_map_hybrid = 'This is a visual (hybrid) combination of the normal graph visualization and a heatmap layer behind it'
+        const description_heat_map_normal = '"A heat map (or <strong>heatmap</strong>) is a data visualization technique that shows magnitude of a phenomenon as color in two dimensions" (Wikipedia). The heatmap score is based on a weighted score from the fan-out and SLOC metric. Red color indicates a warning (hotspot), that given metric scores may be to high, while decreasing into blue color.'
+        const description_heat_map_hybrid = 'This is a visual (hybrid) <strong>combination</strong> of the normal graph visualization and a heatmap layer behind it'
+
+        const description_shortcuts_tooltip =
+            `    
+
+            <b>shift + s</b> | (de)select hovered nodes
+            <br>
+
+            <b>shift + r</b> | resets selected nodes
+            <br>
+        
+            <i>shift</i> + <b>e</b> selects all nodes linked to selected nodes
+            <br>
+        
+            <i>shift</i> + <b>h</b> selects all nodes linked to hovered node
+            <br>
+        
+            <i>shift</i> + <span id="fadeUnselectedNodesLabelText"><b>f</b> fade unselected nodes</span>
+            `
 
         let heatmapMerged = false
         let heatmapActive = false
@@ -1320,7 +1331,6 @@
                 selectedClusterHullIds.push(clusterId)
                 addHighlightToSVGCircle(clusterId)
             }
-            // console.log(selectedClusterHullIds)
             simulationUpdate()
         }
 
@@ -1329,8 +1339,10 @@
             if ("0" in clusterMap) {
                 // build menu
                 let clusterMenuHtml = "<label id=\"clusterHullLabel\" for=\"clusterHullContainer\">Hover/select cluster hulls</label> \
-                                        <div id=\"clusterHullContainer\" class=\"container\"> \
+                                        <div id=\"clusterHullContainer\"> \
                                         <div class=\"row\">"
+
+                clusterMenuHtml += "<div class=\"svg-column\">"
 
                 // insert SVG circles
                 let iteration = 0
@@ -1350,7 +1362,7 @@
                 });
 
                 // finish menu and append to div
-                clusterMenuHtml += "</div></div>"
+                clusterMenuHtml += "</div></div></div>"
                 d3.select("#clusterHullMenu").html(clusterMenuHtml)
 
                 // add tooltips to cluster hull nodes
@@ -1368,14 +1380,18 @@
                                 clusterToolTipDescription += metricPrettyName + ": " + "<b>" + clusterMetrics[clusterMetric] + "</b>" + "<br>"
                             })
 
-                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('title', clusterToolTipDescription)
-                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-html', 'true')
-                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-placement', 'bottom')
-                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).tooltip();
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-bs-toggle', 'tooltip')
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-bs-title', clusterToolTipDescription)
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-bs-html', 'true')
+                            $('#' + 'clusterHullNodeSVGCircle-' + clusterId).attr('data-bs-placement', 'bottom')
+
                         }
                     }
                 })
             }
+
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
         }
 
         function getPointArrayForClusterId(id) {
@@ -1503,6 +1519,7 @@
             createMetricsMenuEntries();
             addToolTipsToMetricEntries();
             addToolTipsToHeatMap();
+            addToolTipToShortcuts();
             enableSearchInput();
             enableNodeSelection();
 
@@ -1893,52 +1910,71 @@
         }
 
         function addToolTipsToMetricEntries() {
-            $('#badge_metric_sloc_in_file').attr('title', description_metric_sloc_in_file)
-            $('#badge_metric_sloc_in_file').tooltip();
-            $('#badge_metric_sloc_in_entity').attr('title', description_metric_sloc_in_file)
-            $('#badge_metric_sloc_in_entity').tooltip();
+            $('#badge_metric_sloc_in_file').attr('data-bs-toggle', 'tooltip')
+            $('#badge_metric_sloc_in_file').attr('data-bs-title', description_metric_sloc_in_file)
+            $('#badge_metric_sloc_in_file').attr('data-bs-html', 'true')
+            $('#badge_metric_sloc_in_file').attr('data-bs-placement', 'bottom')
 
-            $('#badge_metric_number_of_methods_in_file').attr('title', description_metric_number_of_methods)
-            $('#badge_metric_number_of_methods_in_file').tooltip();
-            $('#badge_metric_number_of_methods_in_entity').attr('title', description_metric_number_of_methods)
-            $('#badge_metric_number_of_methods_in_entity').tooltip();
+            $('#badge_metric_sloc_in_entity').attr('data-bs-toggle', 'tooltip')
+            $('#badge_metric_sloc_in_entity').attr('data-bs-title', description_metric_sloc_in_file)
+            $('#badge_metric_sloc_in_entity').attr('data-bs-html', 'true')
+            $('#badge_metric_sloc_in_entity').attr('data-bs-placement', 'bottom')
 
+            $('#badge_metric_number_of_methods_in_file').attr('data-bs-toggle', 'tooltip')
+            $('#badge_metric_number_of_methods_in_file').attr('data-bs-title', description_metric_number_of_methods)
+            $('#badge_metric_number_of_methods_in_file').attr('data-bs-html', 'true')
+            $('#badge_metric_number_of_methods_in_file').attr('data-bs-placement', 'bottom')
+
+            $('#badge_metric_number_of_methods_in_entity').attr('data-bs-toggle', 'tooltip')
+            $('#badge_metric_number_of_methods_in_entity').attr('data-bs-title', description_metric_number_of_methods)
+            $('#badge_metric_number_of_methods_in_entity').attr('data-bs-html', 'true')
+            $('#badge_metric_number_of_methods_in_entity').attr('data-bs-placement', 'bottom')
+
+            // TODO
             $('#badge_metric_fan_in_dependency_graph').attr('title', description_metric_fan_in)
-            $('#badge_metric_fan_in_dependency_graph').tooltip();
+            // $('#badge_metric_fan_in_dependency_graph').tooltip();
             $('#badge_metric_fan_in_complete_graph').attr('title', description_metric_fan_in)
-            $('#badge_metric_fan_in_complete_graph').tooltip();
+            // $('#badge_metric_fan_in_complete_graph').tooltip();
             $('#badge_metric_fan_in_inheritance_graph').attr('title', description_metric_fan_in)
-            $('#badge_metric_fan_in_inheritance_graph').tooltip();
+            // $('#badge_metric_fan_in_inheritance_graph').tooltip();
 
             $('#badge_metric_fan_out_dependency_graph').attr('title', description_metric_fan_out)
-            $('#badge_metric_fan_out_dependency_graph').tooltip();
+            // $('#badge_metric_fan_out_dependency_graph').tooltip();
             $('#badge_metric_fan_out_complete_graph').attr('title', description_metric_fan_out)
-            $('#badge_metric_fan_out_complete_graph').tooltip();
+            // $('#badge_metric_fan_out_complete_graph').tooltip();
             $('#badge_metric_fan_out_inheritance_graph').attr('title', description_metric_fan_out)
-            $('#badge_metric_fan_out_inheritance_graph').tooltip();
+            // $('#badge_metric_fan_out_inheritance_graph').tooltip();
 
             $('#badge_metric_file_result_dependency_graph_louvain_modularity_file').attr('title', description_metric_louvain_modularity)
-            $('#badge_metric_file_result_dependency_graph_louvain_modularity_file').tooltip();
+            // $('#badge_metric_file_result_dependency_graph_louvain_modularity_file').tooltip();
 
             $('#badge_metric_entity_result_dependency_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
-            $('#badge_metric_entity_result_dependency_graph_louvain_modularity_in_entity').tooltip();
+            // $('#badge_metric_entity_result_dependency_graph_louvain_modularity_in_entity').tooltip();
 
             $('#badge_metric_entity_result_inheritance_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
-            $('#badge_metric_entity_result_inheritance_graph_louvain_modularity_in_entity').tooltip();
+            // $('#badge_metric_entity_result_inheritance_graph_louvain_modularity_in_entity').tooltip();
 
             $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
-            $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();
+            // $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();
 
             $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').attr('title', description_metric_louvain_modularity)
-            $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();
+            // $('#badge_metric_entity_result_complete_graph_louvain_modularity_in_entity').tooltip();
+
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
         }
 
         function addToolTipsToHeatMap() {
-            $('#badge_heat_map_normal').attr('title', description_heat_map_normal)
-            $('#badge_heat_map_normal').tooltip();
+            const badgeHeatmapNormalTooltip = new bootstrap.Tooltip(document.getElementById('badge_heat_map_normal'), {});
+            badgeHeatmapNormalTooltip._config.title = description_heat_map_normal
 
-            $('#badge_heat_map_hybrid').attr('title', description_heat_map_hybrid)
-            $('#badge_heat_map_hybrid').tooltip();
+            const badgeHeatmapHybridTooltip = new bootstrap.Tooltip(document.getElementById('badge_heat_map_hybrid'), {});
+            badgeHeatmapHybridTooltip._config.title = description_heat_map_hybrid
+        }
+
+        function addToolTipToShortcuts() {
+            const badgeShortcutsTooltip = new bootstrap.Tooltip(document.getElementById('badge_shortcuts'), {});
+            badgeShortcutsTooltip._config.title = description_shortcuts_tooltip
         }
 
         function createStatistics() {

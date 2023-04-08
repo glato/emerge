@@ -23,6 +23,7 @@ from emerge.metrics.sloc.sloc import SourceLinesOfCodeMetric
 from emerge.metrics.faninout.faninout import FanInOutMetric
 from emerge.metrics.modularity.modularity import LouvainModularityMetric
 from emerge.metrics.tfidf.tfidf import TFIDFMetric
+from emerge.metrics.git.git import GitMetrics
 
 from emerge.graph import GraphType
 from emerge.log import Logger
@@ -65,6 +66,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     """Config key checks of the analysis level."""
     ANALYSIS_NAME = auto()
     SOURCE_DIRECTORY = auto()
+    GIT_DIRECTORY = auto()
     ONLY_PERMIT_LANGUAGES = auto()
     ONLY_PERMIT_FILE_EXTENSIONS = auto()
     ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH = auto()
@@ -86,6 +88,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
 @unique
 class ConfigKeyFileScan(EnumKeyValid, Enum):
     """Config key checks of the file scan level."""
+    CODE_CHURN = auto()
     NUMBER_OF_METHODS = auto()
     SOURCE_LINES_OF_CODE = auto()
     DEPENDENCY_GRAPH = auto()
@@ -409,6 +412,10 @@ class Configuration:
             analysis.project_name = self.project_name
             analysis.emerge_version = self.version
 
+            # check git directory
+            if ConfigKeyAnalysis.GIT_DIRECTORY.name.lower() in analysis_dict:
+                analysis.git_directory = analysis_dict[ConfigKeyAnalysis.GIT_DIRECTORY.name.lower()]
+
             # check export config
             if ConfigKeyAnalysis.EXPORT.name.lower() in analysis_dict:
                 for export_config in analysis_dict[ConfigKeyAnalysis.EXPORT.name.lower()]:
@@ -587,6 +594,16 @@ class Configuration:
                         analysis.metrics_for_file_results.update({
                             tfidf_metric.metric_name: tfidf_metric
                         })
+
+                    # git metrics
+                    if ConfigKeyFileScan.CODE_CHURN.name.lower() in configured_metric:
+                        git_metrics = GitMetrics(analysis)
+                        LOGGER.debug(f'adding {git_metrics.pretty_metric_name}...')
+                        analysis.metrics_for_file_results.update({
+                            git_metrics.metric_name: git_metrics
+                        })
+                        pass
+
 
             if ConfigKeyAnalysis.ENTITY_SCAN.name.lower() in analysis_dict:
                 for configured_metric in analysis_dict[ConfigKeyAnalysis.ENTITY_SCAN.name.lower()]:

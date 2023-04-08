@@ -42,6 +42,7 @@ class Analysis:
         self.analysis_name: Optional[str] = None
         self.project_name: Optional[str] = None
         self.source_directory: Optional[str] = None
+        self.git_directory: Optional[str] = None
 
         self.export_directory: Optional[str] = None
         self.export_graphml: bool = False
