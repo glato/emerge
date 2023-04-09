@@ -17,6 +17,11 @@
     <!-- bootstrap js v5.2.3 -->
     <script type="text/javascript" src="vendors/bootstrap/js/bootstrap.min.js"></script>
 
+    <!-- daterange picker | https://github.com/dangrossman/daterangepicker -->
+    <script type="text/javascript" src="vendors/daterangepicker/moment.min.js"></script>
+    <script type="text/javascript" src="vendors/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="vendors/daterangepicker/daterangepicker.css"/>
+
     <!-- d3 js -->
     <script src="vendors/d3/d3.v7.8.4.min.js"></script>
 
@@ -60,10 +65,6 @@
         .btn {
             padding: 2px;
         }
-        
-        .badge {
-            font-size: 8px;
-        }
 
         #projectNameListElement {
             padding-bottom: 1px;
@@ -89,8 +90,7 @@
         #resetSelectionLabel,
         #expandSelectionLabel,
         #hoverSelectionLabel,
-        #fadeUnselectedNodesLabel,
-        #clusterHullLabel {
+        #fadeUnselectedNodesLabel {
             font-size: 10px;
             margin-bottom: 2px;
             padding-top: 4px;
@@ -112,6 +112,32 @@
         #dropdown-apply-metric {
             min-width: 200px;
         }
+
+        .list-group {
+            --bs-list-group-color: #212529;
+            --bs-list-group-bg: #fff;
+            --bs-list-group-border-color: rgba(0, 0, 0, 0.125);
+            --bs-list-group-border-width: 1px;
+            --bs-list-group-border-radius: 0.375rem;
+            --bs-list-group-item-padding-x: 0.2rem;
+            --bs-list-group-item-padding-y: 0.2rem;
+            --bs-list-group-action-color: #495057;
+            --bs-list-group-action-hover-color: #495057;
+            --bs-list-group-action-hover-bg: #f8f9fa;
+            --bs-list-group-action-active-color: #212529;
+            --bs-list-group-action-active-bg: #e9ecef;
+            --bs-list-group-disabled-color: #6c757d;
+            --bs-list-group-disabled-bg: #fff;
+            --bs-list-group-active-color: #fff;
+            --bs-list-group-active-bg: #0d6efd;
+            --bs-list-group-active-border-color: #0d6efd;
+            display: flex;
+            flex-direction: column;
+            padding-left: 0;
+            margin-bottom: 0;
+            border-radius: var(--bs-list-group-border-radius);
+        }
+
     </style>
 </head>
 
@@ -121,11 +147,11 @@
     <div id="cardMenu" class="card border-dark">
         <h6 class="card-header align-items-center text-center">
             <span aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-bounding-box-circles" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box-circles" viewBox="0 0 16 16">
                     <path d="M2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM0 2a2 2 0 0 1 3.937-.5h8.126A2 2 0 1 1 14.5 3.937v8.126a2 2 0 1 1-2.437 2.437H3.937A2 2 0 1 1 1.5 12.063V3.937A2 2 0 0 1 0 2zm2.5 1.937v8.126c.703.18 1.256.734 1.437 1.437h8.126a2.004 2.004 0 0 1 1.437-1.437V3.937A2.004 2.004 0 0 1 12.063 2.5H3.937A2.004 2.004 0 0 1 2.5 3.937zM14 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM2 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
                 </svg>                
                 <span>
-                    <small><span id="configEmergeVersion"></span></small>
+                    <small> <strong><span id="configEmergeVersion" style="padding-left: 2px;"></span></strong></small>
                 </span>
             </span>
         </h6>
@@ -142,11 +168,11 @@
                 </li>
 
                 <li class="list-group-item small d-flex justify-content-between align-items-center medium-tooltip">
-                    <small><span id="projectInfo">Project info</span></small> <span id="badge_project_info" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> i</span></span>
+                    <small><span id="projectInfo">Project info</span></small> <span id="badge_project_info" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span></span>
                 </li>
 
                 <li class="list-group-item small d-flex justify-content-between align-items-center">
-                    <small><span id="graphProperties">Graph properties</span></small> <span id="badge_graph_info" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> i</span></span>
+                    <small><span id="graphProperties">Graph properties</span></small> <span id="badge_graph_info" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span></span>
                 </li>
 
 
@@ -335,6 +361,38 @@
                     Overall metrics
                 </button>
 
+                <!-- time series modal -->
+                <!-- Modal -->
+                <div class="modal fade" id="timeSeriesModal" tabindex="-1" aria-labelledby="timeSeriesModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="timeSeriesModalLabel">Modal title</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        
+                        <div id="my_dataviz"></div>
+
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#timeSeriesModal" onclick="generateTimeSeriesChart()" >
+                    <span aria-hidden="true">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    </span>
+                    Time series chart
+                </button>
+
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" data-bs-toggle="dropdown"><span></span> <span class="caret"></span>Apply metrics</button>
                     <ul id="dropdown-apply-metric" class="dropdown-menu">
@@ -342,33 +400,41 @@
                     </ul>
                 </div>
 
-               <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
+                <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
+
+                <ul class="list-group list-group-flush">
 
                 <!-- Shortcuts -->
-                <li class="list-group-item small d-flex justify-content-between align-items-center">
+                <li class="list-group-item small d-flex justify-content-between align-items-center" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
                       <label style="margin-bottom: 0px; padding-right: 4px;"> <small>Shortcuts</small> </label> <span id="badge_shortcuts" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary" customClass="large-tooltip"> ?</span>
                 </li>
 
-                <li class="list-group-item small d-flex align-items-center py-1" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
+                <li class="list-group-item small d-flex justify-content-between align-items-center py-1" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
                     <small>Unselected opacity</small> <span id="badge_unselected_opacity" style="margin-left: 4px;" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
                 </li>
                 <input type="range" min="1" max="100" value="20" class="form-range" id="unselected-opacity" oninput="unselectedOpacityChange(this.value)" onchange="unselectedOpacityChange(this.value)">
 
                 <!-- heatmap -->
-
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
-                <li class="list-group-item small d-flex align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
+                <li class="list-group-item small d-flex justify-content-between align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
+                    <small style="font-size: 10px;">Time settings </small>
+                </li>
+                
+                <input class="form-control form-control-sm" type="text" name="daterange" placeholder="select a time range" id="timeDateRangePicker" style="font-size: 11px;" />
+
+                <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
+                <li class="list-group-item small d-flex justify-content-between align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
                     <small style="font-size: 10px;">Heatmap settings </small>
                 </li>
                 
                 <div class="form-check form-switch small float-right"> 
                     <input type="checkbox" class="form-check-input" id="switchActivateHeatmap">
-                    <label class="form-check-label" for="switchActivateHeatmap"><small>Normal Heatmap </small> <span id="badge_heat_map_normal" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                    <label class="form-check-label d-flex justify-content-between" for="switchActivateHeatmap"><small>Normal Heatmap </small> <span id="badge_heat_map_normal" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                 </div>
 
                 <div class="form-check form-switch small float-right"> 
                     <input type="checkbox" class="form-check-input" id="switchMergeHeatmap">
-                    <label class="form-check-label" for="switchMergeHeatmap"><small>Hybrid Heatmap</small> <span id="badge_heat_map_hybrid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                    <label class="form-check-label d-flex justify-content-between" for="switchMergeHeatmap"><small>Hybrid Heatmap</small> <span id="badge_heat_map_hybrid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                 </div>
 
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
@@ -384,17 +450,23 @@
                         </svg>
                     </button>
 
-                    <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
-                    <div class="form-check form-switch small float-right"> 
+                    <div style="width: 100%; padding-top: 8px; padding-bottom: 0px;"></div>
+                    <div class="form-check form-switch small float-right" style="width: 100%;"> 
                         <input type="checkbox" class="form-check-input" id="switchAddSemanticSearch">
-                        <label class="form-check-label" for="switchAddSemanticSearch"><small>Semantic search </small> <span id="badge_semantic_search" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                        <label class="form-check-label d-flex justify-content-between" for="switchAddSemanticSearch"><small>Add semantics</small> <span id="badge_semantic_search" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                     </div>
 
                 </div>
+                
+                <li class="list-group-item small d-flex justify-content-between align-items-center" style="padding-left: 0px; padding-right: 1px;" >
+                    <label style="margin-bottom: 0px; font-size: 10px;"> Hover/select cluster hulls </label> <span id="badge_cluster_hulls" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary" customClass="large-tooltip"> ?</span>
+                </li>
 
-                     <div id="clusterHullMenu">
-                    <!-- cluster hull selection / injected by javascript -->
-                    </div>
+                <div id="clusterHullMenu">
+                <!-- cluster hull selection / injected by javascript -->
+                </div>
+
+                </ul>
 
             </div>
 
@@ -499,6 +571,53 @@
             }
         });
 
+        // daterangepicker for git date range
+        $(function() {
+            $('input[name="daterange"]').daterangepicker({
+
+                "locale": {
+                    "format": "YYYY-MM-DD",
+                    "separator": " - ",
+                    "applyLabel": "Apply",
+                    "cancelLabel": "Cancel",
+                    "fromLabel": "From",
+                    "toLabel": "To",
+                    "customRangeLabel": "Custom",
+                    "weekLabel": "W",
+                    "daysOfWeek": [
+                        "Su",
+                        "Mo",
+                        "Tu",
+                        "We",
+                        "Th",
+                        "Fr",
+                        "Sa"
+                    ],
+                    "monthNames": [
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December"
+                    ],
+                    "firstDay": 1
+                },
+
+                opens: 'left'
+            }, function(start, end, label) {
+                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+                dateRangePickerFrom = start.format('YYYY-MM-DD')
+                dateRangePickerTo = end.format('YYYY-MM-DD')
+            })
+        });
+
         function setDarkMode(mode) {
             if (mode == true) {
                 darkMode = true
@@ -570,6 +689,9 @@
 
         let currentActiveEdgeColor = activeEdgeColor
         let currentPassiveEdgeColor = passiveEdgeColor
+
+        let dateRangePickerFrom = ""
+        let dateRangePickerTo = ""
 
         const nodeStrokeStyle = "#333333";
 
@@ -1337,9 +1459,7 @@
             // check if there is at least one cluster
             if ("0" in clusterMap) {
                 // build menu
-                let clusterMenuHtml = "<label id=\"clusterHullLabel\" for=\"clusterHullContainer\">Hover/select cluster hulls</label> \
-                                        <span id=\"badge_cluster_hulls\" data-bs-toggle=\"tooltip\" data-bs-placement=\"bottom\" data-bs-html=\"true\" class=\"badge rounded-pill text-bg-primary\"> ?</span> \
-                                        <div id=\"clusterHullContainer\"> \
+                let clusterMenuHtml = "<div id=\"clusterHullContainer\"> \
                                         <div class=\"row\">"
 
                 clusterMenuHtml += "<div class=\"svg-column\">"
@@ -2214,6 +2334,63 @@
                 return "rgb(" + r + ", " + g + ", " + b + ")";
             }
         }
+
+
+        function generateTimeSeriesChart() {
+            // set the dimensions and margins of the graph
+            const margin = {top: 10, right: 30, bottom: 30, left: 60},
+                width = 460 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+
+            // append the svg object to the body of the page
+            const svg = d3.select("#my_dataviz")
+            .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            //Read the data
+            d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/3_TwoNumOrdered_comma.csv",
+
+            // When reading the csv, I must format variables:
+            function(d){
+                return { date : d3.timeParse("%Y-%m-%d")(d.date), value : d.value }
+            }).then(
+
+            // Now I can use this dataset:
+            function(data) {
+
+                // Add X axis --> it is a date format
+                const x = d3.scaleTime()
+                .domain(d3.extent(data, function(d) { return d.date; }))
+                .range([ 0, width ]);
+                svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(x));
+
+                // Add Y axis
+                const y = d3.scaleLinear()
+                .domain([0, d3.max(data, function(d) { return +d.value; })])
+                .range([ height, 0 ]);
+                svg.append("g")
+                .call(d3.axisLeft(y));
+
+                // Add the line
+                svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 1.5)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d.date) })
+                    .y(function(d) { return y(d.value) })
+                    )
+
+            })
+        }
+
+
     </script>
 
 </body>
