@@ -24,6 +24,7 @@ from emerge.metrics.faninout.faninout import FanInOutMetric
 from emerge.metrics.modularity.modularity import LouvainModularityMetric
 from emerge.metrics.tfidf.tfidf import TFIDFMetric
 from emerge.metrics.git.git import GitMetrics
+from emerge.metrics.whitespace.whitespace import WhitespaceMetric
 
 from emerge.graph import GraphType
 from emerge.log import Logger
@@ -89,6 +90,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
 class ConfigKeyFileScan(EnumKeyValid, Enum):
     """Config key checks of the file scan level."""
     CODE_CHURN = auto()
+    WS_COMPLEXITY = auto()
     NUMBER_OF_METHODS = auto()
     SOURCE_LINES_OF_CODE = auto()
     DEPENDENCY_GRAPH = auto()
@@ -595,6 +597,14 @@ class Configuration:
                             tfidf_metric.metric_name: tfidf_metric
                         })
 
+                    # whitespace complexity
+                    if ConfigKeyFileScan.WS_COMPLEXITY.name.lower() in configured_metric:
+                        whitespace_metric = WhitespaceMetric(analysis)
+                        LOGGER.debug(f'adding {whitespace_metric.pretty_metric_name}...')
+                        analysis.metrics_for_file_results.update({
+                            whitespace_metric.metric_name: whitespace_metric
+                        })
+
                     # git metrics
                     if ConfigKeyFileScan.CODE_CHURN.name.lower() in configured_metric:
                         git_metrics = GitMetrics(analysis)
@@ -602,7 +612,6 @@ class Configuration:
                         analysis.metrics_for_file_results.update({
                             git_metrics.metric_name: git_metrics
                         })
-                        pass
 
 
             if ConfigKeyAnalysis.ENTITY_SCAN.name.lower() in analysis_dict:

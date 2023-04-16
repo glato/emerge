@@ -89,6 +89,7 @@ class CParser(AbstractParser, ParsingMixin):
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.C,
             scanned_tokens=scanned_tokens,
+            source=file_content,
             preprocessed_source=""
         )
 

@@ -92,6 +92,7 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.JAVASCRIPT,
             scanned_tokens=scanned_tokens,
+            source=file_content,
             preprocessed_source=""
         )
 

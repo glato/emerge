@@ -58,6 +58,7 @@ class Analysis:
         self.radius_louvain: Optional[float] = 0.02
         self.radius_sloc: Optional[float] = 0.005
         self.radius_number_of_methods: Optional[float] = 0.05
+        self.radius_ws_complexity: Optional[float] = 0.005
 
         # additional config / heatmap
         self.heatmap_sloc_active: Optional[bool] = True

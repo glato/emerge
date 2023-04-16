@@ -115,6 +115,7 @@ class SwiftParser(AbstractParser, ParsingMixin):
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.SWIFT,
             scanned_tokens=scanned_tokens,
+            source=file_content,
             preprocessed_source=""
         )
 

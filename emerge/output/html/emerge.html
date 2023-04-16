@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <meta charset="utf-8">
 
@@ -62,8 +63,25 @@
             margin-top: 6px;
         }
 
+        hr {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border: 0;
+            border-top: 2px solid #0d6efd;
+        }
+
         .btn {
             padding: 2px;
+        }
+
+        .btn-left-aligned {
+            text-align: left !important;
+            padding-left: 10px;
+        }
+
+        .btn-right-aligned {
+            text-align: right !important;
+            padding-right: 10px;
         }
 
         #projectNameListElement {
@@ -223,7 +241,7 @@
 
                 </div>
 
-                <button type="button" class="btn btn-primary btn-sm btn-with-spacing shadow-none" onclick="toggleNodeLabels();">
+                <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" onclick="toggleNodeLabels();">
                 <span aria-hidden="true">
                     <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-info-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -235,7 +253,7 @@
             </button>
 
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-primary btn-sm btn-with-spacing btn-with-spacing-right shadow-none" onclick="decreaseCurrentChargeForce();">
+                    <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing btn-with-spacing-right shadow-none" onclick="decreaseCurrentChargeForce();">
                     <span aria-hidden="true">
                         <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-minus-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -244,7 +262,7 @@
                     </span>
                     force
                 </button>
-                    <button type="button" class="btn btn-primary btn-sm btn-with-spacing btn-with-spacing-left shadow-none" onclick="increaseCurrentChargeForce();">
+                    <button type="button" class="btn-right-aligned btn btn-primary btn-sm btn-with-spacing btn-with-spacing-left shadow-none" onclick="increaseCurrentChargeForce();">
                     <span aria-hidden="true">
                         <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-plus-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -256,7 +274,7 @@
                 </div>
 
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-primary btn-sm btn-with-spacing btn-with-spacing-right shadow-none" onclick="zoomOut();">
+                    <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing btn-with-spacing-right shadow-none" onclick="zoomOut();">
                         <span aria-hidden="true">
                             <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-zoom-out" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
@@ -267,7 +285,7 @@
                         zoom
                     </button>
 
-                    <button type="button" class="btn btn-primary btn-sm btn-with-spacing btn-with-spacing-left shadow-none" onclick="zoomIn();">
+                    <button type="button" class="btn-right-aligned btn btn-primary btn-sm btn-with-spacing btn-with-spacing-left shadow-none" onclick="zoomIn();">
                     <span aria-hidden="true">
                     <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-zoom-in" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
@@ -313,7 +331,7 @@
                     </svg>
                 </span>
             </button>
-                <button id="buttonShowOverallStatistics" type="button" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#overallStatisticsModal">
+                <button id="buttonShowOverallStatistics" type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#overallStatisticsModal">
                 <span aria-hidden="true">
                     <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
@@ -352,7 +370,7 @@
                 </div>
                 <!-- end modal -->
 
-                <button type="button" id="buttonShowOverallMetrics" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#overallMetricsModal">
+                <button type="button" id="buttonShowOverallMetrics" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#overallMetricsModal">
                     <span aria-hidden="true">
                         <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
@@ -360,6 +378,48 @@
                     </span>
                     Overall metrics
                 </button>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" data-bs-toggle="dropdown"><span></span> <span class="caret"></span>Apply metrics</button>
+                    <ul id="dropdown-apply-metric" class="dropdown-menu">
+                        <!-- injected by js -->
+                    </ul>
+                </div>
+
+                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
+
+                <ul class="list-group list-group-flush">
+
+                <!-- Shortcuts -->
+                <li class="list-group-item small d-flex justify-content-between align-items-center" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
+                      <label style="margin-bottom: 0px; padding-right: 4px;"> <small>Shortcuts</small> </label> <span id="badge_shortcuts" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary" customClass="large-tooltip"> ?</span>
+                </li>
+
+                <li id="li-unselected-opacity" class="list-group-item small d-flex justify-content-between align-items-center py-1" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
+                    <small>Unselected opacity</small> <span id="badge_unselected_opacity" style="margin-left: 4px;" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
+                </li>
+                <input type="range" min="1" max="100" value="20" class="form-range" id="unselected-opacity" oninput="unselectedOpacityChange(this.value)" onchange="unselectedOpacityChange(this.value)">
+
+                <!-- Git settings -->
+                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
+                <li class="list-group-item small d-flex justify-content-between align-items-center py-1 disabled" style="max-height: 24px; border: 0px; margin-bottom: 0px; padding-left: 0px;">
+                    <small style="font-size: 10px;">Time settings </small>
+                    <div class="form-group" style="width: 50%;">
+                        <hr>
+                    </div>
+                </li>
+
+                <div class="input-group mb-1 input-group-sm">
+                <input class="form-control form-control-sm" type="text" name="daterange" placeholder="pick date range" id="timeDateRangePicker" style="font-size: 9px;" />
+                <button class="btn btn-primary " type="button" id="inputDateRangePickerCancel">
+                    <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+                </div>
+            
+                <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
 
                 <!-- time series modal -->
                 <!-- Modal -->
@@ -383,48 +443,52 @@
                     </div>
                 </div>
 
-                <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#timeSeriesModal" onclick="generateTimeSeriesChart()" >
+                <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#timeSeriesModal" onclick="generateTimeSeriesChart()" >
                     <span aria-hidden="true">
                         <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                     </span>
-                    Time series chart
+                    Churn time series
                 </button>
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle btn-with-spacing" data-bs-toggle="dropdown"><span></span> <span class="caret"></span>Apply metrics</button>
-                    <ul id="dropdown-apply-metric" class="dropdown-menu">
-                        <!-- injected by js -->
-                    </ul>
+                <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#timeSeriesModal" onclick="generateTimeSeriesChart()" >
+                    <span aria-hidden="true">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    </span>
+                    Hotspot scatterplot
+                </button>
+
+                <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing pl-0 shadow-none text-left" data-bs-toggle="modal" data-bs-target="#timeSeriesModal" onclick="generateTimeSeriesChart()" >
+                    <span aria-hidden="true">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    </span>
+                    Complexity growth
+                </button>
+
+                <div style="width: 100%; padding-top: 2px; padding-bottom: 0px;"></div>
+
+                <div class="form-check form-switch small float-right"> 
+                    <input type="checkbox" class="form-check-input" id="switchChurnHeatmap">
+                    <label class="form-check-label d-flex justify-content-between" for="switchChurnHeatmap"><small>Churn Heatmap </small> <span id="badge_heat_map_churn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                </div>
+
+                <div class="form-check form-switch small float-right"> 
+                    <input type="checkbox" class="form-check-input" id="switchHotspotHeatmap">
+                    <label class="form-check-label d-flex justify-content-between" for="switchHotspotHeatmap"><small>Hotspot Heatmap </small> <span id="badge_heat_map_hotspot" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                 </div>
 
                 <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
 
-                <ul class="list-group list-group-flush">
-
-                <!-- Shortcuts -->
-                <li class="list-group-item small d-flex justify-content-between align-items-center" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
-                      <label style="margin-bottom: 0px; padding-right: 4px;"> <small>Shortcuts</small> </label> <span id="badge_shortcuts" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary" customClass="large-tooltip"> ?</span>
-                </li>
-
-                <li class="list-group-item small d-flex justify-content-between align-items-center py-1" style="border: 0px; margin-bottom: 0px; padding-left: 0px; padding-bottom: 0px;">
-                    <small>Unselected opacity</small> <span id="badge_unselected_opacity" style="margin-left: 4px;" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span>
-                </li>
-                <input type="range" min="1" max="100" value="20" class="form-range" id="unselected-opacity" oninput="unselectedOpacityChange(this.value)" onchange="unselectedOpacityChange(this.value)">
-
-                <!-- heatmap -->
-                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
-                <li class="list-group-item small d-flex justify-content-between align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
-                    <small style="font-size: 10px;">Time settings </small>
-                </li>
-                
-                <input class="form-control form-control-sm" type="text" name="daterange" placeholder="select a time range" id="timeDateRangePicker" style="font-size: 11px;" />
-
-                <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
-                <li class="list-group-item small d-flex justify-content-between align-items-center py-1 disabled" style="border: 0px; margin-bottom: 0px; padding-left: 0px;">
+                <li class="list-group-item small d-flex justify-content-between align-items-center disabled" style="max-height: 24px; border: 0px; margin-bottom: 0px; padding-left: 0px;">
                     <small style="font-size: 10px;">Heatmap settings </small>
+                    <div class="form-group" style="width: 38%; padding: 0px;">
+                        <hr>
+                    </div>
                 </li>
                 
                 <div class="form-check form-switch small float-right"> 
@@ -437,7 +501,7 @@
                     <label class="form-check-label d-flex justify-content-between" for="switchMergeHeatmap"><small>Hybrid Heatmap</small> <span id="badge_heat_map_hybrid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                 </div>
 
-                <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
+                <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
 
                 <label id="inputNodeSearchLabel" for="inputNodeSearch">0 nodes found</label>
                 
@@ -757,6 +821,7 @@
         initSemanticSearchSwitch()
         setInitialDarkMode()
         prepareGraphStructures()
+        initAppUI()
 
         let context = graphCanvas.getContext('2d');
 
@@ -947,6 +1012,7 @@
 
                 //render outer circle if node was selected
                 if (d.id.toLowerCase() in selectedNodesMap) {
+
                     context.arc(d.x, d.y, d.radius + 2.0, 0, TWO_TIMES_PI);
                     context.fillStyle = '#FF0000' //activeSelectionColor
                     drawNodeLabel(d.id, d.x + 14, d.y - 7)
@@ -1196,6 +1262,9 @@
         }
 
         function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
+
+            // $('#overallStatisticsModal').modal('show');
+
             const fontSize = 14
             context.font = fontSize + 'px Helvetica';
 
@@ -1888,11 +1957,13 @@
                         let newRadius = 0
 
                         // now interpolate for every x between f(0) and f(1): f(x) = f(0) * (1-x) + f(1) * x
-                        if (addedMetric) {
+                        if (addedMetric) {                            
                             newRadius = node.radius * (1 - t) + (node.radius + (node.metrics[metricName] * analysis_config['metrics']['radius_multiplication'][metricName] )) * t;
+                            
                             if (newRadius > node.radius) {
                                 node.radius = newRadius
                             }
+
                         } else {
                             newRadius = node.radius * (1 - t) + (node.radius - (node.metrics[metricName] * analysis_config['metrics']['radius_multiplication'][metricName] )) * t;
                             if (newRadius > radius) {
@@ -2001,8 +2072,13 @@
                     if (event.key == keyFadeUnselectedNodes) {
                         fadeUnselectedNodes = !fadeUnselectedNodes
                         if (fadeUnselectedNodes == true) {
+                            $("#li-unselected-opacity").removeClass('d-none');
+                            $("#unselected-opacity").removeClass('d-none');
                             $('#fadeUnselectedNodesLabelText').html('<b>f fading unselected nodes</b>')
+                            
                         } else {
+                            $("#li-unselected-opacity").addClass('d-none');
+                            $("#unselected-opacity").addClass('d-none');
                             $('#fadeUnselectedNodesLabelText').html('<b>f</b> fade unselected nodes')
                         }
                         simulationUpdate()
@@ -2272,6 +2348,16 @@
 
         function initAppConfig() {
             $('#configEmergeVersion').text('Emerge ' + analysis_config['emerge_version'])
+        }
+
+        function initAppUI() {
+            if (fadeUnselectedNodes == true) {
+                $("#li-unselected-opacity").removeClass('d-none');
+                $("#unselected-opacity").removeClass('d-none');
+            } else {
+                $("#li-unselected-opacity").addClass('d-none');
+                $("#unselected-opacity").addClass('d-none');
+            }
         }
 
         function initHeatmapSwitches() {

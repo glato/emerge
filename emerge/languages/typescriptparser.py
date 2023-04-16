@@ -93,6 +93,7 @@ class TypeScriptParser(AbstractParser, ParsingMixin):
             scanned_by=self.parser_name(),
             scanned_language=LanguageType.TYPESCRIPT,
             scanned_tokens=scanned_tokens,
+            source=file_content,
             preprocessed_source=""
         )
 

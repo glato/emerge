@@ -438,7 +438,9 @@ class D3Exporter:
                     'metric_sloc_in_entity': analysis.radius_sloc,
 
                     'metric_number_of_methods_in_file': analysis.radius_number_of_methods,
-                    'metric_number_of_methods_in_entity': analysis.radius_number_of_methods
+                    'metric_number_of_methods_in_entity': analysis.radius_number_of_methods,
+
+                    'metric_ws_complexity_in_file': analysis.radius_ws_complexity
                 }
             },
             'heatmap': {
