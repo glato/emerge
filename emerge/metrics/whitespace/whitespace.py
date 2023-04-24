@@ -45,7 +45,7 @@ class WhitespaceMetric(CodeMetric):
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
         for _, result in results.items():
             ws_complexity = sum(self.calculate_complexity_in(result.source))
-            result.metrics[result.unique_name] = {self.Keys.WS_COMPLEXITY_IN_FILE.value: ws_complexity}
+            result.metrics[self.Keys.WS_COMPLEXITY_IN_FILE.value] = ws_complexity
             self.local_data[result.unique_name] = {self.Keys.WS_COMPLEXITY_IN_FILE.value: ws_complexity}
 
     ### implementation borrowed from Adam Tornhill

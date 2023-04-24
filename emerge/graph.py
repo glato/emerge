@@ -29,6 +29,7 @@ class GraphType(Enum):
     ENTITY_RESULT_INHERITANCE_GRAPH = auto()
     ENTITY_RESULT_COMPLETE_GRAPH = auto()
     FILESYSTEM_GRAPH = auto()
+    FILE_RESULT_CHANGE_COUPLING_GRAPH = auto()
 
 @unique
 class GraphFilter(Enum):

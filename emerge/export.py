@@ -67,6 +67,9 @@ class TableExporter:
             tab_metric_results.align['value'] = "l"
 
             for name, value in overall_metric_results.items():
+                if 'commit-metrics' in name:
+                        continue
+                
                 if isinstance(value, dict):
                     values_as_string = ', '.join(str(x) for x in value.values())
                     tab_metric_results.add_row([name, values_as_string])
@@ -136,6 +139,9 @@ class TableExporter:
             tab_metric_results.align['value'] = "l"
 
             for name, value in overall_metric_results.items():
+                if 'commit-metrics' in name:
+                        continue
+                
                 if isinstance(value, dict):
                     values_as_string = ', '.join(str(x) for x in value.values())
                     tab_metric_results.add_row([name, values_as_string])
@@ -207,6 +213,9 @@ class JSONExporter:
                 if bool(overall_metric_results):
                     for name, value in overall_metric_results.items():
 
+                        if 'commit-metrics' in name:
+                            continue
+
                         if isinstance(value, dict):
                             values_as_string = ', '.join(str(x) for x in value.values())
                             json_metrics[name] = values_as_string
@@ -277,6 +286,9 @@ class D3Exporter:
 
             if bool(overall_metric_results):
                 for name, value in overall_metric_results.items():
+
+                    if 'commit-metrics' in name:
+                        continue
 
                     if isinstance(value, dict):
                         values_as_string = ', '.join(str(x) for x in value.values())
@@ -440,7 +452,9 @@ class D3Exporter:
                     'metric_number_of_methods_in_file': analysis.radius_number_of_methods,
                     'metric_number_of_methods_in_entity': analysis.radius_number_of_methods,
 
-                    'metric_ws_complexity_in_file': analysis.radius_ws_complexity
+                    'metric_ws_complexity_in_file': analysis.radius_ws_complexity,
+
+                    'metric_file_code_churn': analysis.radius_file_code_churn
                 }
             },
             'heatmap': {
@@ -462,7 +476,13 @@ class D3Exporter:
         }
 
         d3_js_string += "let analysis_config = "
-        d3_js_string += json.dumps(app_config) 
+        d3_js_string += json.dumps(app_config)
+        d3_js_string += '\n'
+
+        if analysis.include_git_metrics:
+            if overall_metric_results['commit-metrics']:
+                d3_js_string += "let commit_metrics = "
+                d3_js_string += json.dumps(overall_metric_results['commit-metrics'])
 
         target_force_graph_subpath = "/html"
         target_graph_subpath = "/resources/js"

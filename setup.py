@@ -56,6 +56,8 @@ setup(
         "python-louvain",
         "PyYAML",
         "tabulate",
+        "PyDriller",
+        "pyperclip"
     ],
     package_dir={
         "emerge": "emerge",
@@ -65,7 +67,9 @@ setup(
         "emerge/metrics/modularity": "./emerge/metrics/modularity",
         "emerge/metrics/numberofmethods": "./emerge/metrics/numberofmethods",
         "emerge/metrics/sloc": "./emerge/metrics/sloc",
-        "emerge/metrics/tfidf": ".emerge/metrics/tfidf"
+        "emerge/metrics/tfidf": ".emerge/metrics/tfidf",
+        "emerge/metrics/whitespace": ".emerge/metrics/whitespace",
+        "emerge/metrics/git": ".emerge/metrics/git"
     },
     packages=[
         'emerge',
@@ -75,7 +79,9 @@ setup(
         'emerge.metrics.modularity',
         'emerge.metrics.numberofmethods',
         'emerge.metrics.sloc',
-        'emerge.metrics.tfidf'
+        'emerge.metrics.tfidf',
+        'emerge.metrics.whitespace',
+        'emerge.metrics.git'
     ],
     include_package_data=True,
     entry_points={

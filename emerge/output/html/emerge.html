@@ -403,7 +403,7 @@
                 <!-- Git settings -->
                 <div style="width: 100%; padding-top: 4px; padding-bottom: 0px;"></div>
                 <li class="list-group-item small d-flex justify-content-between align-items-center py-1 disabled" style="max-height: 24px; border: 0px; margin-bottom: 0px; padding-left: 0px;">
-                    <small style="font-size: 10px;">Time settings </small>
+                    <small style="font-size: 10px;">Git settings </small>
                     <div class="form-group" style="width: 50%;">
                         <hr>
                     </div>
@@ -411,11 +411,11 @@
 
                 <div class="input-group mb-1 input-group-sm">
                 <input class="form-control form-control-sm" type="text" name="daterange" placeholder="pick date range" id="timeDateRangePicker" style="font-size: 9px;" />
-                <button class="btn btn-primary " type="button" id="inputDateRangePickerCancel">
-                    <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
-                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
+                <button class="btn btn-primary " type="button" id="inputDateRangePickerCancel" onclick="clickDateRangePickerCancel()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot" viewBox="0 0 16 16">
+                        <path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/>
+                        <path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
+                      </svg>
                 </button>
                 </div>
             
@@ -567,6 +567,17 @@
             </div>
             <!-- end modal -->
 
+            <div class="toast-container position-fixed top-0 start-0 p-3">
+            <div id="toastDateRangeUpdated" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3500">
+                <div class="d-flex">
+                  <div class="toast-body small">
+                    Git date range updated, metrics, visualizations and graph structures may have changed.
+                  </div>
+                  <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+              </div>
+            </div>
+
         </div>
 
         <script src="vendors/dark-mode-switch/js/dark-mode-switch.min.js"></script>
@@ -633,53 +644,6 @@
             if (e.key === "Escape") {
                 cancelNodeSearch()
             }
-        });
-
-        // daterangepicker for git date range
-        $(function() {
-            $('input[name="daterange"]').daterangepicker({
-
-                "locale": {
-                    "format": "YYYY-MM-DD",
-                    "separator": " - ",
-                    "applyLabel": "Apply",
-                    "cancelLabel": "Cancel",
-                    "fromLabel": "From",
-                    "toLabel": "To",
-                    "customRangeLabel": "Custom",
-                    "weekLabel": "W",
-                    "daysOfWeek": [
-                        "Su",
-                        "Mo",
-                        "Tu",
-                        "We",
-                        "Th",
-                        "Fr",
-                        "Sa"
-                    ],
-                    "monthNames": [
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December"
-                    ],
-                    "firstDay": 1
-                },
-
-                opens: 'left'
-            }, function(start, end, label) {
-                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-                dateRangePickerFrom = start.format('YYYY-MM-DD')
-                dateRangePickerTo = end.format('YYYY-MM-DD')
-            })
         });
 
         function setDarkMode(mode) {
@@ -757,6 +721,17 @@
         let dateRangePickerFrom = ""
         let dateRangePickerTo = ""
 
+        let commit_dates = commit_metrics.map(x => x.date);
+        let commit_first_date = commit_dates[0]
+        let commit_last_date = commit_dates[commit_dates.length - 1]
+
+        let includeGitMetrics = false
+        let gitMetricsIndexFrom = 0
+        let gitMetricsIndexTo = 0
+
+        dateRangePickerFrom = commit_first_date
+        dateRangePickerTo = commit_last_date
+        
         const nodeStrokeStyle = "#333333";
 
         let darkMode = false
@@ -788,6 +763,152 @@
 
         let currentGraphType
         let closeNode;
+
+        // daterangepicker for git date range
+        function initDateRangeUI() {
+            $('input[name="daterange"]').daterangepicker({
+                "startDate": commit_first_date,
+                "endDate": commit_last_date,
+                "minDate": commit_first_date,
+                "maxDate": commit_last_date,
+
+                isInvalidDate: function(date) {
+                    if ( commit_dates.includes(date.format('YYYY-MM-DD')) ) {
+                        return false
+                    } else {
+                        return true
+                    }
+                },
+
+                "locale": {
+                    "format": "YYYY-MM-DD",
+                    "separator": " - ",
+                    "applyLabel": "Apply",
+                    "cancelLabel": "Cancel",
+                    "fromLabel": "From",
+                    "toLabel": "To",
+                    "customRangeLabel": "Custom",
+                    "weekLabel": "W",
+                    "daysOfWeek": [
+                        "Su",
+                        "Mo",
+                        "Tu",
+                        "We",
+                        "Th",
+                        "Fr",
+                        "Sa"
+                    ],
+                    "monthNames": [
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December"
+                    ],
+                    "firstDay": 1
+                },
+
+                opens: 'left'
+            }, function(start, end, label) {
+                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+                dateRangePickerFrom = start.format('YYYY-MM-DD')
+                dateRangePickerTo = end.format('YYYY-MM-DD')
+
+                console.log(dateRangePickerFrom)
+                console.log(dateRangePickerTo)
+                
+                initGitMetricsForDateRange()
+                showToastDateRangeUpdate()
+            })
+        }
+
+        function showToastDateRangeUpdate() {
+            const toastLiveExample = document.getElementById('toastDateRangeUpdated')
+            const toast = new bootstrap.Toast(toastLiveExample)    
+            toast.show()
+        }
+
+        function clickDateRangePickerCancel() {
+            console.log("reset date range picker")
+            initDateRangeUI()
+            dateRangePickerFrom = commit_first_date
+            dateRangePickerTo = commit_last_date
+            initGitMetricsForDateRange()
+            showToastDateRangeUpdate()
+        }
+
+        function initGitMetricsForDateRange() {
+            gitMetricsIndexFrom = commit_dates.indexOf( dateRangePickerFrom );
+            gitMetricsIndexTo = commit_dates.lastIndexOf( dateRangePickerTo );
+            console.log("found first index: " + gitMetricsIndexFrom + " for `from` " + dateRangePickerFrom)
+            console.log("found last index: " + gitMetricsIndexTo + " for `to` " + dateRangePickerTo)
+            addChurnMetricToFileNodes()
+        }
+
+        function calculateFileChurnForDateRange() {
+            let totalFileChurnDict = {}
+
+            for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
+                let nextChurnDict = commit_metrics[i].churn
+                totalFileChurnDict = mergeDicts(totalFileChurnDict, nextChurnDict)
+            }
+
+            return totalFileChurnDict
+        }
+
+        function addChurnMetricToFileNodes() {
+            if (currentGraphType.includes('file_result_dependency_graph')) {
+                let fileChurnMap = calculateFileChurnForDateRange()
+                console.log(fileChurnMap)
+
+                currentGraph.nodes.forEach(function(node, i) {
+
+                    delete node['metric_file_code_churn']
+                    if (node.hasOwnProperty('metrics')) {
+                        delete node.metrics['metric_file_code_churn']
+                    }
+
+                    let nodeFileName = node.id.split("/").pop();
+
+                    if (nodeFileName in fileChurnMap) {
+
+                        if (!node.hasOwnProperty('metrics')) {
+                            node.metrics = {}
+                        }
+
+                        node['metric_file_code_churn'] = fileChurnMap[nodeFileName]
+                        node.metrics['metric_file_code_churn'] = fileChurnMap[nodeFileName]
+                        console.log(node.metrics)
+                    }
+                });
+            }
+        }
+
+        // https://copyprogramming.com/howto/javascript-dictionary-merge-best-methods-to-combine-key-value-pairs?utm_content=cmp-true
+        function mergeDicts(dict1, dict2) {
+            const result = {};
+            for (const key in dict1) {
+                if (dict2.hasOwnProperty(key)) {
+                    result[key] = dict1[key] + dict2[key];
+                } else {
+                    result[key] = dict1[key];
+                }
+            }
+            for (const key in dict2) {
+                if (!dict1.hasOwnProperty(key)) {
+                    result[key] = dict2[key];
+                }
+            }
+            return result;
+        }
+
 
         function setDirection(direction) {
             currentTranslation.lastDirection = direction
@@ -1683,14 +1804,20 @@
             overall_metric_results = graphData[graphType]['overall_metric_results']
             clusterMetricsMap = graphData[graphType]['cluster_metrics_map']
 
+            addChurnMetricToFileNodes()
+
             createStatistics();
             createOverallMetricResults();
 
             currentGraph.nodes.forEach(function(d, i) {
                 d.radius = radius
-                d.metrics = {}
+
+                if (!d.hasOwnProperty('metrics')) {
+                    d.metrics = {}
+                }
 
                 for (let key in d) {
+
                     if (key.includes('metric_')) {
                         d.metrics[key] = d[key]
                         if (!currentMetricKeys.includes(key)) {
@@ -2066,6 +2193,12 @@
 
                     if (event.key == keyResetCurrentSelection) {
                         selectedNodesMap = {}
+                        
+                        // currentGraph.nodes.push({'id': 'foo', 'x' : 0, 'y': 0})
+                        // simulation.nodes(currentGraph.nodes)
+                        //     .on("tick", simulationUpdate);
+
+
                         simulationUpdate()
                     }
 
@@ -2358,6 +2491,9 @@
                 $("#li-unselected-opacity").addClass('d-none');
                 $("#unselected-opacity").addClass('d-none');
             }
+
+            initGitMetricsForDateRange()
+            initDateRangeUI()
         }
 
         function initHeatmapSwitches() {

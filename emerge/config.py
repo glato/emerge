@@ -89,7 +89,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
 @unique
 class ConfigKeyFileScan(EnumKeyValid, Enum):
     """Config key checks of the file scan level."""
-    CODE_CHURN = auto()
+    GIT = auto()
     WS_COMPLEXITY = auto()
     NUMBER_OF_METHODS = auto()
     SOURCE_LINES_OF_CODE = auto()
@@ -606,12 +606,13 @@ class Configuration:
                         })
 
                     # git metrics
-                    if ConfigKeyFileScan.CODE_CHURN.name.lower() in configured_metric:
+                    if ConfigKeyFileScan.GIT.name.lower() in configured_metric:
                         git_metrics = GitMetrics(analysis)
                         LOGGER.debug(f'adding {git_metrics.pretty_metric_name}...')
                         analysis.metrics_for_file_results.update({
                             git_metrics.metric_name: git_metrics
                         })
+                        analysis.include_git_metrics = True
 
 
             if ConfigKeyAnalysis.ENTITY_SCAN.name.lower() in analysis_dict:

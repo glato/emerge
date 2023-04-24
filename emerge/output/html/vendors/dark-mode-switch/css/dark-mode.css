@@ -142,3 +142,7 @@
   border-color: transparent;
   color: #dcdbdb;
 }
+
+[data-theme="dark"] .toast {
+    background-color: #363636;
+}

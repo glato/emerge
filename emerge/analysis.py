@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import os
 from pathlib import Path
 import coloredlogs
+import pyperclip
 
 from emerge.languages.abstractparser import AbstractResult, AbstractParser, LanguageType
 from emerge.metrics.abstractmetric import AbstractMetric, AbstractCodeMetric, AbstractGraphMetric, MetricResultFilter
@@ -43,6 +44,7 @@ class Analysis:
         self.project_name: Optional[str] = None
         self.source_directory: Optional[str] = None
         self.git_directory: Optional[str] = None
+        self.include_git_metrics: bool = False
 
         self.export_directory: Optional[str] = None
         self.export_graphml: bool = False
@@ -59,6 +61,7 @@ class Analysis:
         self.radius_sloc: Optional[float] = 0.005
         self.radius_number_of_methods: Optional[float] = 0.05
         self.radius_ws_complexity: Optional[float] = 0.005
+        self.radius_file_code_churn: Optional[float] = 0.01
 
         # additional config / heatmap
         self.heatmap_sloc_active: Optional[bool] = True
@@ -306,7 +309,9 @@ class Analysis:
 
         LOGGER.info_done(f'all your generated/exported data can be found here: {resolved_export_path}')
         if self.export_d3:
+            pyperclip.copy(f'file://{resolved_export_path}/html/emerge.html')
             LOGGER.info_done(f'copy the following path to your browser and start your web app: 👉 file://{resolved_export_path}/html/emerge.html')
+            LOGGER.info_done('... also tried to copy the link to your pasteboard, just try to paste it in your browser 🚀')
 
     @property
     def entity_results(self) -> Dict[str, AbstractEntityResult]:
