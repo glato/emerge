@@ -443,7 +443,7 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#timeSeriesModal" onclick="generateTimeSeriesChart()" >
+                <!-- <button type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#timeSeriesModal" onclick="generateTimeSeriesChart()" >
                     <span aria-hidden="true">
                         <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
@@ -468,19 +468,20 @@
                         </svg>
                     </span>
                     Complexity growth
-                </button>
+                </button> -->
 
                 <div style="width: 100%; padding-top: 2px; padding-bottom: 0px;"></div>
 
-                <div class="form-check form-switch small float-right"> 
-                    <input type="checkbox" class="form-check-input" id="switchChurnHeatmap">
-                    <label class="form-check-label d-flex justify-content-between" for="switchChurnHeatmap"><small>Churn Heatmap </small> <span id="badge_heat_map_churn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+               
+                <!-- <div class="form-check form-switch small float-right"> 
+                    <input type="checkbox" class="form-check-input" id="switchTemporalEdges">
+                    <label class="form-check-label d-flex justify-content-between" for="switchTemporalEdges"><small>Temporal edges </small> <span id="badge_add_temporal_edges" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                 </div>
 
                 <div class="form-check form-switch small float-right"> 
-                    <input type="checkbox" class="form-check-input" id="switchHotspotHeatmap">
-                    <label class="form-check-label d-flex justify-content-between" for="switchHotspotHeatmap"><small>Hotspot Heatmap </small> <span id="badge_heat_map_hotspot" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
-                </div>
+                    <input type="checkbox" class="form-check-input" id="switchHighlightTemporalEdges">
+                    <label class="form-check-label d-flex justify-content-between" for="switchHighlightTemporalEdges"><small>Highlight temp </small> <span id="badge_highlight_teporal_edges" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                </div> -->
 
                 <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
 
@@ -499,6 +500,16 @@
                 <div class="form-check form-switch small float-right"> 
                     <input type="checkbox" class="form-check-input" id="switchMergeHeatmap">
                     <label class="form-check-label d-flex justify-content-between" for="switchMergeHeatmap"><small>Hybrid Heatmap</small> <span id="badge_heat_map_hybrid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                </div>
+
+                <div id="formSwitchChurnHeatmap" class="form-check form-switch small float-right"> 
+                    <input type="checkbox" class="form-check-input" id="switchChurnHeatmap">
+                    <label class="form-check-label d-flex justify-content-between" for="switchChurnHeatmap"><small>Churn Heatmap </small> <span id="badge_heat_map_churn" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
+                </div>
+
+                <div id="formSwitchHotspotHeatmap" class="form-check form-switch small float-right"> 
+                    <input type="checkbox" class="form-check-input" id="switchHotspotHeatmap">
+                    <label class="form-check-label d-flex justify-content-between" for="switchHotspotHeatmap"><small>Hotspot Heatmap </small> <span id="badge_heat_map_hotspot" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                 </div>
 
                 <div style="width: 100%; padding-top: 6px; padding-bottom: 0px;"></div>
@@ -576,6 +587,17 @@
                   <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
               </div>
+            </div>
+
+            <div class="toast-container position-fixed top-0 start-0 p-3">
+                <div id="toastDebug" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
+                    <div class="d-flex">
+                        <div id="toastDebugMessage" class="toast-body small">
+                            text
+                        </div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -708,6 +730,10 @@
 
         let heatmapMerged = false
         let heatmapActive = false
+        let heatmapChurn = false
+        let heatmapHotspot = false
+
+        let addTemporalEdges = false
 
         let selectedNodesMap = {}
         var unselectedNodesOpacity = 0.20
@@ -773,7 +799,7 @@
                 "maxDate": commit_last_date,
 
                 isInvalidDate: function(date) {
-                    if ( commit_dates.includes(date.format('YYYY-MM-DD')) ) {
+                    if ( commit_dates.includes(date.format('DD/MM/YYYY')) ) {
                         return false
                     } else {
                         return true
@@ -781,7 +807,7 @@
                 },
 
                 "locale": {
-                    "format": "YYYY-MM-DD",
+                    "format": "DD/MM/YYYY",
                     "separator": " - ",
                     "applyLabel": "Apply",
                     "cancelLabel": "Cancel",
@@ -817,9 +843,9 @@
 
                 opens: 'left'
             }, function(start, end, label) {
-                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-                dateRangePickerFrom = start.format('YYYY-MM-DD')
-                dateRangePickerTo = end.format('YYYY-MM-DD')
+                console.log("A new date selection was made: " + start.format('DD/MM/YYYY') + ' to ' + end.format('DD/MM/YYYY'));
+                dateRangePickerFrom = start.format('DD/MM/YYYY')
+                dateRangePickerTo = end.format('DD/MM/YYYY')
 
                 console.log(dateRangePickerFrom)
                 console.log(dateRangePickerTo)
@@ -832,6 +858,14 @@
         function showToastDateRangeUpdate() {
             const toastLiveExample = document.getElementById('toastDateRangeUpdated')
             const toast = new bootstrap.Toast(toastLiveExample)    
+            toast.show()
+        }
+
+        function showDebugToast(message) {
+            const toastDebug = document.getElementById('toastDebug')
+            const toast = new bootstrap.Toast(toastDebug)
+            const div = document.querySelector("#toastDebugMessage");
+            div.innerHTML = message;
             toast.show()
         }
 
@@ -939,6 +973,9 @@
 
         initAppConfig()
         initHeatmapSwitches()
+
+        initAddTemporalSwitch()
+
         initSemanticSearchSwitch()
         setInitialDarkMode()
         prepareGraphStructures()
@@ -963,7 +1000,6 @@
 
         // heatmap
         var heat = simpleheat('mainCanvas');
-        heat.max(analysis_config['heatmap']['score']['limit']);
 
         // bring back d3 schemeCategory20 to live
         const schemeCategory20 = "1f77b4aec7e8ff7f0effbb782ca02c98df8ad62728ff98969467bdc5b0d58c564bc49c94e377c2f7b6d27f7f7fc7c7c7bcbd22dbdb8d17becf9edae5"
@@ -1073,7 +1109,7 @@
                     context.fillStyle = currentActiveEdgeColor
                     context.lineWidth = 2.0;
                 } else {
-                    if (fadeUnselectedNodes == true || normalHeatmapIsActive() ) { // also fade away non-relevant egdes
+                    if (fadeUnselectedNodes == true || normalHeatmapIsActive() || churnHeatmapIsActive() || hotspotHeatmapIsActive()) { // also fade away non-relevant egdes
                         context.fillStyle = context.strokeStyle = nodeColorByModularity(d.source, unselectedNodesOpacity)
                     } 
                     context.lineWidth = 1.0;
@@ -1142,7 +1178,7 @@
 
                 context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI, true);
 
-                if (fadeUnselectedNodes == true || normalHeatmapIsActive() ) {
+                if (fadeUnselectedNodes == true || normalHeatmapIsActive() || churnHeatmapIsActive() || hotspotHeatmapIsActive()) {
                     context.strokeStyle = nodeStrokeStyle
                     context.fillStyle = hexToRGB(nodeStrokeStyle, unselectedNodesOpacity)
                     context.stroke();
@@ -1288,47 +1324,86 @@
         }
 
         /**
-         * * MARK: - Drawing a heatmap
+         * * MARK: - Drawing a heatmap for normal / hybrid (merged) mode
          */
 
          function calculateHeatmapScore(node) {
-            let score = analysis_config['heatmap']['score']['base']
-            let slocScore = 0
-            let fanoutScore = 0
 
-            if (analysis_config['heatmap']['metrics']['active']['sloc'] == true) {
-                // add weighted sloc metric if present
-                if ('metric_sloc_in_entity' in node) {
-                    slocScore = node.metric_sloc_in_entity * analysis_config['heatmap']['metrics']['weights']['sloc']
-                }
-                if ('metric_sloc_in_file' in node) {
-                    slocScore = node.metric_sloc_in_file * analysis_config['heatmap']['metrics']['weights']['sloc']
-                }
-            }
+            let totalScore = 0
 
-            if (analysis_config['heatmap']['metrics']['active']['fan_out'] == true) {
-                // add weighted fan-out metric is present
-                if ('metric_fan_out_dependency_graph' in node) {
-                    fanoutScore = node.metric_fan_out_dependency_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
-                }
-                if ('metric_fan_out_inheritance_graph' in node) {
-                    fanoutScore = node.metric_fan_out_inheritance_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
-                }
-                if ('metric_fan_out_complete_graph' in node) {
-                    fanoutScore = node.metric_fan_out_complete_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
-                }
-            }
+            if (normalHeatmapIsActive() || mergedHeatmapIsActive() ) {
 
-            // limit the total score to the heatmap limit parameter, since the rendering seems to be buggy if this is exceeded
-            let totalScore = score + slocScore + fanoutScore
-            if (totalScore > analysis_config['heatmap']['score']['limit']) {
-                totalScore = analysis_config['heatmap']['score']['limit']
+                let score = analysis_config['heatmap']['score']['base']
+                let slocScore = 0
+                let fanoutScore = 0
+
+                if (analysis_config['heatmap']['metrics']['active']['sloc'] == true) {
+                    // add weighted sloc metric if present
+                    if ('metric_sloc_in_entity' in node) {
+                        slocScore = node.metric_sloc_in_entity * analysis_config['heatmap']['metrics']['weights']['sloc']
+                    }
+                    if ('metric_sloc_in_file' in node) {
+                        slocScore = node.metric_sloc_in_file * analysis_config['heatmap']['metrics']['weights']['sloc']
+                    }
+                }
+
+                if (analysis_config['heatmap']['metrics']['active']['fan_out'] == true) {
+                    // add weighted fan-out metric is present
+                    if ('metric_fan_out_dependency_graph' in node) {
+                        fanoutScore = node.metric_fan_out_dependency_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
+                    }
+                    if ('metric_fan_out_inheritance_graph' in node) {
+                        fanoutScore = node.metric_fan_out_inheritance_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
+                    }
+                    if ('metric_fan_out_complete_graph' in node) {
+                        fanoutScore = node.metric_fan_out_complete_graph * analysis_config['heatmap']['metrics']['weights']['fan_out']
+                    }
+                }
+
+                // limit the total score to the heatmap limit parameter, since the rendering seems to be buggy if this is exceeded
+                totalScore = score + slocScore + fanoutScore
+                if (totalScore > analysis_config['heatmap']['score']['limit']) {
+                    totalScore = analysis_config['heatmap']['score']['limit']
+                }
+
+            } else if (churnHeatmapIsActive()) {
+                let score = analysis_config['churn_heatmap']['score']['base']
+                let churnScore = 0
+                
+
+                if (node.hasOwnProperty('metric_file_code_churn')) {
+                    if (analysis_config['churn_heatmap']['metrics']['active']['churn'] == true) {
+                        churnScore = node.metric_file_code_churn * analysis_config['churn_heatmap']['metrics']['weights']['churn']
+                    }
+                    
+                    totalScore = score + churnScore
+                    if (totalScore > analysis_config['churn_heatmap']['score']['limit']) {
+                        totalScore = analysis_config['churn_heatmap']['score']['limit']
+                    }
+                    
+                }
+
+            } else if (hotspotHeatmapIsActive()) {
+                // TODO
             }
 
             return totalScore
         }
 
         function drawHeatMap(context) {
+
+            if (normalHeatmapIsActive() || mergedHeatmapIsActive()) {
+                heat.max(analysis_config['heatmap']['score']['limit']);
+            }
+
+            if (churnHeatmapIsActive()) {
+                heat.max(analysis_config['churn_heatmap']['score']['limit']);
+            }
+
+            if (hotspotHeatmapIsActive()) {
+                heat.max(analysis_config['hotspot_heatmap']['score']['limit']);
+            }
+
             heat.clear();
             currentGraph.nodes.forEach(function(node, i) {
                 heat.add([node.x, node.y, calculateHeatmapScore(node)])
@@ -1834,6 +1909,8 @@
             
             createClusterHullMenu();
             createMetricsMenuEntries();
+
+            updateAppUI()
             
             enableSearchInput();
             enableNodeSelection();
@@ -1946,7 +2023,7 @@
             context.scale(transform.k, transform.k);
 
             // draw heatmap
-            if (mergedHeatmapIsActive() || normalHeatmapIsActive() ) {
+            if (mergedHeatmapIsActive() || normalHeatmapIsActive() || churnHeatmapIsActive() || hotspotHeatmapIsActive()) {
                 drawHeatMap(context)
             }
 
@@ -2193,12 +2270,6 @@
 
                     if (event.key == keyResetCurrentSelection) {
                         selectedNodesMap = {}
-                        
-                        // currentGraph.nodes.push({'id': 'foo', 'x' : 0, 'y': 0})
-                        // simulation.nodes(currentGraph.nodes)
-                        //     .on("tick", simulationUpdate);
-
-
                         simulationUpdate()
                     }
 
@@ -2462,13 +2533,10 @@
          * * MARK: - heatmap
          */
 
-        function normalHeatmapIsActive() {
-            return heatmapActive
-        }
-
-        function mergedHeatmapIsActive() {
-            return heatmapMerged
-        }
+        function normalHeatmapIsActive() { return heatmapActive }
+        function mergedHeatmapIsActive() { return heatmapMerged }
+        function churnHeatmapIsActive() { return heatmapChurn }
+        function hotspotHeatmapIsActive() { return heatmapHotspot }
 
         function initSemanticSearchSwitch() {
             $("#switchAddSemanticSearch").on('change', function() {
@@ -2483,7 +2551,7 @@
             $('#configEmergeVersion').text('Emerge ' + analysis_config['emerge_version'])
         }
 
-        function initAppUI() {
+        function updateAppUI() {
             if (fadeUnselectedNodes == true) {
                 $("#li-unselected-opacity").removeClass('d-none');
                 $("#unselected-opacity").removeClass('d-none');
@@ -2492,17 +2560,85 @@
                 $("#unselected-opacity").addClass('d-none');
             }
 
+            // currently only show git heatmaps for file dependency graph
+            if (currentGraphType.includes('file_result_dependency_graph')) {
+                $("#formSwitchChurnHeatmap").removeClass('d-none');
+                $("#formSwitchHotspotHeatmap").removeClass('d-none');
+            } else {
+                $("#formSwitchChurnHeatmap").addClass('d-none');
+                $("#formSwitchHotspotHeatmap").addClass('d-none');
+            }
+        }
+
+        function initAppUI() {
+            updateAppUI()
             initGitMetricsForDateRange()
             initDateRangeUI()
         }
 
+        // TODO
+        function initTemporalEdges() {
+
+            let temporal_edges = commit_metrics.reduce(function(ids, obj){
+                if(obj.links.length !== 0){
+                    ids.push(obj.links);
+                }
+                return ids;
+            }, []);
+
+            temporal_edges = temporal_edges.flat()
+            // console.log(temporal_edges)
+
+            if (simulation !== undefined) {
+                simulation.stop()
+            }
+
+            graphData['file_result_dependency_graph']['graph']['links'] = temporal_edges
+
+            currentGraph = JSON.parse(JSON.stringify(graphData['file_result_dependency_graph']['graph']))
+            currentGraph.links = temporal_edges  //[...currentGraph.links, ...temporal_edges];
+
+            startWithGraph('file_result_dependency_graph')            
+
+        }
+
+        function toggleTemporalEdges(toggle) {
+
+        } 
+
+        function initAddTemporalSwitch() {
+            $("#switchTemporalEdges").on('change', function() {
+                if ($(this).is(':checked')) {
+                    addTemporalEdges = true
+                    initTemporalEdges()
+                    showDebugToast('temp edges: ' + addTemporalEdges)
+                } else {
+                    addTemporalEdges = false
+                    showDebugToast('temp edges: ' + addTemporalEdges)
+                }
+
+                simulationUpdate();
+            })
+        }
+
         function initHeatmapSwitches() {
+            // normal heatmap
             $("#switchActivateHeatmap").on('change', function() {
                 if ($(this).is(':checked')) {
                     heatmapActive = true
                     if ($("#switchMergeHeatmap").is(':checked')) {
                         $("#switchMergeHeatmap").prop('checked', false);
                         heatmapMerged = false
+                    }
+
+                    if ($("#switchChurnHeatmap").is(':checked')) {
+                        $("#switchChurnHeatmap").prop('checked', false);
+                        heatmapChurn = false
+                    }
+
+                    if ($("#switchHotspotHeatmap").is(':checked')) {
+                        $("#switchHotspotHeatmap").prop('checked', false);
+                        heatmapHotspot = false
                     }
                 } else {
                     heatmapActive = false
@@ -2511,13 +2647,23 @@
                 simulationUpdate();
             });
 
+            // hybrid/merged heatmap
             $("#switchMergeHeatmap").on('change', function() {
                 if ($(this).is(':checked')) {
                     heatmapMerged = true
-
                     if ($("#switchActivateHeatmap").is(':checked')) {
                         $("#switchActivateHeatmap").prop('checked', false);
                         heatmapActive = false
+                    }
+
+                    if ($("#switchChurnHeatmap").is(':checked')) {
+                        $("#switchChurnHeatmap").prop('checked', false);
+                        heatmapChurn = false
+                    }
+
+                    if ($("#switchHotspotHeatmap").is(':checked')) {
+                        $("#switchHotspotHeatmap").prop('checked', false);
+                        heatmapHotspot = false
                     }
                 } else {
                     heatmapMerged = false
@@ -2525,6 +2671,57 @@
 
                 simulationUpdate();
             });
+
+            // churn heatmap
+            $("#switchChurnHeatmap").on('change', function() {
+                if ($(this).is(':checked')) {
+                    heatmapChurn = true
+                    if ($("#switchActivateHeatmap").is(':checked')) {
+                        $("#switchActivateHeatmap").prop('checked', false);
+                        heatmapActive = false
+                    }
+
+                    if ($("#switchMergeHeatmap").is(':checked')) {
+                        $("#switchMergeHeatmap").prop('checked', false);
+                        heatmapMerged = false
+                    }
+
+                    if ($("#switchHotspotHeatmap").is(':checked')) {
+                        $("#switchHotspotHeatmap").prop('checked', false);
+                        heatmapHotspot = false
+                    }
+                } else {
+                    heatmapChurn = false
+                }
+
+                simulationUpdate();
+            });
+
+            // hotspot heatmap
+            $("#switchHotspotHeatmap").on('change', function() {
+                if ($(this).is(':checked')) {
+                    heatmapHotspot = true
+                    if ($("#switchActivateHeatmap").is(':checked')) {
+                        $("#switchActivateHeatmap").prop('checked', false);
+                        heatmapActive = false
+                    }
+
+                    if ($("#switchMergeHeatmap").is(':checked')) {
+                        $("#switchMergeHeatmap").prop('checked', false);
+                        heatmapMerged = false
+                    }
+
+                    if ($("#switchChurnHeatmap").is(':checked')) {
+                        $("#switchChurnHeatmap").prop('checked', false);
+                        heatmapChurn = false
+                    }
+                } else {
+                    heatmapHotspot = false
+                }
+
+                simulationUpdate();
+            });
+
         }
 
         /**

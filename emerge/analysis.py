@@ -71,6 +71,20 @@ class Analysis:
         self.heatmap_score_base: Optional[int] = 10
         self.heatmap_score_limit: Optional[int] = 300
 
+        # additional config / code churn heatmap
+        self.heatmap_churn_active: Optional[bool] = True
+        self.heatmap_ws_complexity_active: Optional[bool] = True
+        self.heatmap_churn_weight: Optional[float] = 1.5
+        self.heatmap_ws_weight: Optional[float] = 1.7
+        
+        # for churn heatmap calculation
+        self.heatmap_churn_score_base: Optional[int] = 10
+        self.heatmap_churn_score_limit: Optional[int] = 500
+
+        # for hotspot heatmap calculation
+        self.heatmap_hotspot_score_base: Optional[int] = 10
+        self.heatmap_hotspot_score_limit: Optional[int] = 500
+
         self.emerge_version: Optional[str] = None
 
         self.export_json: bool = False

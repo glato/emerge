@@ -41,11 +41,11 @@ class TableExporter:
 
     @staticmethod
     def export_statistics_and_metrics_to_console(
-            statistics: Dict[str, Any],
-            overall_metric_results: Dict[str, Any],
-            local_metric_results: Optional[Dict[str, Dict[str, Any]]],
-            analysis_name: str
-        ):
+        statistics: Dict[str, Any],
+        overall_metric_results: Dict[str, Any],
+        local_metric_results: Optional[Dict[str, Dict[str, Any]]],
+        analysis_name: str
+    ):
         """Prints all collected statistics, overall metric results and local metric results to console by using a prettytable."""
 
         # overall statistics
@@ -68,8 +68,8 @@ class TableExporter:
 
             for name, value in overall_metric_results.items():
                 if 'commit-metrics' in name:
-                        continue
-                
+                    continue
+
                 if isinstance(value, dict):
                     values_as_string = ', '.join(str(x) for x in value.values())
                     tab_metric_results.add_row([name, values_as_string])
@@ -111,11 +111,11 @@ class TableExporter:
 
     @staticmethod
     def export_statistics_and_metrics_as_file(
-            statistics: Dict[str, Any],
-            overall_metric_results: Dict[str, Any],
-            local_metric_results: Dict[str, Dict[str, Any]],
-            analysis_name: str, export_dir: str
-        ):
+        statistics: Dict[str, Any],
+        overall_metric_results: Dict[str, Any],
+        local_metric_results: Dict[str, Dict[str, Any]],
+        analysis_name: str, export_dir: str
+    ):
         """Writes all collected statistics, overall metric results and local metric results to a file, formatted by a prettytable."""
 
         file = open(export_dir + '/' + 'emerge-' + 'statistics-metrics' + '.txt', 'w', encoding="utf-8")
@@ -140,8 +140,8 @@ class TableExporter:
 
             for name, value in overall_metric_results.items():
                 if 'commit-metrics' in name:
-                        continue
-                
+                    continue
+
                 if isinstance(value, dict):
                     values_as_string = ', '.join(str(x) for x in value.values())
                     tab_metric_results.add_row([name, values_as_string])
@@ -192,11 +192,11 @@ class JSONExporter:
 
     @staticmethod
     def export_statistics_and_metrics(
-            statistics: Dict[str, Any],
-            overall_metric_results: Dict[str, Any],
-            local_metric_results: Dict[str, Dict[str, Any]],
-            analysis_name: str, export_dir: str
-        ):
+        statistics: Dict[str, Any],
+        overall_metric_results: Dict[str, Any],
+        local_metric_results: Dict[str, Dict[str, Any]],
+        analysis_name: str, export_dir: str
+    ):
         """Exports all collected statistics, overall metric results and local metric results in JSON."""
 
         if bool(statistics) or bool(overall_metric_results):
@@ -311,7 +311,7 @@ class D3Exporter:
             # now loop over all nodes and create a cluster map helper structure
             for node in data['nodes']:
                 node_cluster_id = 0
-                
+
                 if graph_representation.graph_type == GraphType.ENTITY_RESULT_DEPENDENCY_GRAPH:
                     if 'metric_entity_result_dependency_graph_louvain-modularity-in-entity' in node:
                         node_cluster_id = node['metric_entity_result_dependency_graph_louvain-modularity-in-entity']
@@ -324,7 +324,7 @@ class D3Exporter:
                     if 'metric_entity_result_complete_graph_louvain-modularity-in-entity' in node:
                         node_cluster_id = node['metric_entity_result_complete_graph_louvain-modularity-in-entity']
 
-                if graph_representation.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or graph_representation.graph_type == GraphType.FILESYSTEM_GRAPH:      
+                if graph_representation.graph_type == GraphType.FILE_RESULT_DEPENDENCY_GRAPH or graph_representation.graph_type == GraphType.FILESYSTEM_GRAPH:
                     if 'metric_file_result_dependency_graph_louvain-modularity-in-file' in node:
                         node_cluster_id = node['metric_file_result_dependency_graph_louvain-modularity-in-file']
 
@@ -418,13 +418,11 @@ class D3Exporter:
 
             d3_js_string += '\n\n'
 
-        d3_js_string = d3_js_string.replace('-', '_')  # kebab case variable names are evil
-
         d3_js_string += "const analysis_name = '" + analysis.analysis_name + "'"
         d3_js_string += '\n\n'
 
         # now export all the appconfig
-        
+
         app_config = {
             'project_name': analysis.project_name,
             'analysis_name': analysis.analysis_name,
@@ -472,7 +470,37 @@ class D3Exporter:
                     'limit': analysis.heatmap_score_limit,
                     'base': analysis.heatmap_score_base
                 }
-            }
+            },
+            'churn_heatmap': {
+                'metrics': {
+                    'active': {
+                        'churn': analysis.heatmap_churn_active
+                    },
+                    'weights': {
+                        'churn': analysis.heatmap_churn_weight
+                    }
+                },
+                'score': {
+                    'limit': analysis.heatmap_churn_score_limit,
+                    'base': analysis.heatmap_churn_score_base
+                }
+            },
+            'hotspot_heatmap': {
+                'metrics': {
+                    'active': {
+                        'churn': analysis.heatmap_churn_active,
+                        'ws_complexity': analysis.heatmap_ws_complexity_active
+                    },
+                    'weights': {
+                        'churn': analysis.heatmap_churn_weight,
+                        'ws_complexity': analysis.heatmap_ws_weight
+                    }
+                },
+                'score': {
+                    'limit': analysis.heatmap_hotspot_score_limit,
+                    'base': analysis.heatmap_hotspot_score_base
+                }
+            },
         }
 
         d3_js_string += "let analysis_config = "
@@ -483,6 +511,8 @@ class D3Exporter:
             if overall_metric_results['commit-metrics']:
                 d3_js_string += "let commit_metrics = "
                 d3_js_string += json.dumps(overall_metric_results['commit-metrics'])
+
+        d3_js_string = d3_js_string.replace('-', '_')  # kebab case variable names are evil
 
         target_force_graph_subpath = "/html"
         target_graph_subpath = "/resources/js"

@@ -48,6 +48,9 @@ class WhitespaceMetric(CodeMetric):
             result.metrics[self.Keys.WS_COMPLEXITY_IN_FILE.value] = ws_complexity
             self.local_data[result.unique_name] = {self.Keys.WS_COMPLEXITY_IN_FILE.value: ws_complexity}
 
+    def calulate_from_source(self, source: str) -> float:
+        return sum(self.calculate_complexity_in(source))
+
     ### implementation borrowed from Adam Tornhill
 
     def n_log_tabs(self, line):
