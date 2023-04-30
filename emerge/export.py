@@ -451,8 +451,10 @@ class D3Exporter:
                     'metric_number_of_methods_in_entity': analysis.radius_number_of_methods,
 
                     'metric_ws_complexity_in_file': analysis.radius_ws_complexity,
+                    
+                    'metric_git_ws_complexity': analysis.radius_ws_complexity,
+                    'metric_git_code_churn': analysis.radius_file_code_churn,
 
-                    'metric_file_code_churn': analysis.radius_file_code_churn
                 }
             },
             'heatmap': {

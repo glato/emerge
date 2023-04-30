@@ -37,6 +37,7 @@ class GitMetrics(CodeMetric):
 
     class Keys(EnumLowerKebabCase):
         COMMIT_METRICS = auto()
+        GIT_METRICS = auto()
 
     def __init__(self, analysis: Analysis):
         super().__init__(analysis)
@@ -59,7 +60,7 @@ class GitMetrics(CodeMetric):
 
     def init(self):
         if self.analysis.source_directory and self.analysis.git_directory:
-            self.file_result_prefix = self.analysis.source_directory.replace(self.analysis.git_directory + '/', "") # TODO
+            self.file_result_prefix = self.analysis.source_directory.replace(self.analysis.git_directory + '/', "")
             self.file_result_prefix = f'{Path(self.file_result_prefix).parent}'
 
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
@@ -88,7 +89,7 @@ class GitMetrics(CodeMetric):
     def _calculate_git_metrics(self, results):
         results_keys = results.keys()
         repository = Repository(self.analysis.git_directory, order='reverse', only_no_merge=True)
-
+    
         temporal_edges_found = 0
         processed_commits = 0
         for commit in repository.traverse_commits():
@@ -96,11 +97,11 @@ class GitMetrics(CodeMetric):
                 break
 
             file_array = []
-            
             filepath_array = []
             d3_links_array = []
             file_churn = {}
             ws_complexity = {}
+            author = ""
 
             try:
                 if len(commit.modified_files) == 0:
@@ -124,6 +125,9 @@ class GitMetrics(CodeMetric):
                     # if the file has any source code, calc the ws complexity
                     if file.source_code:
                         ws_complexity[file.filename] = self.ws_complexity_metric.calulate_from_source(file.source_code)
+
+                    if commit.author.email:
+                        author = commit.author.email
 
                 else:
                     LOGGER.debug(f'ignoring not allowed file extension: {file_extension} in commit {commit.hash}...')
@@ -156,7 +160,8 @@ class GitMetrics(CodeMetric):
                     "filepaths": filepath_array,
                     "links": d3_links_array,
                     "churn": file_churn,
-                    "ws_complexity": ws_complexity
+                    "ws_complexity": ws_complexity,
+                    "author": author
                 }
 
                 self.change_results.append(change_result)

@@ -847,8 +847,8 @@
                 dateRangePickerFrom = start.format('DD/MM/YYYY')
                 dateRangePickerTo = end.format('DD/MM/YYYY')
 
-                console.log(dateRangePickerFrom)
-                console.log(dateRangePickerTo)
+                // console.log(dateRangePickerFrom)
+                // console.log(dateRangePickerTo)
                 
                 initGitMetricsForDateRange()
                 showToastDateRangeUpdate()
@@ -881,9 +881,9 @@
         function initGitMetricsForDateRange() {
             gitMetricsIndexFrom = commit_dates.indexOf( dateRangePickerFrom );
             gitMetricsIndexTo = commit_dates.lastIndexOf( dateRangePickerTo );
-            console.log("found first index: " + gitMetricsIndexFrom + " for `from` " + dateRangePickerFrom)
-            console.log("found last index: " + gitMetricsIndexTo + " for `to` " + dateRangePickerTo)
-            addChurnMetricToFileNodes()
+            // console.log("found first index: " + gitMetricsIndexFrom + " for `from` " + dateRangePickerFrom)
+            // console.log("found last index: " + gitMetricsIndexTo + " for `to` " + dateRangePickerTo)
+            addGitMetricToFileNodes()
         }
 
         function calculateFileChurnForDateRange() {
@@ -897,29 +897,52 @@
             return totalFileChurnDict
         }
 
-        function addChurnMetricToFileNodes() {
+        function calculateWhiteSpaceComplexityForDateRange() {
+            let totalWhiteSpaceComplexityDict = {}
+
+            for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
+                let nextWhiteSpaceComplexityDict = commit_metrics[i].ws_complexity
+                totalWhiteSpaceComplexityDict = mergeDicts(totalWhiteSpaceComplexityDict, nextWhiteSpaceComplexityDict)
+            }
+
+            return totalWhiteSpaceComplexityDict
+        }
+
+        function addGitMetricToFileNodes() {
             if (currentGraphType.includes('file_result_dependency_graph')) {
                 let fileChurnMap = calculateFileChurnForDateRange()
-                console.log(fileChurnMap)
+                let whiteSpaceComplexityMap = calculateWhiteSpaceComplexityForDateRange()
 
                 currentGraph.nodes.forEach(function(node, i) {
 
-                    delete node['metric_file_code_churn']
+                    // housekeeping git code churn
+                    delete node['metric_git_code_churn']
                     if (node.hasOwnProperty('metrics')) {
-                        delete node.metrics['metric_file_code_churn']
+                        delete node.metrics['metric_git_code_churn']
+                    }
+
+                    // housekeeping git ws complexity
+                    delete node['metric_git_ws_complexity']
+                    if (node.hasOwnProperty('metrics')) {
+                        delete node.metrics['metric_git_ws_complexity']
+                    }
+
+                    if (!node.hasOwnProperty('metrics')) {
+                        node.metrics = {}
                     }
 
                     let nodeFileName = node.id.split("/").pop();
 
+                    // add git code churn
                     if (nodeFileName in fileChurnMap) {
+                        node['metric_git_code_churn'] = fileChurnMap[nodeFileName]
+                        node.metrics['metric_git_code_churn'] = fileChurnMap[nodeFileName]
+                    }
 
-                        if (!node.hasOwnProperty('metrics')) {
-                            node.metrics = {}
-                        }
-
-                        node['metric_file_code_churn'] = fileChurnMap[nodeFileName]
-                        node.metrics['metric_file_code_churn'] = fileChurnMap[nodeFileName]
-                        console.log(node.metrics)
+                    // add git whitespace complexity
+                    if (nodeFileName in whiteSpaceComplexityMap) {
+                        node['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeFileName]
+                        node.metrics['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeFileName]
                     }
                 });
             }
@@ -1370,10 +1393,9 @@
                 let score = analysis_config['churn_heatmap']['score']['base']
                 let churnScore = 0
                 
-
-                if (node.hasOwnProperty('metric_file_code_churn')) {
+                if (node.hasOwnProperty('metric_git_code_churn')) {
                     if (analysis_config['churn_heatmap']['metrics']['active']['churn'] == true) {
-                        churnScore = node.metric_file_code_churn * analysis_config['churn_heatmap']['metrics']['weights']['churn']
+                        churnScore = node.metric_git_code_churn * analysis_config['churn_heatmap']['metrics']['weights']['churn']
                     }
                     
                     totalScore = score + churnScore
@@ -1384,7 +1406,14 @@
                 }
 
             } else if (hotspotHeatmapIsActive()) {
-                // TODO
+                let score = analysis_config['hotspot_heatmap']['score']['base']
+                let churnScore = 0
+
+                if (node.hasOwnProperty('metric_git_code_churn') && node.hasOwnProperty('metric_git_ws_complexity') ) {
+                    // TODO
+                }
+
+
             }
 
             return totalScore
@@ -1879,7 +1908,7 @@
             overall_metric_results = graphData[graphType]['overall_metric_results']
             clusterMetricsMap = graphData[graphType]['cluster_metrics_map']
 
-            addChurnMetricToFileNodes()
+            addGitMetricToFileNodes()
 
             createStatistics();
             createOverallMetricResults();
