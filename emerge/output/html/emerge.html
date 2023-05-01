@@ -784,6 +784,8 @@
             lastDirection: ""
         }
 
+        let fileResultPrefix = commit_metrics[0].file_result_prefix // TODO: pass/extract as/from extra common git metrics dict
+
         let activeMetrics
         let currentMetricKeys
 
@@ -908,10 +910,24 @@
             return totalWhiteSpaceComplexityDict
         }
 
+        function calculateAuthorsForDateRange() {
+            let totalFileAuthorsDict = {}
+
+            for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
+                let nextFileAuthorsDict = commit_metrics[i].files_author_map
+                totalFileAuthorsDict = mergeDicts(totalFileAuthorsDict, nextFileAuthorsDict)
+            }
+
+            return totalFileAuthorsDict
+        }
+
         function addGitMetricToFileNodes() {
             if (currentGraphType.includes('file_result_dependency_graph')) {
+
                 let fileChurnMap = calculateFileChurnForDateRange()
                 let whiteSpaceComplexityMap = calculateWhiteSpaceComplexityForDateRange()
+                let authorsMap = calculateAuthorsForDateRange()
+                // console.log(authorsMap)
 
                 currentGraph.nodes.forEach(function(node, i) {
 
@@ -925,6 +941,12 @@
                     delete node['metric_git_ws_complexity']
                     if (node.hasOwnProperty('metrics')) {
                         delete node.metrics['metric_git_ws_complexity']
+                    }
+
+                    // housekeeping git number of file authors
+                    delete node['metric_git_number_authors']
+                    if (node.hasOwnProperty('metrics')) {
+                        delete node.metrics['metric_git_number_authors']
                     }
 
                     if (!node.hasOwnProperty('metrics')) {
@@ -944,20 +966,34 @@
                         node['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeFileName]
                         node.metrics['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeFileName]
                     }
+
+                    let nodeSearchPath = fileResultPrefix + "/" + node.id
+
+                    // add git number authors
+                    if (nodeSearchPath in authorsMap) {
+                        node['metric_git_number_authors'] = authorsMap[nodeSearchPath].length //result[1].length
+                        node.metrics['metric_git_number_authors'] = authorsMap[nodeSearchPath].length //result[1].length
+                    }
                 });
             }
         }
 
-        // https://copyprogramming.com/howto/javascript-dictionary-merge-best-methods-to-combine-key-value-pairs?utm_content=cmp-true
+        // based on https://copyprogramming.com/howto/javascript-dictionary-merge-best-methods-to-combine-key-value-pairs?utm_content=cmp-true
         function mergeDicts(dict1, dict2) {
             const result = {};
-            for (const key in dict1) {
+            
+            for (const key in dict1) {    
                 if (dict2.hasOwnProperty(key)) {
-                    result[key] = dict1[key] + dict2[key];
+                    if ( Array.isArray(dict1[key]) && Array.isArray(dict2[key]) ) {
+                        result[key] = dict1[key].concat(dict2[key])
+                    } else {
+                        result[key] = dict1[key] + dict2[key];
+                    }
                 } else {
                     result[key] = dict1[key];
                 }
             }
+            
             for (const key in dict2) {
                 if (!dict1.hasOwnProperty(key)) {
                     result[key] = dict2[key];
@@ -965,7 +1001,6 @@
             }
             return result;
         }
-
 
         function setDirection(direction) {
             currentTranslation.lastDirection = direction
@@ -1173,7 +1208,7 @@
                     }
                 });
             return found
-        } 
+        }
         
         function searchTermIncludedInNodeTags(node) {
             let found = false
@@ -1401,18 +1436,36 @@
                     totalScore = score + churnScore
                     if (totalScore > analysis_config['churn_heatmap']['score']['limit']) {
                         totalScore = analysis_config['churn_heatmap']['score']['limit']
-                    }
-                    
+                    }      
                 }
 
             } else if (hotspotHeatmapIsActive()) {
+                // approach: let's define a hotspot as a product of the following factors
+                // 1. code churn over a given time period
+                // 2. whitespace complexity over a given time period
+                // 3. connectivity based on dependencies inside the network (i.e. fan-in / fan-out)
+
                 let score = analysis_config['hotspot_heatmap']['score']['base']
                 let churnScore = 0
+                let ws_complexity_score = 0
+                let connectivity_score = 0
 
                 if (node.hasOwnProperty('metric_git_code_churn') && node.hasOwnProperty('metric_git_ws_complexity') ) {
-                    // TODO
-                }
+                    if (analysis_config['hotspot_heatmap']['metrics']['active']['churn'] == true && analysis_config['hotspot_heatmap']['metrics']['active']['ws_complexity'] == true) {
+                        churnScore = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['churn']
+                        ws_complexity_score = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['ws_complexity'] * 0.75
 
+                        if ('metric_fan_out_dependency_graph' in node) {
+                            console.log("found metric_fan_out_dependency_graph")
+                            connectivity_score = node.metric_fan_out_dependency_graph * 10.0
+                        }
+
+                        totalScore = (churnScore + ws_complexity_score + connectivity_score)
+                        if (totalScore > analysis_config['hotspot_heatmap']['score']['limit'] * 1.25  ) {
+                            totalScore = analysis_config['hotspot_heatmap']['score']['limit'] * 1.25
+                        }
+                    }
+                }
 
             }
 

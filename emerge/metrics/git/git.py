@@ -37,7 +37,6 @@ class GitMetrics(CodeMetric):
 
     class Keys(EnumLowerKebabCase):
         COMMIT_METRICS = auto()
-        GIT_METRICS = auto()
 
     def __init__(self, analysis: Analysis):
         super().__init__(analysis)
@@ -102,6 +101,7 @@ class GitMetrics(CodeMetric):
             file_churn = {}
             ws_complexity = {}
             author = ""
+            filepath_author_map = {}
 
             try:
                 if len(commit.modified_files) == 0:
@@ -117,7 +117,7 @@ class GitMetrics(CodeMetric):
                     file_array.append(file.filename)
 
                     if file.new_path is not None:
-                        filepath_array.append(file.new_path)
+                        filepath_array.append(file.new_path)                        
 
                     # calc code churn per file, assuming it's the sum of all changed lines
                     file_churn[file.filename] = file.added_lines + file.deleted_lines
@@ -128,6 +128,9 @@ class GitMetrics(CodeMetric):
 
                     if commit.author.email:
                         author = commit.author.email
+
+                        if file.new_path is not None:
+                            filepath_author_map[file.new_path] = [author]
 
                 else:
                     LOGGER.debug(f'ignoring not allowed file extension: {file_extension} in commit {commit.hash}...')
@@ -161,7 +164,9 @@ class GitMetrics(CodeMetric):
                     "links": d3_links_array,
                     "churn": file_churn,
                     "ws_complexity": ws_complexity,
-                    "author": author
+                    "author": author,
+                    "files_author_map": filepath_author_map,
+                    "file_result_prefix": self.file_result_prefix
                 }
 
                 self.change_results.append(change_result)

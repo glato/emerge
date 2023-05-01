@@ -62,6 +62,7 @@ class Analysis:
         self.radius_number_of_methods: Optional[float] = 0.05
         self.radius_ws_complexity: Optional[float] = 0.005
         self.radius_file_code_churn: Optional[float] = 0.01
+        self.radius_git_number_authors: Optional[float] = 2.0
 
         # additional config / heatmap
         self.heatmap_sloc_active: Optional[bool] = True
