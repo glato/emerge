@@ -37,6 +37,7 @@ class GitMetrics(CodeMetric):
 
     class Keys(EnumLowerKebabCase):
         COMMIT_METRICS = auto()
+        # GIT_METRICS = auto()
 
     def __init__(self, analysis: Analysis):
         super().__init__(analysis)
@@ -55,7 +56,7 @@ class GitMetrics(CodeMetric):
         self.change_results: List[Any] = []
 
         self.file_result_prefix = "" 
-        self.last_number_of_commits_for_calculation = 1000
+        self.last_number_of_commits_for_calculation = 3000
 
     def init(self):
         if self.analysis.source_directory and self.analysis.git_directory:
@@ -120,18 +121,23 @@ class GitMetrics(CodeMetric):
                         filepath_array.append(file.new_path)                        
 
                     # calc code churn per file, assuming it's the sum of all changed lines
-                    file_churn[file.filename] = file.added_lines + file.deleted_lines
+                    file_churn[file.new_path] = file.added_lines + file.deleted_lines
 
                     # if the file has any source code, calc the ws complexity
                     if file.source_code:
-                        ws_complexity[file.filename] = self.ws_complexity_metric.calulate_from_source(file.source_code)
+                        ws_complexity[file.new_path] = self.ws_complexity_metric.calulate_from_source(file.source_code)
 
                     if commit.author.email:
                         author = commit.author.email
 
                         if file.new_path is not None:
-                            filepath_author_map[file.new_path] = [author]
 
+                            if file.new_path in filepath_author_map:
+                                filepath_author_map[file.new_path][author] = file_churn[file.new_path]
+                            else:
+                                filepath_author_map[file.new_path] = {}
+                                filepath_author_map[file.new_path][author] = file_churn[file.new_path]
+                        
                 else:
                     LOGGER.debug(f'ignoring not allowed file extension: {file_extension} in commit {commit.hash}...')
 

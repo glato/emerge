@@ -67,7 +67,7 @@ class TableExporter:
             tab_metric_results.align['value'] = "l"
 
             for name, value in overall_metric_results.items():
-                if 'commit-metrics' in name:
+                if 'commit-metrics' in name or 'git-metrics' in name:
                     continue
 
                 if isinstance(value, dict):
@@ -139,7 +139,7 @@ class TableExporter:
             tab_metric_results.align['value'] = "l"
 
             for name, value in overall_metric_results.items():
-                if 'commit-metrics' in name:
+                if 'commit-metrics' in name or 'git-metrics' in name:
                     continue
 
                 if isinstance(value, dict):
@@ -213,7 +213,7 @@ class JSONExporter:
                 if bool(overall_metric_results):
                     for name, value in overall_metric_results.items():
 
-                        if 'commit-metrics' in name:
+                        if 'commit-metrics' in name or 'git-metrics' in name:
                             continue
 
                         if isinstance(value, dict):
@@ -287,7 +287,7 @@ class D3Exporter:
             if bool(overall_metric_results):
                 for name, value in overall_metric_results.items():
 
-                    if 'commit-metrics' in name:
+                    if 'commit-metrics' in name or 'git-metrics' in name:
                         continue
 
                     if isinstance(value, dict):
@@ -511,9 +511,14 @@ class D3Exporter:
         d3_js_string += '\n'
 
         if analysis.include_git_metrics:
-            if overall_metric_results['commit-metrics']:
+            if 'commit-metrics' in overall_metric_results:
                 d3_js_string += "let commit_metrics = "
-                d3_js_string += json.dumps(overall_metric_results['commit-metrics'])        
+                d3_js_string += json.dumps(overall_metric_results['commit-metrics'])
+            
+            if 'git-metrics' in overall_metric_results:
+                d3_js_string += '\n'
+                d3_js_string += "let git_metrics = "
+                d3_js_string += json.dumps(overall_metric_results['git-metrics'])
 
         d3_js_string = d3_js_string.replace('-', '_')  # kebab case variable names are evil
 

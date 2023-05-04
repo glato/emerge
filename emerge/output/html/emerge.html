@@ -917,7 +917,6 @@
                 let nextFileAuthorsDict = commit_metrics[i].files_author_map
                 totalFileAuthorsDict = mergeDicts(totalFileAuthorsDict, nextFileAuthorsDict)
             }
-
             return totalFileAuthorsDict
         }
 
@@ -948,34 +947,54 @@
                     if (node.hasOwnProperty('metrics')) {
                         delete node.metrics['metric_git_number_authors']
                     }
+                    delete node['metric_git_main_contrib']
+                    if (node.hasOwnProperty('metrics')) {
+                        delete node.metrics['metric_git_main_contrib']
+                    }
 
                     if (!node.hasOwnProperty('metrics')) {
                         node.metrics = {}
                     }
 
                     let nodeFileName = node.id.split("/").pop();
+                    let nodeSearchPath = fileResultPrefix + "/" + node.id
 
                     // add git code churn
-                    if (nodeFileName in fileChurnMap) {
-                        node['metric_git_code_churn'] = fileChurnMap[nodeFileName]
-                        node.metrics['metric_git_code_churn'] = fileChurnMap[nodeFileName]
+                    if (nodeSearchPath in fileChurnMap) {
+                        node['metric_git_code_churn'] = fileChurnMap[nodeSearchPath]
+                        node.metrics['metric_git_code_churn'] = fileChurnMap[nodeSearchPath]
                     }
 
                     // add git whitespace complexity
-                    if (nodeFileName in whiteSpaceComplexityMap) {
-                        node['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeFileName]
-                        node.metrics['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeFileName]
+                    if (nodeSearchPath in whiteSpaceComplexityMap) {
+                        node['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeSearchPath]
+                        node.metrics['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeSearchPath]
                     }
-
-                    let nodeSearchPath = fileResultPrefix + "/" + node.id
 
                     // add git number authors
                     if (nodeSearchPath in authorsMap) {
-                        node['metric_git_number_authors'] = authorsMap[nodeSearchPath].length //result[1].length
-                        node.metrics['metric_git_number_authors'] = authorsMap[nodeSearchPath].length //result[1].length
+                        let main_contributor = mainContributor(authorsMap[nodeSearchPath])
+                        node['metric_git_number_authors'] = Object.keys(authorsMap[nodeSearchPath]).length //result[1].length
+                        node.metrics['metric_git_number_authors'] = Object.keys(authorsMap[nodeSearchPath]).length //result[1].length
+                        node['metric_git_main_contrib'] = main_contributor
+                        node.metrics['metric_git_main_contrib'] = main_contributor
                     }
                 });
             }
+        }
+
+        function mainContributor(obj={}, asc=true) { 
+            let biggestChurn = 0
+            let authorBiggestChurn = ''
+            
+            for (let key in obj) {
+                if (obj[key] > biggestChurn) {
+                    biggestChurn = obj[key]
+                    authorBiggestChurn = key
+                }
+            }
+            
+            return authorBiggestChurn
         }
 
         // based on https://copyprogramming.com/howto/javascript-dictionary-merge-best-methods-to-combine-key-value-pairs?utm_content=cmp-true
@@ -986,6 +1005,8 @@
                 if (dict2.hasOwnProperty(key)) {
                     if ( Array.isArray(dict1[key]) && Array.isArray(dict2[key]) ) {
                         result[key] = dict1[key].concat(dict2[key])
+                    } else if ( typeof dict1[key] === "object" && typeof dict2[key] === "object") {
+                        result[key] = Object.assign({}, dict1[key], dict2[key]);
                     } else {
                         result[key] = dict1[key] + dict2[key];
                     }
@@ -1456,7 +1477,6 @@
                         ws_complexity_score = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['ws_complexity'] * 0.75
 
                         if ('metric_fan_out_dependency_graph' in node) {
-                            console.log("found metric_fan_out_dependency_graph")
                             connectivity_score = node.metric_fan_out_dependency_graph * 10.0
                         }
 
