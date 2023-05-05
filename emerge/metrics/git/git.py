@@ -55,12 +55,15 @@ class GitMetrics(CodeMetric):
         self.commit_hashes: List[Any] = []
         self.change_results: List[Any] = []
 
-        self.file_result_prefix = "" 
-        self.last_number_of_commits_for_calculation = 3000
+        self.file_result_prefix = ""
+        self.file_result_prefix_full = ""
+        
+        self.last_number_of_commits_for_calculation = 3500
 
     def init(self):
         if self.analysis.source_directory and self.analysis.git_directory:
             self.file_result_prefix = self.analysis.source_directory.replace(self.analysis.git_directory + '/', "")
+            self.file_result_prefix_full = self.file_result_prefix
             self.file_result_prefix = f'{Path(self.file_result_prefix).parent}'
 
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
@@ -165,6 +168,7 @@ class GitMetrics(CodeMetric):
                 change_result = {
                     "hash": commit.hash,
                     "date": commit.committer_date.strftime("%d/%m/%Y"),
+                    "exact_date": commit.committer_date.strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
                     "files": file_array,
                     "filepaths": filepath_array,
                     "links": d3_links_array,
@@ -172,7 +176,8 @@ class GitMetrics(CodeMetric):
                     "ws_complexity": ws_complexity,
                     "author": author,
                     "files_author_map": filepath_author_map,
-                    "file_result_prefix": self.file_result_prefix
+                    "file_result_prefix": self.file_result_prefix,
+                    "file_result_prefix_full": self.file_result_prefix_full
                 }
 
                 self.change_results.append(change_result)
