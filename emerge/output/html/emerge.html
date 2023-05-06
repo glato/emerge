@@ -433,6 +433,8 @@
                         <div class="modal-body">
                         
                         <div id="my_dataviz"></div>
+                        <br>
+                        <div id="my_dataviz2"></div>
 
                         </div>
                         <div class="modal-footer">
@@ -1742,6 +1744,7 @@
             const modal = document.getElementById('timeSeriesModal')
             modal.addEventListener('hidden.bs.modal', event => {
                 d3.select("#timeSeriesComplexityChart").remove();
+                d3.select("#timeSeriesChurnChart").remove();
             })
         }
 
@@ -3032,9 +3035,12 @@
         function generateTimeSeriesChart() {
 
             let timeSeriesComplexity = []
-            for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
-                for (const [key, value] of Object.entries(commit_metrics[i].ws_complexity)) {
+            let timeSeriesChurn = []
 
+            for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
+
+                // prepare comlexity data for chart
+                for (const [key, value] of Object.entries(commit_metrics[i].ws_complexity)) {
                     if (key.includes(fileResultPrefixFull)) {
 
                         const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
@@ -3052,21 +3058,54 @@
                         timeSeriesComplexity.push(timeSeriesComplexityEntry)
                     }
                 }
+
+                // prepare churn data for chart
+                for (const [key, value] of Object.entries(commit_metrics[i].churn)) {
+                    if (key.includes(fileResultPrefixFull)) {
+
+                        const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
+                        if (Object.keys(selectedNodesMap).length > 0) {
+                            if ((matchingKey in selectedNodesMap) == false) {
+                                continue
+                            }
+                        }
+
+                        let timeSeriesChurnEntry = {
+                            'filepath' : key,
+                            'churn' : value,
+                            'date': commit_metrics[i].exact_date.replace(/_/g, "-") // TODO ...
+                        }
+                        timeSeriesChurn.push(timeSeriesChurnEntry)
+                    }
+                }
             }
             
-            let chart = LineChart(timeSeriesComplexity, {
+            let complexityChart = LineChart(timeSeriesComplexity, {
                 x: d => Date.parse(d.date),
                 y: d => d.wscomplexity,
                 z: d => d.filepath,
                 yLabel: "Whitespace Complexity",
                 width: 900,
-                height: 600,
+                height: 350,
                 color: "lightsteelblue",
                 voronoi: false,
                 id: "timeSeriesComplexityChart"
             })
 
-            document.getElementById("my_dataviz").appendChild(chart);
+            let churnChart = LineChart(timeSeriesChurn, {
+                x: d => Date.parse(d.date),
+                y: d => d.churn,
+                z: d => d.filepath,
+                yLabel: "Code churn",
+                width: 900,
+                height: 350,
+                color: "lightsteelblue",
+                voronoi: false,
+                id: "timeSeriesChurnChart"
+            })
+
+            document.getElementById("my_dataviz").appendChild(complexityChart);
+            document.getElementById("my_dataviz2").appendChild(churnChart);
         }
 
 
