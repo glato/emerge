@@ -2339,6 +2339,8 @@
             d3.select('body')
                 .on("keydown", function(event) { 
 
+
+
                     if (event.key == keySelectUnselect) {
                         if (closeNode != null) {
                             if (closeNode.id.toLowerCase() in selectedNodesMap) {
@@ -3034,6 +3036,14 @@
                 for (const [key, value] of Object.entries(commit_metrics[i].ws_complexity)) {
 
                     if (key.includes(fileResultPrefixFull)) {
+
+                        const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
+                        if (Object.keys(selectedNodesMap).length > 0) {
+                            if ((matchingKey in selectedNodesMap) == false) {
+                                continue
+                            }
+                        }
+
                         let timeSeriesComplexityEntry = {
                             'filepath' : key,
                             'wscomplexity' : value,

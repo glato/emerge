@@ -58,7 +58,7 @@ class GitMetrics(CodeMetric):
         self.file_result_prefix = ""
         self.file_result_prefix_full = ""
         
-        self.last_number_of_commits_for_calculation = 3500
+        self.last_number_of_commits_for_calculation = 10000
 
     def init(self):
         if self.analysis.source_directory and self.analysis.git_directory:
