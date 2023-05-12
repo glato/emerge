@@ -86,3 +86,126 @@ div.tooltip {
     width: 16px;
     height: 16px;
 }
+
+div.graphDiv {
+    width: 100%;
+}
+
+body {
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.card-body {
+    padding-top: 4px;
+    padding-bottom: 12px;
+}
+
+.tooltip-inner {
+    background-color: white;
+    color: black;
+    font-size: smaller;
+    text-align: left;
+}
+
+.wide-tooltip .tooltip-inner {
+    min-width: 340px;
+}
+
+.bs-tooltip-bottom {
+    margin-top: 6px;
+}
+
+hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 2px solid #0d6efd;
+}
+
+.btn {
+    padding: 2px;
+}
+
+.btn-left-aligned {
+    text-align: left !important;
+    padding-left: 10px;
+}
+
+.btn-right-aligned {
+    text-align: right !important;
+    padding-right: 10px;
+}
+
+#projectNameListElement {
+    padding-bottom: 1px;
+    padding-top: 2px;
+}
+
+#analysisNameListElement {
+    padding-bottom: 1px;
+    padding-top: 1px;
+}
+
+#analysisDateTimeListElement {
+    padding-top: 1px;
+    padding-bottom: 4px;
+}
+
+#graphDiv {
+    position: relative;
+}
+
+#inputNodeSearchLabel,
+#selectNodesLabel,
+#resetSelectionLabel,
+#expandSelectionLabel,
+#hoverSelectionLabel,
+#fadeUnselectedNodesLabel {
+    font-size: 10px;
+    margin-bottom: 2px;
+    padding-top: 4px;
+}
+
+#cardMenu {
+    position: absolute;
+    top: 6px;
+    right: 5px;
+    width: 200px;
+}
+
+#menuButtonGroup {
+    padding-left: 0px;
+    padding-top: 6px;
+    padding-bottom: 0px;
+}
+
+#dropdown-apply-metric {
+    min-width: 200px;
+}
+
+.list-group {
+    --bs-list-group-color: #212529;
+    --bs-list-group-bg: #fff;
+    --bs-list-group-border-color: rgba(0, 0, 0, 0.125);
+    --bs-list-group-border-width: 1px;
+    --bs-list-group-border-radius: 0.375rem;
+    --bs-list-group-item-padding-x: 0.2rem;
+    --bs-list-group-item-padding-y: 0.2rem;
+    --bs-list-group-action-color: #495057;
+    --bs-list-group-action-hover-color: #495057;
+    --bs-list-group-action-hover-bg: #f8f9fa;
+    --bs-list-group-action-active-color: #212529;
+    --bs-list-group-action-active-bg: #e9ecef;
+    --bs-list-group-disabled-color: #6c757d;
+    --bs-list-group-disabled-bg: #fff;
+    --bs-list-group-active-color: #fff;
+    --bs-list-group-active-bg: #0d6efd;
+    --bs-list-group-active-border-color: #0d6efd;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    margin-bottom: 0;
+    border-radius: var(--bs-list-group-border-radius);
+}
+

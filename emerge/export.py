@@ -525,7 +525,7 @@ class D3Exporter:
         target_force_graph_subpath = "/html"
         target_graph_subpath = "/resources/js"
         target_export_file_path = export_dir + target_force_graph_subpath + target_graph_subpath + \
-            '/' + 'graph_representations' + '_d3_force_graph' + '.js'
+            '/' + 'emerge_data.js'
 
         with open(target_export_file_path, 'w', encoding="utf-8") as file:
             file.write(d3_js_string)
