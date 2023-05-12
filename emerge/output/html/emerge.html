@@ -803,6 +803,9 @@
         let gitMetricsIndexFrom = 0
         let gitMetricsIndexTo = 0
 
+
+        let nodeColorMap = {}
+
         dateRangePickerFrom = commit_first_date
         dateRangePickerTo = commit_last_date
         
@@ -850,6 +853,15 @@
                 "endDate": commit_last_date,
                 "minDate": commit_first_date,
                 "maxDate": commit_last_date,
+
+                ranges: {
+                    'Last 3 days': [moment().subtract(2, 'days'), moment()],
+                    'Last 10 days': [moment().subtract(9, 'days'), moment()],
+                    'Last 30 days': [moment().subtract(29, 'days'), moment()],
+                    'Last 60 days': [moment().subtract(59, 'days'), moment()],
+                    'This month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
 
                 isInvalidDate: function(date) {
                     if ( commit_dates.includes(date.format('DD/MM/YYYY')) ) {
@@ -1835,6 +1847,12 @@
             context.fill();
         }
 
+        function initNodeColorMap() {
+            currentGraph.nodes.forEach(function(node, i) {
+                nodeColorMap[node.id] = hexToRGB(color(node.metric_file_result_dependency_graph_louvain_modularity_in_file), 1.0)
+            })
+        }
+
         function nodeColorByModularity(node, alpha = 1.0) {
             if (currentGraphType.includes('file_result') || currentGraphType.includes('filesystem')) {
                 if ('metric_file_result_dependency_graph_louvain_modularity_in_file' in node) {
@@ -2156,6 +2174,8 @@
             createMetricsMenuEntries();
 
             updateAppUI()
+
+            initNodeColorMap();
             
             enableSearchInput();
             enableNodeSelection();
@@ -3239,7 +3259,7 @@
                 y: d => d.churn,
                 z: d => d.filepath,
                 yLabel: "Code churn",
-                width: 900,
+                width: 1000,
                 height: 350,
                 color: "lightsteelblue",
                 voronoi: false,
@@ -3295,8 +3315,13 @@
                         if ( !(locations.find(e => e.name === matchingTargetKey)) ) {
 
                             if ( !(matchingTargetKey in locationColorMap) ) {
-                                let randomColor = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
-                                locationColorMap[matchingTargetKey] = randomColor
+                                
+                                if (matchingTargetKey in nodeColorMap) {
+                                    locationColorMap[matchingTargetKey] = nodeColorMap[matchingTargetKey]
+                                } else {
+                                    console.log("should not happen")
+                                    locationColorMap[matchingTargetKey] = '#FFFFFF' // "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
+                                }
                             }
 
                             let location = {
@@ -3367,11 +3392,11 @@
             /*//////////////////////////////////////////////////////////
             /////////////// Initiate Chord Diagram /////////////////////
             //////////////////////////////////////////////////////////*/
-            let size = 1000;
+            let size = 900;
             let dr = 40; //radial translation for group names
             let dx = 20; //horizontal translation for group names
-            let margin = { top: 0, right: 70, bottom: 70, left: 70 };
-            let chordWidth = size - margin.left - margin.right;
+            let margin = { top: 0, right: 50, bottom: 50, left: 50 };
+            let chordWidth = (size + 200) - margin.left - margin.right;
             let chordHeight = size - margin.top - margin.bottom;
             let innerRadius = Math.min(chordWidth, chordHeight) * .39;
             let outerRadius = innerRadius * 1.08;
@@ -3385,7 +3410,7 @@
             .style("position", "absolute")
             .style("text-align", "center")
             .style("padding", "6px")
-            .style("font", "12px sans-serif")
+            .style("font", "10px sans-serif")
             .style("color", "black")
             .style("background", "silver")
             .style("border", "1px solid gray")
@@ -3582,7 +3607,7 @@
             .each(function (d) { d.angle = (d.startAngle + d.endAngle) / 2; })
             .attr("dy", ".35em")
             .attr("class", "titles")
-            .style("font-size", "14px")
+            .style("font-size", "10px")
             .style("font-family", "sans-serif")
             .attr("fill", "#FFF")
             .attr("text-anchor", function (d) { 
@@ -3701,30 +3726,30 @@
             function showChordToolTip(event, chord) {
                 var prompt = "";
                 
-                if (chord.source.index !== chord.target.index) {
-                    prompt += chord.source.value + " Kunden gingen von " + 
-                    locations[chord.target.index].name + " nach " + 
-                    locations[chord.source.index].name + ".";
-                    prompt += "<br>";
-                    prompt += chord.target.value + " Kunden gingen von " + 
-                    locations[chord.source.index].name + " nach " + 
-                    locations[chord.target.index].name + ".";
-                }
-                else {
-                    prompt += chord.source.value + " Kunden blieben in " + 
-                    locations[chord.source.index].name + ".";
-                }
+                // if (chord.source.index !== chord.target.index) {
+                //     prompt += chord.source.value + " Kunden gingen von " + 
+                //     locations[chord.target.index].name + " nach " + 
+                //     locations[chord.source.index].name + ".";
+                //     prompt += "<br>";
+                //     prompt += chord.target.value + " Kunden gingen von " + 
+                //     locations[chord.source.index].name + " nach " + 
+                //     locations[chord.target.index].name + ".";
+                // }
+                // else {
+                //     prompt += chord.source.value + " Kunden blieben in " + 
+                //     locations[chord.source.index].name + ".";
+                // }
+
+                prompt += locations[chord.target.index].name + "<br>" + "... changed together with ... " + "<br>" + locations[chord.source.index].name + ".";
                 
-                // TODO
-                const[x, y] = d3.pointer(event);
-                // console.log(x)
-                // console.log(y)
+                const[x, y] = d3.pointer(event);    
 
                 toolTip
                 .style("opacity", 1)
+                .style("font-size", "10px")
                 .html(prompt)
-                .style("left", x - toolTip.node().getBoundingClientRect().width / 2 + "px") // .style("left", d3.event.pageX - toolTip.node().getBoundingClientRect().width / 2 + "px")
-                .style("top", (y - 50) + "px"); // .style("top", (d3.event.pageY - 50) + "px");
+                .style("left", x - toolTip.node().getBoundingClientRect().width / 32  + "px") // .style("left", d3.event.pageX - toolTip.node().getBoundingClientRect().width / 2 + "px")
+                .style("top", y + 300 + "px"); // .style("top", (d3.event.pageY - 50) + "px");
             };
             
             function showArcToolTip(event, arc) {
@@ -3732,13 +3757,13 @@
                 // console.log(locations)
                 // console.log(arc)
 
-                var prompt = Math.round(arc.value) + " Kunden befinden sich in " + locations[arc.index].name + ".";
+                var prompt = locations[arc.index].name + "."; //Math.round(arc.value) 
                 
                 toolTip
                 .style("opacity", 1)
                 .html(prompt)
-                .style("left", x - toolTip.node().getBoundingClientRect().width / 2 + "px")
-                .style("top", (y - 30) + "px");
+                .style("left", x + toolTip.node().getBoundingClientRect().width  + "px")
+                .style("top", y + 300 + "px");
             };
             
             function hideToolTip() {

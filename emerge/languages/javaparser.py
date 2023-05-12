@@ -197,7 +197,6 @@ class JavaParser(AbstractParser, ParsingMixin):
                 analysis.statistics.increment(Statistics.Key.PARSING_HITS)
 
                 dependency: str = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
-                # TODO: try to check/resolve the dependency
 
                 # ignore any dependency substring from the config ignore list
                 if self._is_dependency_in_ignore_list(dependency, analysis):
