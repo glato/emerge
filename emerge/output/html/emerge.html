@@ -569,14 +569,14 @@
                     </div>
 
                     <div class="form-check form-switch small float-right" style="width: 100%;"> 
-                        <input type="checkbox" class="form-check-input" id="switchAddContributorsSearch">
+                        <input type="checkbox" class="form-check-input" id="switchAddContributorSearch">
                         <label class="form-check-label d-flex justify-content-between" for="switchAddContributorsSearch"><small>Add contributors</small> <span id="badge_contributors_search" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
                     </div>
 
-                    <div class="form-check form-switch small float-right" style="width: 100%;"> 
+                    <!-- <div class="form-check form-switch small float-right" style="width: 100%;"> 
                         <input type="checkbox" class="form-check-input" id="switchMainContributorsSearch">
                         <label class="form-check-label d-flex justify-content-between" for="switchMainContributorsSearch"><small>Main contributors</small> <span id="badge_main_contributors_search" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" class="badge rounded-pill text-bg-primary"> ?</span> </label>
-                    </div>
+                    </div> -->
 
                 </div>
                 
@@ -681,6 +681,7 @@
         const fileNodeColor = '#d1e3ff'
         const defaultNodeColor = '#1f77b4'
         const semanticHeaderYellow = '#f5bc42'
+        const contributorsPurple = '#ff00ff'
 
         /**
          * * MARK: - Math constants
@@ -810,6 +811,8 @@
         let darkMode = false
         let isSearching = false
         let addSemanticSearch = false
+        let addContributorSearch = false
+
         let searchString = ""
 
         let searchTerms = []
@@ -1000,6 +1003,12 @@
                         delete node.metrics['metric_git_main_contrib']
                     }
 
+                    // housekeeping file contributors
+                    delete node['metric_git_contributors']
+                    if (node.hasOwnProperty('metrics')) {
+                        delete node.metrics['metric_git_contributors']
+                    }
+
                     if (!node.hasOwnProperty('metrics')) {
                         node.metrics = {}
                     }
@@ -1027,6 +1036,13 @@
                         node['metric_git_main_contrib'] = main_contributor
                         node.metrics['metric_git_main_contrib'] = main_contributor
                     }
+
+                    // add all git contributors to file
+                    if (nodeSearchPath in authorsMap) {
+                        node['metric_git_contributors'] = Object.keys(authorsMap[nodeSearchPath])
+                        node.metrics['metric_git_contributors'] = Object.keys(authorsMap[nodeSearchPath])
+                    }
+
                 });
             }
         }
@@ -1102,8 +1118,9 @@
         initHeatmapSwitches()
 
         initAddTemporalSwitch()
-
         initSemanticSearchSwitch()
+        initContributorSearchSwitch()
+
         setInitialDarkMode()
         prepareGraphStructures()
         initAppUI()
@@ -1180,6 +1197,17 @@
             return found
         }
 
+        function searchTermsIncludedInNodeContributors(sourceNode, targetNode) {
+            let found = false
+            searchTerms.forEach(element => {
+                if ((stringIncludedInNodeContributors(element, sourceNode) && stringIncludedInNodeContributors(element, targetNode))) {
+                    console.log("edge found")
+                    found = true
+                }
+            });
+            return found
+        }
+
         /**
          * * MARK: - Drawing on canvas
          */
@@ -1207,8 +1235,8 @@
                                 context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
                             }
 
-                        // normal search without semantic
-                        } else {
+                        
+                        }  else { // normal search without semantic
                             // the edge is between two nodes that are included in the search
                             if (edgeBetweenSearchTerms(d.source, d.target))                            
                             { 
@@ -1218,6 +1246,16 @@
                                 context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
                             }
                         }
+
+                        if (addContributorSearch == true ) {
+                            // the edge is between two nodes that are included in the search OR the edge is between two nodes that includes the search in one of their semantic keywords
+                            if ( searchTermsIncludedInNodeContributors(d.source, d.target) )
+                            { 
+                                context.strokeStyle = currentActiveEdgeColor
+                                context.fillStyle = currentActiveEdgeColor
+                            }
+                        }
+                        
                     }
 
                 } else {
@@ -1289,6 +1327,16 @@
             return found
         }
 
+        function searchTermIncludedInNodeContributors(node) {
+            let found = false
+            searchTerms.forEach(element => {
+                if ( stringIncludedInNodeContributors(element, node) ) {
+                    found = true
+                }
+            });
+            return found
+        }
+
         function drawNodes(context) {
             currentGraph.nodes.forEach(function(d, i) {
 
@@ -1334,7 +1382,7 @@
                         } else { // searching for nodes
 
                             // normal (non-semantic) search
-                            if ( addSemanticSearch == false &&  normalSearch(d)) {
+                            if ( addSemanticSearch == false && normalSearch(d)) {
 
                                 context.fillStyle = nodeColorByModularity(d)
                                 context.strokeStyle = nodeStrokeStyle;
@@ -1390,6 +1438,23 @@
                                     context.fillStyle = nodeColorByModularity(d, 0.2)
                                 }
                             }
+                        }
+
+                        // contributors search
+                        if (addContributorSearch == true && searchTermIncludedInNodeContributors(d)) {
+
+                            context.fillStyle = currentActiveNodeLabelColor;
+                            drawNodeLabel(d.id, d.x + 14, d.y - 7)
+                            
+                            drawNodeHighlight(d, nodeColorByModularity(d, 1.0))
+                            context.strokeStyle = nodeStrokeStyle;
+                            context.stroke();
+
+                            drawNodeHighlight(d, contributorsPurple, 2)
+                            context.strokeStyle = nodeStrokeStyle;
+                            context.stroke();
+
+                            searchResults += 1
                         }
 
                     } else { // hovering over a node
@@ -1604,6 +1669,23 @@
                 }
             })
        
+            return found
+        }
+
+        function stringIncludedInNodeContributors(string, node) {
+            let found = false
+            if (node.hasOwnProperty('metrics')) {
+                let metrics = node['metrics']
+                if ('metric_git_contributors' in metrics) {
+                    const contributors = metrics['metric_git_contributors']
+                    contributors.forEach(function(name) {
+                        if (name.toLowerCase().includes(string.toLowerCase())) {
+                            found = true
+                        }
+                    })
+                }
+            }
+            
             return found
         }
 
@@ -2712,6 +2794,15 @@
             })
         }
 
+        function initContributorSearchSwitch() {
+            $("#switchAddContributorSearch").on('change', function() {
+                addContributorSearch = $(this).is(':checked');
+                searchResults = 0
+                simulationUpdate();
+                $('#inputNodeSearchLabel').text(searchResults + ' nodes found')                
+            })
+        }
+
         function initAppConfig() {
             $('#configEmergeVersion').text('Emerge ' + analysis_config['emerge_version'])
         }
@@ -2787,6 +2878,8 @@
                 simulationUpdate();
             })
         }
+
+        
 
         function initHeatmapSwitches() {
             // normal heatmap
