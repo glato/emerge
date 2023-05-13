@@ -27,6 +27,7 @@ const fileNodeColor = '#d1e3ff'
 const defaultNodeColor = '#1f77b4'
 const semanticHeaderYellow = '#f5bc42'
 const contributorsPurple = '#ff00ff'
+const changeCouplingColor = '#ff0000'
 
 /**
 * * MARK: - Math constants
@@ -87,8 +88,6 @@ let heatmapActive = false
 let heatmapChurn = false
 let heatmapHotspot = false
 
-let addTemporalEdges = false
-
 let selectedNodesMap = {}
 var unselectedNodesOpacity = 0.20
 let fadeUnselectedNodes = false
@@ -120,6 +119,8 @@ let darkMode = false
 let isSearching = false
 let addSemanticSearch = false
 let addContributorSearch = false
+
+let hoverCoupling = false
 
 let searchString = ""
 
@@ -180,6 +181,8 @@ let overall_metric_results
 
 initAppConfig()
 initHeatmapSwitches()
+
+initHoverCouplingSwitch()
 
 initSemanticSearchSwitch()
 initContributorSearchSwitch()
@@ -862,6 +865,13 @@ function mergedHeatmapIsActive() { return heatmapMerged }
 function churnHeatmapIsActive() { return heatmapChurn }
 function hotspotHeatmapIsActive() { return heatmapHotspot }
 
+function initHoverCouplingSwitch() {
+    $("#switchHoverCoupling").on('change', function() {
+        hoverCoupling = $(this).is(':checked');
+        simulationUpdate();
+    })
+}
+
 function initSemanticSearchSwitch() {
     $("#switchAddSemanticSearch").on('change', function() {
         addSemanticSearch = $(this).is(':checked');
@@ -900,12 +910,14 @@ function updateAppUI() {
         $("#button_complexity_churn").removeClass('d-none');
         $("#button_change_coupling").removeClass('d-none');
         $("#container_git_settings").removeClass('d-none');
+        $("#formSwitchHoverCoupling").removeClass('d-none');
     } else {
         $("#formSwitchChurnHeatmap").addClass('d-none');
         $("#formSwitchHotspotHeatmap").addClass('d-none');
         $("#button_complexity_churn").addClass('d-none');
         $("#button_change_coupling").addClass('d-none');
         $("#container_git_settings").addClass('d-none');
+        $("#formSwitchHoverCoupling").addClass('d-none');
     }
 }
 

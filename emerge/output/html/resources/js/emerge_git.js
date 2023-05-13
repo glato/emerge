@@ -1,3 +1,5 @@
+let changeCouplingMapForDateRange = {}
+
 function clickDateRangePickerCancel() {
     console.log("reset date range picker")
     initDateRangeUI()
@@ -12,7 +14,48 @@ function initGitMetricsForDateRange() {
     gitMetricsIndexTo = commit_dates.lastIndexOf( dateRangePickerTo );
     // console.log("found first index: " + gitMetricsIndexFrom + " for `from` " + dateRangePickerFrom)
     // console.log("found last index: " + gitMetricsIndexTo + " for `to` " + dateRangePickerTo)
+    changeCouplingMapForDateRange = calculateCouplingForDateRange()
+    // console.log(changeCouplingMapForDateRange)
     addGitMetricToFileNodes()
+}
+
+function nodeNamesHaveChangeCoupling(sourceName, targetName) {
+    if (sourceName in changeCouplingMapForDateRange) {
+        if (changeCouplingMapForDateRange[sourceName].has(targetName)) {
+            return true
+        }
+    }
+    return false
+}
+
+function calculateCouplingForDateRange() {
+    let totalChangeCouplingDict = {}
+    
+    for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
+        let couplingLinks = commit_metrics[i].links
+        
+        if (couplingLinks.length > 0) {
+            for (nextChangeCouplingDict of couplingLinks) {
+                
+                // source -> target
+                if ( !(nextChangeCouplingDict.source in totalChangeCouplingDict) ) {
+                    totalChangeCouplingDict[nextChangeCouplingDict.source] = new Set();
+                    totalChangeCouplingDict[nextChangeCouplingDict.source].add(nextChangeCouplingDict.target)
+                } else {
+                    totalChangeCouplingDict[nextChangeCouplingDict.source].add(nextChangeCouplingDict.target)
+                }
+                
+                // target -> source
+                if ( !(nextChangeCouplingDict.target in totalChangeCouplingDict) ) {
+                    totalChangeCouplingDict[nextChangeCouplingDict.target] = new Set();
+                    totalChangeCouplingDict[nextChangeCouplingDict.target].add(nextChangeCouplingDict.source)
+                } else {
+                    totalChangeCouplingDict[nextChangeCouplingDict.target].add(nextChangeCouplingDict.source)
+                } 
+            }
+        }
+    }
+    return totalChangeCouplingDict
 }
 
 function calculateFileChurnForDateRange() {
@@ -452,6 +495,8 @@ function generateTimeSeriesChart() {
     document.getElementById("my_dataviz").appendChild(complexityChart);
     document.getElementById("my_dataviz2").appendChild(churnChart);
 }
+
+
 
 function generateChangeCouplingChart() {
     

@@ -25,6 +25,7 @@ function drawEdges(context) {
                         context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
                     }
                     
+                    
                 }  else { // normal search without semantic
                     // the edge is between two nodes that are included in the search
                     if (edgeBetweenSearchTerms(d.source, d.target))                            
@@ -216,6 +217,19 @@ function drawNodes(context) {
                     drawNodeLabel(d.id, d.x + 14, d.y - 7)
                     context.fillStyle = nodeColorByModularity(d)
                     
+                } else if ( hoverCoupling == true && nodeNamesHaveChangeCoupling(d.id, closeNode.id) ) {
+
+                    context.fillStyle = currentActiveNodeLabelColor;
+                    drawNodeLabel(d.id, d.x + 14, d.y - 7)
+                    
+                    drawNodeHighlight(d, nodeColorByModularity(d, 1.0))
+                    context.strokeStyle = nodeStrokeStyle;
+                    context.stroke();
+                    
+                    drawNodeHighlight(d, changeCouplingColor, 2)
+                    context.strokeStyle = nodeStrokeStyle;
+                    context.stroke();
+
                 } else { // node is not connected
                     
                     if (d.id.toLowerCase() in selectedNodesMap) {
