@@ -310,7 +310,8 @@ function zoomOut() {
     simulationUpdate()
 }
 
-startWithGraph(currentGraphType)
+startWithGraph('file_result_dependency_graph')
+
 zoomOut() // initialliy zoom out a bit
 
 /**
@@ -509,7 +510,7 @@ function prepareGraphStructures() {
         graphData['file_result_dependency_graph']['cluster_metrics_map'] = file_result_dependency_graph_cluster_metrics_map
         currentGraphType = 'file_result_dependency_graph'
     }
-    
+
     if (typeof entity_result_dependency_graph !== 'undefined') {
         graphData['entity_result_dependency_graph'] = {}
         graphData['entity_result_dependency_graph']['graph'] = entity_result_dependency_graph
@@ -892,13 +893,19 @@ function updateAppUI() {
         $("#unselected-opacity").addClass('d-none');
     }
     
-    // currently only show git heatmaps for file dependency graph
+    // currently only show git functionality for file dependency graphs
     if (currentGraphType.includes('file_result_dependency_graph')) {
         $("#formSwitchChurnHeatmap").removeClass('d-none');
         $("#formSwitchHotspotHeatmap").removeClass('d-none');
+        $("#button_complexity_churn").removeClass('d-none');
+        $("#button_change_coupling").removeClass('d-none');
+        $("#container_git_settings").removeClass('d-none');
     } else {
         $("#formSwitchChurnHeatmap").addClass('d-none');
         $("#formSwitchHotspotHeatmap").addClass('d-none');
+        $("#button_complexity_churn").addClass('d-none');
+        $("#button_change_coupling").addClass('d-none');
+        $("#container_git_settings").addClass('d-none');
     }
 }
 

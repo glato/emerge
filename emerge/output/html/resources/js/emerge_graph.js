@@ -25,7 +25,6 @@ function drawEdges(context) {
                         context.fillStyle = context.strokeStyle = currentPassiveEdgeColor
                     }
                     
-                    
                 }  else { // normal search without semantic
                     // the edge is between two nodes that are included in the search
                     if (edgeBetweenSearchTerms(d.source, d.target))                            
