@@ -377,6 +377,8 @@ function startWithGraph(graphType, chargeForce = currentChargeForce, linkDistanc
     enableNodeSelection();
     
     addToolTipsToMetricEntries();
+    addTooltipToHoverCoupling();
+    addTooltipToContributorSearch();
     addToolTipsToHeatMap();
     addToolTipToShortcuts();
     addTooltipUnselectedOpacity();
@@ -911,6 +913,7 @@ function updateAppUI() {
         $("#button_change_coupling").removeClass('d-none');
         $("#container_git_settings").removeClass('d-none');
         $("#formSwitchHoverCoupling").removeClass('d-none');
+        $("#formSwitchAddContributorSearch").removeClass('d-none')
     } else {
         $("#formSwitchChurnHeatmap").addClass('d-none');
         $("#formSwitchHotspotHeatmap").addClass('d-none');
@@ -918,6 +921,7 @@ function updateAppUI() {
         $("#button_change_coupling").addClass('d-none');
         $("#container_git_settings").addClass('d-none');
         $("#formSwitchHoverCoupling").addClass('d-none');
+        $("#formSwitchAddContributorSearch").addClass('d-none');
     }
 }
 

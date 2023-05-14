@@ -9,9 +9,13 @@ const description_metric_louvain_modularity = '"The Louvain method for community
 const description_heat_map_normal = '"A heat map (or <strong>heatmap</strong>) is a data visualization technique that shows magnitude of a phenomenon as color in two dimensions" (Wikipedia). The heatmap score is based on a weighted score from the fan-out and SLOC metric. Red color indicates a warning (hotspot), that given metric scores may be to high, while decreasing into blue color.'
 const description_heat_map_hybrid = 'This is a visual (hybrid) <strong>combination</strong> of the normal graph visualization and a heatmap layer behind it'
 const description_unselected_opacity = 'Set the opacity for all unselected nodes after selecting a few with <br><br><strong>shift + s</strong><br><br> and fading all others with <br><br><strong>shift + f</strong>'
-
+const description_hover_coupling = 'Enable this to additionally highligh nodes that have a <strong>change coupling</strong> to the hoved node.'
 const description_semantic_search = 'Enrich the search results by including semantic keywords (computed by <strong>tf-idf</strong>) which try to describe the content of a node more exactly'
 const description_cluster_hulls = 'Hover over a cluster node color to get a highlighted preview of the concave hull of the appropriate cluster and display basic cluster statistics via tooltip. In addition to that you can also mark/select multiple cluster hulls that will then render permanently.'
+const description_contributor_search = 'Enrich the search results by including substrings of <strong>contributor email addresses</strong> for each commit in the selected range.'
+
+const description_heat_map_churn = 'This heatmap visualizes the <strong>code churn</strong> in files over the set period of time.'
+const description_heat_map_hotspot = 'The hotspot heatmap tries to identify problematic files (that could be hard to maintain/error prone) as a product of <strong>code churn</strong>, <strong>complexity</strong> and <strong>fan-out</strong>.'
 
 const wide_tooltip_template =
 `
@@ -100,12 +104,28 @@ function addToolTipsToMetricEntries() {
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 }
 
+function addTooltipToHoverCoupling() {
+    const badgeHoverCouplingTooltip = new bootstrap.Tooltip(document.getElementById('badge_hover_coupling'), {});
+    badgeHoverCouplingTooltip._config.title = description_hover_coupling
+}
+
+function addTooltipToContributorSearch() {
+    const badgeContributorsSearchTooltip = new bootstrap.Tooltip(document.getElementById('badge_contributors_search'), {});
+    badgeContributorsSearchTooltip._config.title = description_contributor_search
+}
+
 function addToolTipsToHeatMap() {
     const badgeHeatmapNormalTooltip = new bootstrap.Tooltip(document.getElementById('badge_heat_map_normal'), {});
     badgeHeatmapNormalTooltip._config.title = description_heat_map_normal
     
     const badgeHeatmapHybridTooltip = new bootstrap.Tooltip(document.getElementById('badge_heat_map_hybrid'), {});
     badgeHeatmapHybridTooltip._config.title = description_heat_map_hybrid
+
+    const badgeHeatmapChurnTooltip = new bootstrap.Tooltip(document.getElementById('badge_heat_map_churn'), {});
+    badgeHeatmapChurnTooltip._config.title = description_heat_map_churn
+    
+    const badgeHeatmapHotspotTooltip = new bootstrap.Tooltip(document.getElementById('badge_heat_map_hotspot'), {});
+    badgeHeatmapHotspotTooltip._config.title = description_heat_map_hotspot
 }
 
 function addToolTipToShortcuts() {

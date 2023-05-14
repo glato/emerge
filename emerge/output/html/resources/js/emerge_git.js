@@ -295,6 +295,9 @@ function LineChart(data, {
 } = {}) {
     // Compute values.
     
+    let textColor = "#FFF"
+    if (!darkMode) { textColor = "#333333"}
+
     const X = d3.map(data, x);
     const Y = d3.map(data, y);
     const Z = d3.map(data, z);
@@ -391,7 +394,7 @@ function LineChart(data, {
     .attr("font-family", "sans-serif")
     .attr("font-size", 10)
     .attr("text-anchor", "middle")
-    .attr("fill", "white") 
+    .attr("fill", textColor) 
     .attr("y", -8);
     
     function pointermoved(event) {
@@ -839,6 +842,9 @@ function generateChangeCouplingChart() {
         .style("stroke", "#FFF")
         .style("stroke-width", "1.5px");
         
+        let labelColor = "#FFF"
+        if (!darkMode) { labelColor = "#333333"}
+
         /*Add the labels for the ticks*/
         ticks.append("svg:text")
         .attr("class", "tickLabels")
@@ -846,7 +852,7 @@ function generateChangeCouplingChart() {
         .attr("dy", ".35em")
         .style("font-size", "10px")
         .style("font-family", "sans-serif")
-        .attr("fill", "#FFF")
+        .attr("fill", labelColor)
         .attr("transform", function (d) { 
             return d.angle > Math.PI ? "rotate(180)translate(-25)" : null; 
         })
@@ -864,7 +870,7 @@ function generateChangeCouplingChart() {
         .attr("class", "titles")
         .style("font-size", "10px")
         .style("font-family", "sans-serif")
-        .attr("fill", "#FFF")
+        .attr("fill", labelColor)
         .attr("text-anchor", function (d) { 
             return d.angle > Math.PI ? "end" : null; 
         })
