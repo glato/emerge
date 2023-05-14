@@ -92,7 +92,6 @@ function calculateAuthorsForDateRange() {
 
 function addGitMetricToFileNodes() {
     if (currentGraphType.includes('file_result_dependency_graph')) {
-        
         let fileChurnMap = calculateFileChurnForDateRange()
         let whiteSpaceComplexityMap = calculateWhiteSpaceComplexityForDateRange()
         let authorsMap = calculateAuthorsForDateRange()
@@ -422,11 +421,13 @@ function LineChart(data, {
 
 function generateTimeSeriesChart() {
     
+    let timeSeriesComplexityTotal = {}
+    let timeSeriesChurnTotal = {}
     let timeSeriesComplexity = []
     let timeSeriesChurn = []
-    
-    for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
         
+    for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
+
         // prepare complexity data for chart
         for (const [key, value] of Object.entries(commit_metrics[i].ws_complexity)) {
             if (key.includes(fileResultPrefixFull)) {
@@ -438,6 +439,20 @@ function generateTimeSeriesChart() {
                     }
                 }
                 
+                for (const [file, complexity] of Object.entries(timeSeriesComplexityTotal)) {
+                    if (file !== key) {
+                        timeSeriesComplexity.push(
+                            {
+                                'filepath' : file,
+                                'wscomplexity' : complexity,
+                                'date': commit_metrics[i].exact_date.replace(/_/g, "-")
+                            }
+                        )
+                    }
+                }
+
+                timeSeriesComplexityTotal[key] = value
+
                 let timeSeriesComplexityEntry = {
                     'filepath' : key,
                     'wscomplexity' : value,
@@ -457,6 +472,20 @@ function generateTimeSeriesChart() {
                         continue
                     }
                 }
+
+                for (const [file, churn] of Object.entries(timeSeriesChurnTotal)) {
+                    if (file !== key) {
+                        timeSeriesChurn.push(
+                            {
+                                'filepath' : file,
+                                'churn' : churn,
+                                'date': commit_metrics[i].exact_date.replace(/_/g, "-")
+                            }
+                        )
+                    }
+                }
+
+                timeSeriesChurnTotal[key] = value
                 
                 let timeSeriesChurnEntry = {
                     'filepath' : key,
@@ -473,8 +502,8 @@ function generateTimeSeriesChart() {
         y: d => d.wscomplexity,
         z: d => d.filepath,
         yLabel: "Whitespace Complexity",
-        width: 900,
-        height: 350,
+        width: 1000,
+        height: 300,
         color: "lightsteelblue",
         voronoi: false,
         id: "timeSeriesComplexityChart"
@@ -486,7 +515,7 @@ function generateTimeSeriesChart() {
         z: d => d.filepath,
         yLabel: "Code churn",
         width: 1000,
-        height: 350,
+        height: 300,
         color: "lightsteelblue",
         voronoi: false,
         id: "timeSeriesChurnChart"
@@ -495,8 +524,6 @@ function generateTimeSeriesChart() {
     document.getElementById("my_dataviz").appendChild(complexityChart);
     document.getElementById("my_dataviz2").appendChild(churnChart);
 }
-
-
 
 function generateChangeCouplingChart() {
     
