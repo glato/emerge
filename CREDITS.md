@@ -48,7 +48,6 @@ numpy
 prettytable
 py
 pycodestyle
-pygraphviz
 pylint
 pyparsing
 python-louvain

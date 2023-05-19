@@ -24,7 +24,7 @@ from emerge.log import Logger
 from emerge.core import format_timedelta
 from emerge.files import truncate_directory, LanguageExtension
 
-from emerge.export import GraphExporter, TableExporter, JSONExporter, DOTExporter, D3Exporter
+from emerge.export import GraphExporter, TableExporter, JSONExporter, D3Exporter
 
 
 LOGGER = Logger(logging.getLogger('analysis'))
@@ -89,7 +89,6 @@ class Analysis:
         self.emerge_version: Optional[str] = None
 
         self.export_json: bool = False
-        self.export_dot: bool = False
         self.export_d3: bool = False
 
         self.only_permit_languages: List[LanguageType] = []
@@ -295,12 +294,6 @@ class Analysis:
             representation: GraphRepresentation
             for _, representation in created_graph_representations.items():
                 GraphExporter.export_graph_as_graphml(representation.digraph, representation.graph_type.name.lower(), self.export_directory)
-
-        if self.export_dot:
-            created_graph_representations = {k: v for (k, v) in self.graph_representations.items() if v is not None}
-            for _, representation in created_graph_representations.items():
-                DOTExporter.export_graph_as_dot(representation.digraph,
-                                                representation.graph_type.name.lower(), self.export_directory)
 
         if self.export_d3:
             created_graph_representations = {k: v for (k, v) in self.graph_representations.items() if v is not None}

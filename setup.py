@@ -50,7 +50,6 @@ setup(
         "prettytable",
         "py",
         "pycodestyle",
-        "pygraphviz",
         "pylint",
         "pyparsing",
         "python-louvain",

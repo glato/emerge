@@ -50,7 +50,6 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - Includes the extraction of `SwiftUI` and `Composable` declarative UI entities
   - A Filesystem graph that shows the project filesystem hierarchy as a graph
   - [GraphML](http://graphml.graphdrawing.org)
-  - [Graphviz DOT format](https://graphviz.org/doc/info/lang.html)
   - JavaScript format suited for a [D3 force graph simulation](https://github.com/d3/d3-force)
   - Interactive HTML/ web application for interactive, exploratory analysis and data visualization of your project based on graph structures
     - HTML app is based on [Bootstrap](https://getbootstrap.com)
@@ -174,7 +173,6 @@ analyses:
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml
-  - dot
   - json
   - tabular_file
   - tabular_console_overall
@@ -404,7 +402,6 @@ analyses:
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml
-  - dot
   - json
   - tabular_file
   - tabular_console_overall
@@ -453,7 +450,6 @@ analyses:
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml
-  - dot
   - json
   - tabular_file
   - tabular_console_overall
@@ -547,7 +543,6 @@ The yaml configuration is basically defined at the following levels:
 | `tabular_console`         | print a tabular formatted output to console that contains every metric and statistic result |
 | `tabular_console_overall` | print a tabular formatted output to console that contains only overall metric and statistic results |
 | `json`                    | create a JSON file that contains every metric and statistic result |
-| `dot`                     | create a DOT file that contains the graph structure and metric results mapped to the nodes of the graph |
 | `d3`                      | create a Bootstrap/D3 web application in the subfolder `force-graph-html` for further visual and interactive/ exploratory analysis |
 |                           | |
 

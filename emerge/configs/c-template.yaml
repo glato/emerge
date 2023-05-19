@@ -19,7 +19,6 @@ analyses:
   export:
   - directory: /Users/user1/emerge/project/export
   - graphml
-  - dot
   - json
   - tabular_file
   - tabular_console_overall

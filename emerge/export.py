@@ -16,7 +16,6 @@ import coloredlogs
 
 import networkx as nx
 from networkx.readwrite import json_graph
-from networkx.drawing.nx_agraph import write_dot
 from prettytable import PrettyTable
 
 from emerge.graph import GraphRepresentation, GraphType
@@ -244,15 +243,6 @@ class JSONExporter:
                     json_output["local-metrics"] = json_local_metrics
 
                 json.dump(json_output, file)
-
-
-class DOTExporter:
-    def __init__(self):
-        ...
-
-    @staticmethod
-    def export_graph_as_dot(graph, export_name, export_dir):
-        write_dot(graph, export_dir + '/' + 'emerge-' + export_name + '.dot')
 
 
 class D3Exporter:

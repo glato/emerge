@@ -118,7 +118,6 @@ class ConfigKeyExport(EnumKeyValid, Enum):
     """Config key checks of the export level."""
     DIRECTORY = auto()
     GRAPHML = auto()
-    DOT = auto()
     TABULAR_FILE = auto()
     TABULAR_CONSOLE = auto()
     TABULAR_CONSOLE_OVERALL = auto()
@@ -426,8 +425,6 @@ class Configuration:
                         analysis.export_directory = export_directory
                     if ConfigKeyExport.GRAPHML.name.lower() in export_config:
                         analysis.export_graphml = True
-                    if ConfigKeyExport.DOT.name.lower() in export_config:
-                        analysis.export_dot = True
                     if ConfigKeyExport.TABULAR_FILE.name.lower() in export_config:
                         analysis.export_tabular_file = True
                     if ConfigKeyExport.TABULAR_CONSOLE_OVERALL.name.lower() in export_config:
