@@ -163,23 +163,30 @@ function calculateHeatmapScore(node) {
         // approach: let's define a hotspot as a product of the following factors
         // 1. code churn over a given time period
         // 2. whitespace complexity over a given time period
-        // 3. connectivity based on dependencies inside the network (i.e. fan-in / fan-out)
+        // 3. SLOC over a given time period
+        // 4. connectivity based on dependencies inside the network (i.e. fan-in / fan-out)
         
         let score = analysis_config['hotspot_heatmap']['score']['base']
         let churnScore = 0
         let ws_complexity_score = 0
         let connectivity_score = 0
+        let sloc_score = 0
         
         if (node.hasOwnProperty('metric_git_code_churn') && node.hasOwnProperty('metric_git_ws_complexity') ) {
             if (analysis_config['hotspot_heatmap']['metrics']['active']['churn'] == true && analysis_config['hotspot_heatmap']['metrics']['active']['ws_complexity'] == true) {
+                
                 churnScore = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['churn']
                 ws_complexity_score = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['ws_complexity'] * 0.75
                 
                 if ('metric_fan_out_dependency_graph' in node) {
-                    connectivity_score = node.metric_fan_out_dependency_graph * 10.0
+                    connectivity_score = node.metric_fan_out_dependency_graph * 5.0
                 }
-                
-                totalScore = (churnScore + ws_complexity_score + connectivity_score)
+
+                if ('metric_git_sloc' in node) {
+                    sloc_score = node.metric_git_sloc * 5.0
+                }
+
+                totalScore = (churnScore + ws_complexity_score + connectivity_score + sloc_score)
                 if (totalScore > analysis_config['hotspot_heatmap']['score']['limit'] * 1.25  ) {
                     totalScore = analysis_config['hotspot_heatmap']['score']['limit'] * 1.25
                 }
