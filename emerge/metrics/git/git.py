@@ -119,7 +119,15 @@ class GitMetrics(CodeMetric):
                 _, file_extension = os.path.splitext(file.filename)
                 if file_extension in self.analysis.only_permit_file_extensions:
 
-                    file_array.append(file.filename)
+                    # check if the commit is relevant for the metrics, i.e. check if it includes at least one file that is contained in the analysis scan
+                    if file.new_path is not None:
+                        prefixed_file_path = file.new_path.replace(self.file_result_prefix, '').lstrip('/')
+                        if prefixed_file_path not in results_keys:
+                            # LOGGER.info(f'skipping non-relevant file: {prefixed_file_path}')
+                            continue
+                    
+                    if file.new_path is not None:
+                        file_array.append(file.filename)
 
                     if file.new_path is not None:
                         filepath_array.append(file.new_path)                        
@@ -185,7 +193,8 @@ class GitMetrics(CodeMetric):
 
                 self.change_results.append(change_result)
 
-            processed_commits = processed_commits + 1
+                # only count relevant/ non-empty commits
+                processed_commits = processed_commits + 1
         
         self.change_results.reverse()
         # LOGGER.info(f'temporal edges found: {temporal_edges_found}')
