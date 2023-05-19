@@ -58,7 +58,7 @@ class GitMetrics(CodeMetric):
         self.file_result_prefix = ""
         self.file_result_prefix_full = ""
         
-        self.last_number_of_commits_for_calculation = 6000
+        self.last_number_of_commits_for_calculation = 2000
 
     def init(self):
         if self.analysis.source_directory and self.analysis.git_directory:
@@ -92,6 +92,8 @@ class GitMetrics(CodeMetric):
     def _calculate_git_metrics(self, results):
         results_keys = results.keys()
         repository = Repository(self.analysis.git_directory, order='reverse', only_no_merge=True)
+
+        # total_ws_complexity = {}
     
         temporal_edges_found = 0
         processed_commits = 0
@@ -104,6 +106,7 @@ class GitMetrics(CodeMetric):
             d3_links_array = []
             file_churn = {}
             ws_complexity = {}
+            sloc = {}
             author = ""
             filepath_author_map = {}
 
@@ -129,6 +132,7 @@ class GitMetrics(CodeMetric):
                     # if the file has any source code, calc the ws complexity
                     if file.source_code:
                         ws_complexity[file.new_path] = self.ws_complexity_metric.calulate_from_source(file.source_code)
+                        sloc[file.new_path] = file.nloc
 
                     if commit.author.email:
                         author = commit.author.email
@@ -174,6 +178,7 @@ class GitMetrics(CodeMetric):
                     "links": d3_links_array,
                     "churn": file_churn,
                     "ws_complexity": ws_complexity,
+                    "sloc": sloc,
                     "author": author,
                     "files_author_map": filepath_author_map,
                     "file_result_prefix": self.file_result_prefix,
@@ -186,7 +191,6 @@ class GitMetrics(CodeMetric):
         
         self.change_results.reverse()
         # LOGGER.info(f'temporal edges found: {temporal_edges_found}')
-
 
     def _calculate_local_metric_data(self, results: Dict[str, AbstractResult]):
         pass

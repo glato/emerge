@@ -231,6 +231,7 @@ function initModals() {
     modal.addEventListener('hidden.bs.modal', event => {
         d3.select("#timeSeriesComplexityChart").remove();
         d3.select("#timeSeriesChurnChart").remove();
+        d3.select("#timeSeriesSlocChart").remove();
     })
     
     const chordModal = document.getElementById('changeCouplingModal')
