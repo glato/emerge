@@ -6,6 +6,13 @@ const description_metric_number_of_methods = 'A metric representing the total nu
 const description_metric_fan_in = '"Fan-in coupling (afferent coupling) the number of entities that depend on a given entity. It estimates in what extent the "external world" depends on the changes in a given entity" (gcc.gnu.org). This metric represents the number of dependencies FROM other files or entities.'
 const description_metric_fan_out = '"Fan-out coupling (efferent coupling) the number of entities the given entity depends upon. It estimates in what extent the given entity depends on the changes in "external world" (gcc.gnu.org). This metric represents the number of dependencies TO other files or entities.'
 const description_metric_louvain_modularity = '"The Louvain method for community detection is a method to extract communities from large networks" (Wikipedia). This metric seperates detected communities by a unique number/ node size.'
+
+const description_metric_ws_complexity_in_file = 'A complexity metric that counts the whitespaces (e.g. space or tab) as an approximation of the complexity of code through indentation.'
+const description_metric_git_ws_complexity = 'A complexity metric that counts the whitespaces (e.g. space or tab) as an approximation of the complexity of code through indentation - over a selected time period.'
+const description_metric_git_code_churn = 'A git metric counts the sum of lines added + lines removed to a file.'
+const description_metric_git_sloc = 'Source lines of code (SLOC) - over a given period of time.'
+const description_metric_git_number_of_authors = 'A git metric that counts the sum of authors/contributors to a file - over a given period of time'
+
 const description_heat_map_normal = '"A heat map (or <strong>heatmap</strong>) is a data visualization technique that shows magnitude of a phenomenon as color in two dimensions" (Wikipedia). The heatmap score is based on a weighted score from the fan-out and SLOC metric. Red color indicates a warning (hotspot), that given metric scores may be to high, while decreasing into blue color.'
 const description_heat_map_hybrid = 'This is a visual (hybrid) <strong>combination</strong> of the normal graph visualization and a heatmap layer behind it'
 const description_unselected_opacity = 'Set the opacity for all unselected nodes after selecting a few with <br><br><strong>shift + s</strong><br><br> and fading all others with <br><br><strong>shift + f</strong>'
@@ -16,6 +23,7 @@ const description_contributor_search = 'Enrich the search results by including s
 
 const description_heat_map_churn = 'This heatmap visualizes the <strong>code churn</strong> in files over the set period of time.'
 const description_heat_map_hotspot = 'The hotspot heatmap tries to identify problematic files (that could be hard to maintain/error prone) as a product of <strong>code churn</strong>, <strong>complexity</strong> and <strong>fan-out</strong>.'
+
 
 const wide_tooltip_template =
 `
@@ -70,6 +78,31 @@ function addToolTipsToMetricEntries() {
     $('#badge_metric_number_of_methods_in_entity').attr('data-bs-html', 'true')
     $('#badge_metric_number_of_methods_in_entity').attr('data-bs-placement', 'bottom')
     
+    $('#badge_metric_ws_complexity_in_file').attr('data-bs-toggle', 'tooltip')
+    $('#badge_metric_ws_complexity_in_file').attr('data-bs-title', description_metric_ws_complexity_in_file)
+    $('#badge_metric_ws_complexity_in_file').attr('data-bs-html', 'true')
+    $('#badge_metric_ws_complexity_in_file').attr('data-bs-placement', 'bottom')
+
+    $('#badge_metric_git_code_churn').attr('data-bs-toggle', 'tooltip')
+    $('#badge_metric_git_code_churn').attr('data-bs-title', description_metric_git_code_churn)
+    $('#badge_metric_git_code_churn').attr('data-bs-html', 'true')
+    $('#badge_metric_git_code_churn').attr('data-bs-placement', 'bottom')
+
+    $('#badge_metric_git_ws_complexity').attr('data-bs-toggle', 'tooltip')
+    $('#badge_metric_git_ws_complexity').attr('data-bs-title', description_metric_git_ws_complexity)
+    $('#badge_metric_git_ws_complexity').attr('data-bs-html', 'true')
+    $('#badge_metric_git_ws_complexity').attr('data-bs-placement', 'bottom')
+
+    $('#badge_metric_git_sloc').attr('data-bs-toggle', 'tooltip')
+    $('#badge_metric_git_sloc').attr('data-bs-title', description_metric_git_sloc)
+    $('#badge_metric_git_sloc').attr('data-bs-html', 'true')
+    $('#badge_metric_git_sloc').attr('data-bs-placement', 'bottom')
+
+    $('#badge_metric_git_number_authors').attr('data-bs-toggle', 'tooltip')
+    $('#badge_metric_git_number_authors').attr('data-bs-title', description_metric_git_number_of_authors)
+    $('#badge_metric_git_number_authors').attr('data-bs-html', 'true')
+    $('#badge_metric_git_number_authors').attr('data-bs-placement', 'bottom')
+
     // TODO
     $('#badge_metric_fan_in_dependency_graph').attr('title', description_metric_fan_in)
     // $('#badge_metric_fan_in_dependency_graph').tooltip();
