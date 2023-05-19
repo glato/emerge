@@ -68,6 +68,8 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     ANALYSIS_NAME = auto()
     SOURCE_DIRECTORY = auto()
     GIT_DIRECTORY = auto()
+    GIT_COMMIT_LIMIT = auto()
+    GIT_EXCLUDE_MERGE_COMMITS = auto()
     ONLY_PERMIT_LANGUAGES = auto()
     ONLY_PERMIT_FILE_EXTENSIONS = auto()
     ONLY_PERMIT_FILES_MATCHING_ABSOLUTE_PATH = auto()
@@ -416,7 +418,16 @@ class Configuration:
             # check git directory
             if ConfigKeyAnalysis.GIT_DIRECTORY.name.lower() in analysis_dict:
                 analysis.git_directory = analysis_dict[ConfigKeyAnalysis.GIT_DIRECTORY.name.lower()]
+                analysis.include_git_metrics = True
 
+            # check for git commit limit
+            if ConfigKeyAnalysis.GIT_COMMIT_LIMIT.name.lower() in analysis_dict:
+                analysis.git_commit_limit = analysis_dict[ConfigKeyAnalysis.GIT_COMMIT_LIMIT.name.lower()]
+
+            # include/exclude merge commits
+            if ConfigKeyAnalysis.GIT_EXCLUDE_MERGE_COMMITS.name.lower() in analysis_dict:
+                analysis.git_exclude_merge_commits = analysis_dict[ConfigKeyAnalysis.GIT_EXCLUDE_MERGE_COMMITS.name.lower()]
+            
             # check export config
             if ConfigKeyAnalysis.EXPORT.name.lower() in analysis_dict:
                 for export_config in analysis_dict[ConfigKeyAnalysis.EXPORT.name.lower()]:

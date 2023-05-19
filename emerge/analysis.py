@@ -44,7 +44,9 @@ class Analysis:
         self.project_name: Optional[str] = None
         self.source_directory: Optional[str] = None
         self.git_directory: Optional[str] = None
-        self.include_git_metrics: bool = False
+        self.include_git_metrics: Optional[bool] = False
+        self.git_commit_limit: Optional[int] = 2000
+        self.git_exclude_merge_commits: Optional[bool] = True
 
         self.export_directory: Optional[str] = None
         self.export_graphml: bool = False

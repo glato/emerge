@@ -489,6 +489,9 @@ The yaml configuration is basically defined at the following levels:
 |----------------------------------|--------------------|
 | `analysis_name`                  | a specific analysis name |
 | `source_directory`               | the source directory where the recursive file scan should start |
+| `git_directory`               | the git repo directory, if git metrics should be included |
+| `git_commit_limit`               | how many commits from the last commit should be mined? default: `2000` |
+| `git_exclude_merge_commits`               | should merge commits be excluded from mining all metrics? default: `true` |
 | `ignore_files_containing`        | exclude file names from the scan that contain the given substrings |
 | `ignore_directories_containing`  | exclude directory names from the scan that contain the given substrings |
 | `only_permit_languages`          | possible values include: java, kotlin, objc, swift, ruby, groovy, javascript, c - explicitly prevents any other language from scanning besides the one you set here |

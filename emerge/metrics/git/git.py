@@ -37,7 +37,6 @@ class GitMetrics(CodeMetric):
 
     class Keys(EnumLowerKebabCase):
         COMMIT_METRICS = auto()
-        # GIT_METRICS = auto()
 
     def __init__(self, analysis: Analysis):
         super().__init__(analysis)
@@ -58,7 +57,8 @@ class GitMetrics(CodeMetric):
         self.file_result_prefix = ""
         self.file_result_prefix_full = ""
         
-        self.last_number_of_commits_for_calculation = 2000
+        self.last_number_of_commits_for_calculation = analysis.git_commit_limit
+        self.git_exclude_merge_commits = analysis.git_exclude_merge_commits
 
     def init(self):
         if self.analysis.source_directory and self.analysis.git_directory:
@@ -74,7 +74,7 @@ class GitMetrics(CodeMetric):
         self._calculate_global_metric_data(results)
 
     def _setup_commit_dates(self):
-        repository = Repository(self.analysis.git_directory, order='reverse', only_no_merge=True)
+        repository = Repository(self.analysis.git_directory, order='reverse', only_no_merge=self.git_exclude_merge_commits)
 
         processed_commits = 0
         for commit in repository.traverse_commits():
@@ -91,9 +91,7 @@ class GitMetrics(CodeMetric):
 
     def _calculate_git_metrics(self, results):
         results_keys = results.keys()
-        repository = Repository(self.analysis.git_directory, order='reverse', only_no_merge=True)
-
-        # total_ws_complexity = {}
+        repository = Repository(self.analysis.git_directory, order='reverse', only_no_merge=self.git_exclude_merge_commits)
     
         temporal_edges_found = 0
         processed_commits = 0
