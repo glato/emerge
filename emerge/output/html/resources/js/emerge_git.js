@@ -107,7 +107,10 @@ function addGitMetricToFileNodes() {
         let whiteSpaceComplexityMap = calculateWhiteSpaceComplexityForDateRange()
         let slocMap = calculateSlocForDateRange()
         let authorsMap = calculateAuthorsForDateRange()
+
         // console.log(authorsMap)
+        // console.log(whiteSpaceComplexityMap)
+        // console.log("fileResultPrefix: " + fileResultPrefix)
         
         currentGraph.nodes.forEach(function(node, i) {
             
@@ -150,39 +153,59 @@ function addGitMetricToFileNodes() {
             }
             
             let nodeFileName = node.id.split("/").pop();
-            let nodeSearchPath = fileResultPrefix + "/" + node.id
+
+            let nodeSearchPath = ""
+            if (fileResultPrefix === "") { 
+                nodeSearchPath = node.id
+            } else {
+                nodeSearchPath = fileResultPrefix + "/" + node.id
+            }
             
             // add git code churn
-            if (nodeSearchPath in fileChurnMap) {
-                node['metric_git_code_churn'] = fileChurnMap[nodeSearchPath]
-                node.metrics['metric_git_code_churn'] = fileChurnMap[nodeSearchPath]
+            for (const [key, value] of Object.entries(fileChurnMap)) {
+                console.log(`${key}: ${value}`);
+                if (nodeSearchPath.includes(key)) {
+                    node['metric_git_code_churn'] = value
+                    node.metrics['metric_git_code_churn'] = value
+                }
             }
             
             // add git whitespace complexity
-            if (nodeSearchPath in whiteSpaceComplexityMap) {
-                node['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeSearchPath]
-                node.metrics['metric_git_ws_complexity'] = whiteSpaceComplexityMap[nodeSearchPath]
+            for (const [key, value] of Object.entries(whiteSpaceComplexityMap)) {
+                console.log(`${key}: ${value}`);
+                if (nodeSearchPath.includes(key)) {
+                    node['metric_git_ws_complexity'] = value
+                    node.metrics['metric_git_ws_complexity'] = value
+                }
             }
             
             // add git sloc
-            if (nodeSearchPath in slocMap) {
-                node['metric_git_sloc'] = slocMap[nodeSearchPath]
-                node.metrics['metric_git_sloc'] = slocMap[nodeSearchPath]
+            for (const [key, value] of Object.entries(slocMap)) {
+                console.log(`${key}: ${value}`);
+                if (nodeSearchPath.includes(key)) {
+                    node['metric_git_sloc'] = value
+                    node.metrics['metric_git_sloc'] = value
+                }
             }
             
             // add git number authors
-            if (nodeSearchPath in authorsMap) {
-                let main_contributor = mainContributor(authorsMap[nodeSearchPath])
-                node['metric_git_number_authors'] = Object.keys(authorsMap[nodeSearchPath]).length //result[1].length
-                node.metrics['metric_git_number_authors'] = Object.keys(authorsMap[nodeSearchPath]).length //result[1].length
-                node['metric_git_main_contrib'] = main_contributor
-                node.metrics['metric_git_main_contrib'] = main_contributor
+            for (const [key, value] of Object.entries(authorsMap)) {
+                console.log(`${key}: ${value}`);
+                if (nodeSearchPath.includes(key)) {
+                    node['metric_git_contributors'] = value
+                    node.metrics['metric_git_contributors'] = value
+                }
             }
             
             // add all git contributors to file
-            if (nodeSearchPath in authorsMap) {
-                node['metric_git_contributors'] = Object.keys(authorsMap[nodeSearchPath])
-                node.metrics['metric_git_contributors'] = Object.keys(authorsMap[nodeSearchPath])
+            for (const [key, value] of Object.entries(authorsMap)) {
+                console.log(`${key}: ${value}`);
+                if (nodeSearchPath.includes(key)) {
+                    node['metric_git_contributors'] = Object.keys(value)
+                    node.metrics['metric_git_contributors'] = Object.keys(value)
+                    node['metric_git_number_authors'] = Object.keys(value).length
+                    node.metrics['metric_git_number_authors'] = Object.keys(value).length
+                }
             }
             
         });
@@ -512,829 +535,839 @@ function generateTimeSeriesChart() {
                                 }
                                 )
                             }
+                    }
+                        
+                    timeSeriesSlocTotal[key] = value
+                    
+                    let timeSeriesSlocEntry = {
+                        'filepath' : key,
+                        'sloc' : value,
+                        'date': commit_metrics[i].exact_date.replace(/_/g, "-") // TODO ...
+                    }
+                    timeSeriesSloc.push(timeSeriesSlocEntry)
+                }
+            }
+                
+            // prepare churn data for chart
+            for (const [key, value] of Object.entries(commit_metrics[i].churn)) {
+                if (key.includes(fileResultPrefixFull)) {
+                    
+                    const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
+                    if (Object.keys(selectedNodesMap).length > 0) {
+                        if ((matchingKey in selectedNodesMap) == false) {
+                            continue
+                        }
+                    }
+                    
+                    for (const [file, churn] of Object.entries(timeSeriesChurnTotal)) {
+                        if (file !== key) {
+                            timeSeriesChurn.push(
+                                {
+                                    'filepath' : file,
+                                    'churn' : churn,
+                                    'date': commit_metrics[i].exact_date.replace(/_/g, "-")
+                                }
+                                )
+                            }
                         }
                         
-                        timeSeriesSlocTotal[key] = value
+                        timeSeriesChurnTotal[key] = value
                         
-                        let timeSeriesSlocEntry = {
+                        let timeSeriesChurnEntry = {
                             'filepath' : key,
-                            'sloc' : value,
+                            'churn' : value,
                             'date': commit_metrics[i].exact_date.replace(/_/g, "-") // TODO ...
                         }
-                        timeSeriesSloc.push(timeSeriesSlocEntry)
+                        timeSeriesChurn.push(timeSeriesChurnEntry)
                     }
                 }
+        }
+            
+        let complexityChart = LineChart(timeSeriesComplexity, {
+            x: d => Date.parse(d.date),
+            y: d => d.wscomplexity,
+            z: d => d.filepath,
+            yLabel: "Whitespace Complexity",
+            width: 1000,
+            height: 300,
+            color: "lightsteelblue",
+            voronoi: false,
+            id: "timeSeriesComplexityChart"
+        })
+        
+        let slocChart = LineChart(timeSeriesSloc, {
+            x: d => Date.parse(d.date),
+            y: d => d.sloc,
+            z: d => d.filepath,
+            yLabel: "SLOC",
+            width: 1000,
+            height: 300,
+            color: "lightsteelblue",
+            voronoi: false,
+            id: "timeSeriesSlocChart"
+        })
+        
+        let churnChart = LineChart(timeSeriesChurn, {
+            x: d => Date.parse(d.date),
+            y: d => d.churn,
+            z: d => d.filepath,
+            yLabel: "Code churn",
+            width: 1000,
+            height: 300,
+            color: "lightsteelblue",
+            voronoi: false,
+            id: "timeSeriesChurnChart"
+        })
+            
+        document.getElementById("my_dataviz").appendChild(complexityChart);
+        document.getElementById("time_series_sloc").appendChild(slocChart);
+        document.getElementById("my_dataviz2").appendChild(churnChart);
+}
+            
+function generateChangeCouplingChart() {
+
+        console.log(nodeColorMap)
+
+        let flows = []
+        let locations = []
+        let locationId = 0
+
+        let locationColorMap = {}
+
+        for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
+
+        // prepare change coupling data for chart
+        if (commit_metrics[i].links.length > 0) {
+            
+            for (link of commit_metrics[i].links) {
                 
-                // prepare churn data for chart
-                for (const [key, value] of Object.entries(commit_metrics[i].churn)) {
-                    if (key.includes(fileResultPrefixFull)) {
-                        
-                        const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
-                        if (Object.keys(selectedNodesMap).length > 0) {
-                            if ((matchingKey in selectedNodesMap) == false) {
-                                continue
-                            }
-                        }
-                        
-                        for (const [file, churn] of Object.entries(timeSeriesChurnTotal)) {
-                            if (file !== key) {
-                                timeSeriesChurn.push(
-                                    {
-                                        'filepath' : file,
-                                        'churn' : churn,
-                                        'date': commit_metrics[i].exact_date.replace(/_/g, "-")
-                                    }
-                                    )
-                                }
-                            }
-                            
-                            timeSeriesChurnTotal[key] = value
-                            
-                            let timeSeriesChurnEntry = {
-                                'filepath' : key,
-                                'churn' : value,
-                                'date': commit_metrics[i].exact_date.replace(/_/g, "-") // TODO ...
-                            }
-                            timeSeriesChurn.push(timeSeriesChurnEntry)
-                        }
+                const matchingSourceKey = link.source
+                const matchingTargetKey = link.target
+                
+                if ( !(locations.find(e => e.name === matchingSourceKey)) ) {
+                    
+                    if ( !(matchingSourceKey in locationColorMap) ) {
+                        let randomColor = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
+                        locationColorMap[matchingSourceKey] = randomColor
                     }
+                    
+                    let location = {
+                        'id': locationId,
+                        'name': matchingSourceKey,
+                        'color': locationColorMap[matchingSourceKey]
+                    }
+                    locations.push(location)
+                    
+                    let flow = {
+                        'from' : locationId,
+                        'to' : locationId,
+                        'quantity': 0
+                        
+                    }
+                    flows.push(flow)
+                    locationId += 1
                 }
                 
-                let complexityChart = LineChart(timeSeriesComplexity, {
-                    x: d => Date.parse(d.date),
-                    y: d => d.wscomplexity,
-                    z: d => d.filepath,
-                    yLabel: "Whitespace Complexity",
-                    width: 1000,
-                    height: 300,
-                    color: "lightsteelblue",
-                    voronoi: false,
-                    id: "timeSeriesComplexityChart"
-                })
+                if ( !(locations.find(e => e.name === matchingTargetKey)) ) {
+                    
+                    if ( !(matchingTargetKey in locationColorMap) ) {
+                        
+
+                        // find the corresponding node color
+                        for (const [key, value] of Object.entries(nodeColorMap)) {
+                            if (key.includes(matchingTargetKey)) {
+                                locationColorMap[matchingTargetKey] = value
+                            }
+                        }
+
+                        // if (matchingTargetKey in nodeColorMap) {
+                        //     locationColorMap[matchingTargetKey] = nodeColorMap[matchingTargetKey]
+                        // } else {
+                        //     console.log("should not happen")
+                        //     locationColorMap[matchingTargetKey] = '#FFFFFF' // "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
+                        // }
+
+                    }
+                    
+                    let location = {
+                        'id': locationId,
+                        'name': matchingTargetKey,
+                        'color': locationColorMap[matchingTargetKey]
+                    }
+                    
+                    locations.push(location)
+                    let flow = {
+                        'from' : locationId,
+                        'to' : locationId,
+                        'quantity': 0
+                        
+                    }
+                    flows.push(flow)
+                    locationId += 1
+                }
                 
-                let slocChart = LineChart(timeSeriesSloc, {
-                    x: d => Date.parse(d.date),
-                    y: d => d.sloc,
-                    z: d => d.filepath,
-                    yLabel: "SLOC",
-                    width: 1000,
-                    height: 300,
-                    color: "lightsteelblue",
-                    voronoi: false,
-                    id: "timeSeriesSlocChart"
-                })
+                const iSource = locations.findIndex(e => e.name === matchingSourceKey);
+                const iTarget = locations.findIndex(e => e.name === matchingTargetKey);
                 
-                let churnChart = LineChart(timeSeriesChurn, {
-                    x: d => Date.parse(d.date),
-                    y: d => d.churn,
-                    z: d => d.filepath,
-                    yLabel: "Code churn",
-                    width: 1000,
-                    height: 300,
-                    color: "lightsteelblue",
-                    voronoi: false,
-                    id: "timeSeriesChurnChart"
-                })
+                if (iSource > -1 && iTarget > -1) {
+                    let flow = {
+                        'from' : locations[iSource].id,
+                        'to' : locations[iTarget].id,
+                        'quantity': 15
+                    }
+                    flows.push(flow)
+                }                            
                 
-                document.getElementById("my_dataviz").appendChild(complexityChart);
-                document.getElementById("time_series_sloc").appendChild(slocChart);
-                document.getElementById("my_dataviz2").appendChild(churnChart);
             }
             
-            function generateChangeCouplingChart() {
-                
-                let flows = []
-                let locations = []
-                let locationId = 0
-                
-                let locationColorMap = {}
-                
-                for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
-                    
-                    // prepare change coupling data for chart
-                    if (commit_metrics[i].links.length > 0) {
-                        
-                        for (link of commit_metrics[i].links) {
-                            
-                            const matchingSourceKey = link.source
-                            const matchingTargetKey = link.target
-                            
-                            if ( !(locations.find(e => e.name === matchingSourceKey)) ) {
-                                
-                                if ( !(matchingSourceKey in locationColorMap) ) {
-                                    let randomColor = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
-                                    locationColorMap[matchingSourceKey] = randomColor
-                                }
-                                
-                                let location = {
-                                    'id': locationId,
-                                    'name': matchingSourceKey,
-                                    'color': locationColorMap[matchingSourceKey]
-                                }
-                                locations.push(location)
-                                
-                                let flow = {
-                                    'from' : locationId,
-                                    'to' : locationId,
-                                    'quantity': 0
-                                    
-                                }
-                                flows.push(flow)
-                                locationId += 1
-                            }
-                            
-                            if ( !(locations.find(e => e.name === matchingTargetKey)) ) {
-                                
-                                if ( !(matchingTargetKey in locationColorMap) ) {
-                                    
-                                    if (matchingTargetKey in nodeColorMap) {
-                                        locationColorMap[matchingTargetKey] = nodeColorMap[matchingTargetKey]
-                                    } else {
-                                        console.log("should not happen")
-                                        locationColorMap[matchingTargetKey] = '#FFFFFF' // "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
-                                    }
-                                }
-                                
-                                let location = {
-                                    'id': locationId,
-                                    'name': matchingTargetKey,
-                                    'color': locationColorMap[matchingTargetKey]
-                                }
-                                
-                                locations.push(location)
-                                let flow = {
-                                    'from' : locationId,
-                                    'to' : locationId,
-                                    'quantity': 0
-                                    
-                                }
-                                flows.push(flow)
-                                locationId += 1
-                            }
-                            
-                            const iSource = locations.findIndex(e => e.name === matchingSourceKey);
-                            const iTarget = locations.findIndex(e => e.name === matchingTargetKey);
-                            
-                            if (iSource > -1 && iTarget > -1) {
-                                let flow = {
-                                    'from' : locations[iSource].id,
-                                    'to' : locations[iTarget].id,
-                                    'quantity': 15
-                                }
-                                flows.push(flow)
-                            }                            
-                            
-                        }
-                        
-                    }
-                    
+        }
+    
+    }
+
+    for (let n = 0; n < locationId; n++) {
+        for (let m = 0; m < locationId; m++) {
+            if ( !(flows.find(e => e.from === n && e.to === m )) ) {
+                let flow = {
+                    'from' : n,
+                    'to' : m,
+                    'quantity': 0
                 }
-                
-                for (let n = 0; n < locationId; n++) {
-                    for (let m = 0; m < locationId; m++) {
-                        if ( !(flows.find(e => e.from === n && e.to === m )) ) {
-                            let flow = {
-                                'from' : n,
-                                'to' : m,
-                                'quantity': 0
-                            }
-                            flows.push(flow)
-                        }
-                    }
+                flows.push(flow)
+            }
+        }
+    }
+
+    // Borrowed from this great blog entry:
+    // https://blog.noser.com/d3-js-chord-diagramm-teil-2-benutzerdefinierte-sortierung-und-kurvenformen/
+
+    var matrix = [];
+
+    //Map list of data to matrix
+    flows.forEach(function (flow) {
+        
+        //Initialize sub-array if not yet exists
+        if (!matrix[flow.to]) {
+            matrix[flow.to] = [];
+        }
+        
+        matrix[flow.to][flow.from] = flow.quantity;
+    });
+
+/*//////////////////////////////////////////////////////////
+/////////////// Initiate Chord Diagram /////////////////////
+//////////////////////////////////////////////////////////*/
+let size = 900;
+let dr = 40; //radial translation for group names
+let dx = 20; //horizontal translation for group names
+let margin = { top: 0, right: 50, bottom: 50, left: 50 };
+let chordWidth = (size + 200) - margin.left - margin.right;
+let chordHeight = size - margin.top - margin.bottom;
+let innerRadius = Math.min(chordWidth, chordHeight) * .39;
+let outerRadius = innerRadius * 1.08;
+
+let root = d3.select("#change_coupling_chord_diagram");
+
+//Generate tooltip already, but keep it invisible for now.
+var toolTip = root.append("div")
+.classed("tooltip", true)
+.style("opacity", 0)
+.style("position", "absolute")
+.style("text-align", "center")
+.style("padding", "6px")
+.style("font", "10px sans-serif")
+.style("color", "black")
+.style("background", "silver")
+.style("border", "1px solid gray")
+.style("border-radius", "8px")
+.style("pointer-events", "none");
+
+var focusedChordGroupIndex = null;
+
+/*Initiate the SVG*/
+//D3.js v3!
+var svg = root.append("svg:svg")
+.attr("width", chordWidth + margin.left + margin.right)
+.attr("height", chordHeight + margin.top + margin.bottom)
+.attr("id", "svg_change_coupling_chord_diagram");
+
+var container = svg.append("g")
+.attr("transform", "translate(" + 
+(margin.left + chordWidth / 2) + "," + 
+(margin.top + chordHeight / 2) + ")");
+
+var chord = customChordLayout()
+.padding(0.04)
+.sortSubgroups(d3.descending) /*sort the chords inside an arc from high to low*/
+.sortChords(d3.ascending) /*which chord should be shown on top when chords cross. Now the largest chord is at the top*/
+.matrix(matrix);
+
+/*//////////////////////////////////////////////////////////
+////////////////// Draw outer Arcs /////////////////////////
+//////////////////////////////////////////////////////////*/
+var arc = d3.arc()
+.innerRadius(innerRadius)
+.outerRadius(outerRadius);
+
+var g = container.selectAll("g.group")
+.data(chord.groups)
+.enter()
+.append("svg:g")
+.attr("class", function (d) { return "group group-" + locations[d.index].id; });
+
+g.append("svg:path")
+.attr("d", arc)
+.style("fill", function (d) { 
+    return locations[d.index].color; 
+})
+.style("stroke", function (d) { 
+    return d3.rgb(locations[d.index].color).brighter(); 
+})
+.on("click", function (event, d) { highlightChords(d.index) }) // .on("click", function (d) { highlightChords(d.index) })
+.on("mouseover", function(event, i) { 
+    showArcToolTip(event, i);
+})
+.on("mouseout", function(d) { hideToolTip() });
+
+/*//////////////////////////////////////////////////////////
+//////////////// Initiate inner chords /////////////////////
+//////////////////////////////////////////////////////////*/
+var chords = container.selectAll("path.chord")
+.data(chord.chords)
+.enter()
+.append("svg:path")
+.attr("class", function (d) {
+    return "chord chord-source-" + d.source.index + " chord-target-" + d.target.index;
+})
+.attr("d", customChordPathGenerator().radius(innerRadius))
+//Change the fill to reference the unique gradient ID
+//of the source-target combination
+.style("fill", function (d) {
+    return "url(#chordGradient-" + d.source.index + "-" + d.target.index + ")";
+})
+.style("stroke", function (d) {
+    return "url(#chordGradient-" + d.source.index + "-" + d.target.index + ")";
+})
+.style("fill-opacity", "0.7")
+.on("mouseover", function(event, i) { 
+    if (focusedChordGroupIndex === null || 
+        i.source.index === focusedChordGroupIndex || 
+        i.target.index === focusedChordGroupIndex) {
+            if (focusedChordGroupIndex === null) {
+                d3.selectAll(".chord")
+                .style("fill-opacity", 0.2)
+                .style("stroke-opacity", 0.2);
+                d3.select(this).style("fill-opacity", 1);
+            }
+            else {
+                d3.selectAll(".chord.chord-source-" + focusedChordGroupIndex + ", " + 
+                ".chord.chord-target-" + focusedChordGroupIndex)
+                .style("fill-opacity", 0.2)
+                .style("stroke-opacity", 0.2);
+                d3.select(this).style("fill-opacity", 1);
+            }
+            
+            showChordToolTip(event, i);
+        }
+    })
+    .on("mouseout", function(d) { 
+        if (focusedChordGroupIndex === null) {
+            d3.selectAll(".chord")
+            .style("fill-opacity", 0.7)
+            .style("stroke-opacity", 1);
+        }
+        else {
+            d3.selectAll(".chord.chord-source-" + focusedChordGroupIndex + ", " +
+            ".chord.chord-target-" + focusedChordGroupIndex)
+            .style("fill-opacity", 0.7)
+            .style("stroke-opacity", 1);
+        }
+        
+        hideToolTip();
+    });
+    
+    //Cf https://www.visualcinnamon.com/2016/06/orientation-gradient-d3-chord-diagram
+    //Create a gradient definition for each chord
+    var grads = svg.append("defs").selectAll("linearGradient")
+    .data(chord.chords)
+    .enter().append("linearGradient")
+    //Create a unique gradient id per chord: e.g. "chordGradient-0-4"
+    .attr("id", function (d) {
+        return "chordGradient-" + d.source.index + "-" + d.target.index;
+    })
+    //Instead of the object bounding box, use the entire SVG for setting locations
+    //in pixel locations instead of percentages (which is more typical)
+    .attr("gradientUnits", "userSpaceOnUse")
+    //The full mathematical formula to find the x and y locations
+    .attr("x1", function (d, i) {
+        return innerRadius * Math.cos((d.source.endAngle - d.source.startAngle) / 2 +
+        d.source.startAngle - Math.PI / 2);
+    })
+    .attr("y1", function (d, i) {
+        return innerRadius * Math.sin((d.source.endAngle - d.source.startAngle) / 2 +
+        d.source.startAngle - Math.PI / 2);
+    })
+    .attr("x2", function (d, i) {
+        return innerRadius * Math.cos((d.target.endAngle - d.target.startAngle) / 2 +
+        d.target.startAngle - Math.PI / 2);
+    })
+    .attr("y2", function (d, i) {
+        return innerRadius * Math.sin((d.target.endAngle - d.target.startAngle) / 2 +
+        d.target.startAngle - Math.PI / 2);
+    });
+    
+    //Set the starting color (at 0%)
+    grads.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", function (d) { return locations[d.source.index].color; });
+    
+    //Set the ending color (at 100%)
+    grads.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", function (d) { return locations[d.target.index].color; });
+    
+    
+    /*//////////////////////////////////////////////////////////
+    ////////////////// Initiate Ticks //////////////////////////
+    //////////////////////////////////////////////////////////*/
+    var ticks = g.append("svg:g")
+    .selectAll("g.ticks")
+    .data(groupTicks)
+    .enter().append("svg:g")
+    .attr("transform", function (d) {
+        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+        + "translate(" + outerRadius + 40 + ",0)";
+    });
+    
+    /*Append the tick around the arcs*/
+    ticks.append("svg:line")
+    .attr("x1", 1)
+    .attr("y1", 0)
+    .attr("x2", 6)
+    .attr("y2", 0)
+    .attr("class", "ticks")
+    .style("stroke", "#FFF")
+    .style("stroke-width", "1.5px");
+    
+    let labelColor = "#FFF"
+    if (!darkMode) { labelColor = "#333333"}
+    
+    /*Add the labels for the ticks*/
+    ticks.append("svg:text")
+    .attr("class", "tickLabels")
+    .attr("x", 12)
+    .attr("dy", ".35em")
+    .style("font-size", "10px")
+    .style("font-family", "sans-serif")
+    .attr("fill", labelColor)
+    .attr("transform", function (d) { 
+        return d.angle > Math.PI ? "rotate(180)translate(-25)" : null; 
+    })
+    .style("text-anchor", function (d) { 
+        return d.angle > Math.PI ? "end" : null; 
+    })
+    .text(function (d) { return d.label; });
+    
+    /*//////////////////////////////////////////////////////////
+    ////////////////// Initiate Names //////////////////////////
+    //////////////////////////////////////////////////////////*/
+    g.append("svg:text")
+    .each(function (d) { d.angle = (d.startAngle + d.endAngle) / 2; })
+    .attr("dy", ".35em")
+    .attr("class", "titles")
+    .style("font-size", "10px")
+    .style("font-family", "sans-serif")
+    .attr("fill", labelColor)
+    .attr("text-anchor", function (d) { 
+        return d.angle > Math.PI ? "end" : null; 
+    })
+    .attr("transform", function (d) {
+        var r = outerRadius + dr;
+        var angle = d.angle + ((3 *Math.PI) / 2);
+        var x = r * Math.cos(angle);
+        var y = r * Math.sin(angle);
+        
+        if (d.angle > Math.PI) {
+            x -= dx;
+        }
+        else {
+            x += dx;
+        }
+        
+        return "translate(" + x + ", " + y + ")";
+    })
+    .text(function (d, i) { return locations[i].name; });
+    
+    /*Lines from labels to arcs*/
+    /*part in radial direction*/
+    this.g.append("line")
+    .attr("x1", function (d) { 
+        return outerRadius * Math.cos(d.angle + ((3 * Math.PI) / 2)); 
+    })
+    .attr("y1", function (d) { 
+        return outerRadius * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
+    })
+    .attr("x2", function (d) { 
+        return (outerRadius + dr) * Math.cos(d.angle + ((3 * Math.PI) / 2)); 
+    })
+    .attr("y2", function (d) { 
+        return (outerRadius + dr) * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
+    })
+    .style("stroke", "#FFF")
+    .style("stroke-width", "0.5px");
+    
+    /*horizontal part*/
+    this.g.append("line")
+    .attr("x1", function (d) { 
+        return (outerRadius + dr) * Math.cos(d.angle + ((3 * Math.PI) / 2)); 
+    })
+    .attr("y1", function (d) { 
+        return (outerRadius + dr) * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
+    })
+    .attr("x2", function (d) {
+        var x = (outerRadius + dr) * Math.cos(d.angle + ((3 * Math.PI) / 2));
+        if (d.angle > Math.PI) {
+            x -= dx - 5;
+        }
+        else {
+            x += dx - 5;
+        }
+        return x;
+    })
+    .attr("y2", function (d) { 
+        return (outerRadius + dr) * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
+    })
+    .style("stroke", "#FFF")
+    .style("stroke-width", "0.5px");
+    
+    /*//////////////////////////////////////////////////////////
+    ////////////////// Extra Functions /////////////////////////
+    //////////////////////////////////////////////////////////*/
+    
+    /*Returns an array of tick angles and labels, given a group*/
+    function groupTicks(d) {
+        var anglePerPerson = (d.endAngle - d.startAngle) / d.value;
+        return d3.range(0, d.value, 100).map(function (v, i) {
+            return {
+                angle: v * anglePerPerson + d.startAngle,
+                label: i % 5 ? null : v //Each 5th tick has a label
+            };
+        });
+    };
+    
+    //Hides all chords except the chords connecting to the subgroup / 
+    //location of the given index.
+    function highlightChords(index) {
+        //If this subgroup is already highlighted, toggle all chords back on.
+        if (focusedChordGroupIndex === index) {
+            showAllChords();
+            return;
+        }
+        
+        hideAllChords();
+        
+        //Show only the ones with source or target == index
+        d3.selectAll(".chord-source-" + index + ", .chord-target-" + index)
+        .transition().duration(500)
+        .style("fill-opacity", "0.7")
+        .style("stroke-opacity", "1");
+        
+        focusedChordGroupIndex = index;
+    };
+    
+    function showAllChords() {
+        svg.selectAll("path.chord")
+        .transition().duration(500)
+        .style("fill-opacity", "0.7")
+        .style("stroke-opacity", "1");
+        
+        focusedChordGroupIndex = null;
+    };
+    
+    function hideAllChords() {
+        svg.selectAll("path.chord")
+        .transition().duration(500)
+        .style("fill-opacity", "0")
+        .style("stroke-opacity", "0");
+    };
+    
+    function showChordToolTip(event, chord) {
+        var prompt = "";
+        
+        // if (chord.source.index !== chord.target.index) {
+        //     prompt += chord.source.value + " Kunden gingen von " + 
+        //     locations[chord.target.index].name + " nach " + 
+        //     locations[chord.source.index].name + ".";
+        //     prompt += "<br>";
+        //     prompt += chord.target.value + " Kunden gingen von " + 
+        //     locations[chord.source.index].name + " nach " + 
+        //     locations[chord.target.index].name + ".";
+        // }
+        // else {
+        //     prompt += chord.source.value + " Kunden blieben in " + 
+        //     locations[chord.source.index].name + ".";
+        // }
+        
+        prompt += locations[chord.target.index].name + "<br>" + "... changed together with ... " + "<br>" + locations[chord.source.index].name + ".";
+        
+        const[x, y] = d3.pointer(event);    
+        
+        toolTip
+        .style("opacity", 1)
+        .style("font-size", "10px")
+        .html(prompt)
+        .style("left", x - toolTip.node().getBoundingClientRect().width / 32  + "px") // .style("left", d3.event.pageX - toolTip.node().getBoundingClientRect().width / 2 + "px")
+        .style("top", y + 300 + "px"); // .style("top", (d3.event.pageY - 50) + "px");
+    };
+    
+    function showArcToolTip(event, arc) {
+        const[x, y] = d3.pointer(event);
+        // console.log(locations)
+        // console.log(arc)
+        
+        var prompt = locations[arc.index].name + "."; //Math.round(arc.value) 
+        
+        toolTip
+        .style("opacity", 1)
+        .html(prompt)
+        .style("left", x + toolTip.node().getBoundingClientRect().width  + "px")
+        .style("top", y + 300 + "px");
+    };
+    
+    function hideToolTip() {
+        toolTip.style("opacity", 0);
+    };
+    
+    ////////////////////////////////////////////////////////////
+    //////////// Custom Chord Layout Function //////////////////
+    /////// Places the Chords in the visually best order ///////
+    ///////////////// to reduce overlap ////////////////////////
+    ////////////////////////////////////////////////////////////
+    //////// Slightly adjusted by Nadieh Bremer ////////////////
+    //////////////// VisualCinnamon.com ////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////// Original from the d3.layout.chord() function ////////
+    ///////////////// from the d3.js library ///////////////////
+    //////////////// Created by Mike Bostock ///////////////////
+    ////////////////////////////////////////////////////////////
+    function customChordLayout() {
+        var ε = 1e-6, ε2 = ε * ε, π = Math.PI, τ = 2 * π, τε = τ - ε, halfπ = π / 2, d3_radians = π / 180, d3_degrees = 180 / π;
+        var chord = {}, chords, groups, matrix, n, padding = 0, sortGroups, sortSubgroups, sortChords;
+        function relayout() {
+            var subgroups = {}, groupSums = [], groupIndex = d3.range(n), subgroupIndex = [], k, x, x0, i, j;
+            var numSeq;
+            chords = [];
+            groups = [];
+            k = 0, i = -1;
+            
+            while (++i < n) {
+                x = 0, j = -1, numSeq = [];
+                while (++j < n) {
+                    x += matrix[i][j];
                 }
+                groupSums.push(x);
+                //////////////////////////////////////
+                ////////////// New part //////////////
+                //////////////////////////////////////
+                for (var m = 0; m < n; m++) {
+                    numSeq[m] = (n + (i - 1) - m) % n;
+                }
+                subgroupIndex.push(numSeq);
+                //////////////////////////////////////
+                //////////  End new part /////////////
+                //////////////////////////////////////
+                k += x;
+            }//while
+            
+            k = (τ - padding * n) / k;
+            x = 0, i = -1;
+            while (++i < n) {
+                x0 = x, j = -1;
+                while (++j < n) {
+                    var di = groupIndex[i], dj = subgroupIndex[di][j], v = matrix[di][dj], a0 = x, a1 = x += v * k;
+                    subgroups[di + "-" + dj] = {
+                        index: di,
+                        subindex: dj,
+                        startAngle: a0,
+                        endAngle: a1,
+                        value: v
+                    };
+                }//while
                 
-                
-                // Borrowed from this great blog entry:
-                // https://blog.noser.com/d3-js-chord-diagramm-teil-2-benutzerdefinierte-sortierung-und-kurvenformen/
-                
-                var matrix = [];
-                
-                //Map list of data to matrix
-                flows.forEach(function (flow) {
-                    
-                    //Initialize sub-array if not yet exists
-                    if (!matrix[flow.to]) {
-                        matrix[flow.to] = [];
-                    }
-                    
-                    matrix[flow.to][flow.from] = flow.quantity;
-                });
-                
-                /*//////////////////////////////////////////////////////////
-                /////////////// Initiate Chord Diagram /////////////////////
-                //////////////////////////////////////////////////////////*/
-                let size = 900;
-                let dr = 40; //radial translation for group names
-                let dx = 20; //horizontal translation for group names
-                let margin = { top: 0, right: 50, bottom: 50, left: 50 };
-                let chordWidth = (size + 200) - margin.left - margin.right;
-                let chordHeight = size - margin.top - margin.bottom;
-                let innerRadius = Math.min(chordWidth, chordHeight) * .39;
-                let outerRadius = innerRadius * 1.08;
-                
-                let root = d3.select("#change_coupling_chord_diagram");
-                
-                //Generate tooltip already, but keep it invisible for now.
-                var toolTip = root.append("div")
-                .classed("tooltip", true)
-                .style("opacity", 0)
-                .style("position", "absolute")
-                .style("text-align", "center")
-                .style("padding", "6px")
-                .style("font", "10px sans-serif")
-                .style("color", "black")
-                .style("background", "silver")
-                .style("border", "1px solid gray")
-                .style("border-radius", "8px")
-                .style("pointer-events", "none");
-                
-                var focusedChordGroupIndex = null;
-                
-                /*Initiate the SVG*/
-                //D3.js v3!
-                var svg = root.append("svg:svg")
-                .attr("width", chordWidth + margin.left + margin.right)
-                .attr("height", chordHeight + margin.top + margin.bottom)
-                .attr("id", "svg_change_coupling_chord_diagram");
-                
-                var container = svg.append("g")
-                .attr("transform", "translate(" + 
-                (margin.left + chordWidth / 2) + "," + 
-                (margin.top + chordHeight / 2) + ")");
-                
-                var chord = customChordLayout()
-                .padding(0.04)
-                .sortSubgroups(d3.descending) /*sort the chords inside an arc from high to low*/
-                .sortChords(d3.ascending) /*which chord should be shown on top when chords cross. Now the largest chord is at the top*/
-                .matrix(matrix);
-                
-                /*//////////////////////////////////////////////////////////
-                ////////////////// Draw outer Arcs /////////////////////////
-                //////////////////////////////////////////////////////////*/
-                var arc = d3.arc()
-                .innerRadius(innerRadius)
-                .outerRadius(outerRadius);
-                
-                var g = container.selectAll("g.group")
-                .data(chord.groups)
-                .enter()
-                .append("svg:g")
-                .attr("class", function (d) { return "group group-" + locations[d.index].id; });
-                
-                g.append("svg:path")
-                .attr("d", arc)
-                .style("fill", function (d) { 
-                    return locations[d.index].color; 
-                })
-                .style("stroke", function (d) { 
-                    return d3.rgb(locations[d.index].color).brighter(); 
-                })
-                .on("click", function (event, d) { highlightChords(d.index) }) // .on("click", function (d) { highlightChords(d.index) })
-                .on("mouseover", function(event, i) { 
-                    showArcToolTip(event, i);
-                })
-                .on("mouseout", function(d) { hideToolTip() });
-                
-                /*//////////////////////////////////////////////////////////
-                //////////////// Initiate inner chords /////////////////////
-                //////////////////////////////////////////////////////////*/
-                var chords = container.selectAll("path.chord")
-                .data(chord.chords)
-                .enter()
-                .append("svg:path")
-                .attr("class", function (d) {
-                    return "chord chord-source-" + d.source.index + " chord-target-" + d.target.index;
-                })
-                .attr("d", customChordPathGenerator().radius(innerRadius))
-                //Change the fill to reference the unique gradient ID
-                //of the source-target combination
-                .style("fill", function (d) {
-                    return "url(#chordGradient-" + d.source.index + "-" + d.target.index + ")";
-                })
-                .style("stroke", function (d) {
-                    return "url(#chordGradient-" + d.source.index + "-" + d.target.index + ")";
-                })
-                .style("fill-opacity", "0.7")
-                .on("mouseover", function(event, i) { 
-                    if (focusedChordGroupIndex === null || 
-                        i.source.index === focusedChordGroupIndex || 
-                        i.target.index === focusedChordGroupIndex) {
-                            if (focusedChordGroupIndex === null) {
-                                d3.selectAll(".chord")
-                                .style("fill-opacity", 0.2)
-                                .style("stroke-opacity", 0.2);
-                                d3.select(this).style("fill-opacity", 1);
-                            }
-                            else {
-                                d3.selectAll(".chord.chord-source-" + focusedChordGroupIndex + ", " + 
-                                ".chord.chord-target-" + focusedChordGroupIndex)
-                                .style("fill-opacity", 0.2)
-                                .style("stroke-opacity", 0.2);
-                                d3.select(this).style("fill-opacity", 1);
-                            }
-                            
-                            showChordToolTip(event, i);
-                        }
-                    })
-                    .on("mouseout", function(d) { 
-                        if (focusedChordGroupIndex === null) {
-                            d3.selectAll(".chord")
-                            .style("fill-opacity", 0.7)
-                            .style("stroke-opacity", 1);
-                        }
-                        else {
-                            d3.selectAll(".chord.chord-source-" + focusedChordGroupIndex + ", " +
-                            ".chord.chord-target-" + focusedChordGroupIndex)
-                            .style("fill-opacity", 0.7)
-                            .style("stroke-opacity", 1);
-                        }
-                        
-                        hideToolTip();
-                    });
-                    
-                    //Cf https://www.visualcinnamon.com/2016/06/orientation-gradient-d3-chord-diagram
-                    //Create a gradient definition for each chord
-                    var grads = svg.append("defs").selectAll("linearGradient")
-                    .data(chord.chords)
-                    .enter().append("linearGradient")
-                    //Create a unique gradient id per chord: e.g. "chordGradient-0-4"
-                    .attr("id", function (d) {
-                        return "chordGradient-" + d.source.index + "-" + d.target.index;
-                    })
-                    //Instead of the object bounding box, use the entire SVG for setting locations
-                    //in pixel locations instead of percentages (which is more typical)
-                    .attr("gradientUnits", "userSpaceOnUse")
-                    //The full mathematical formula to find the x and y locations
-                    .attr("x1", function (d, i) {
-                        return innerRadius * Math.cos((d.source.endAngle - d.source.startAngle) / 2 +
-                        d.source.startAngle - Math.PI / 2);
-                    })
-                    .attr("y1", function (d, i) {
-                        return innerRadius * Math.sin((d.source.endAngle - d.source.startAngle) / 2 +
-                        d.source.startAngle - Math.PI / 2);
-                    })
-                    .attr("x2", function (d, i) {
-                        return innerRadius * Math.cos((d.target.endAngle - d.target.startAngle) / 2 +
-                        d.target.startAngle - Math.PI / 2);
-                    })
-                    .attr("y2", function (d, i) {
-                        return innerRadius * Math.sin((d.target.endAngle - d.target.startAngle) / 2 +
-                        d.target.startAngle - Math.PI / 2);
-                    });
-                    
-                    //Set the starting color (at 0%)
-                    grads.append("stop")
-                    .attr("offset", "0%")
-                    .attr("stop-color", function (d) { return locations[d.source.index].color; });
-                    
-                    //Set the ending color (at 100%)
-                    grads.append("stop")
-                    .attr("offset", "100%")
-                    .attr("stop-color", function (d) { return locations[d.target.index].color; });
-                    
-                    
-                    /*//////////////////////////////////////////////////////////
-                    ////////////////// Initiate Ticks //////////////////////////
-                    //////////////////////////////////////////////////////////*/
-                    var ticks = g.append("svg:g")
-                    .selectAll("g.ticks")
-                    .data(groupTicks)
-                    .enter().append("svg:g")
-                    .attr("transform", function (d) {
-                        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
-                        + "translate(" + outerRadius + 40 + ",0)";
-                    });
-                    
-                    /*Append the tick around the arcs*/
-                    ticks.append("svg:line")
-                    .attr("x1", 1)
-                    .attr("y1", 0)
-                    .attr("x2", 6)
-                    .attr("y2", 0)
-                    .attr("class", "ticks")
-                    .style("stroke", "#FFF")
-                    .style("stroke-width", "1.5px");
-                    
-                    let labelColor = "#FFF"
-                    if (!darkMode) { labelColor = "#333333"}
-                    
-                    /*Add the labels for the ticks*/
-                    ticks.append("svg:text")
-                    .attr("class", "tickLabels")
-                    .attr("x", 12)
-                    .attr("dy", ".35em")
-                    .style("font-size", "10px")
-                    .style("font-family", "sans-serif")
-                    .attr("fill", labelColor)
-                    .attr("transform", function (d) { 
-                        return d.angle > Math.PI ? "rotate(180)translate(-25)" : null; 
-                    })
-                    .style("text-anchor", function (d) { 
-                        return d.angle > Math.PI ? "end" : null; 
-                    })
-                    .text(function (d) { return d.label; });
-                    
-                    /*//////////////////////////////////////////////////////////
-                    ////////////////// Initiate Names //////////////////////////
-                    //////////////////////////////////////////////////////////*/
-                    g.append("svg:text")
-                    .each(function (d) { d.angle = (d.startAngle + d.endAngle) / 2; })
-                    .attr("dy", ".35em")
-                    .attr("class", "titles")
-                    .style("font-size", "10px")
-                    .style("font-family", "sans-serif")
-                    .attr("fill", labelColor)
-                    .attr("text-anchor", function (d) { 
-                        return d.angle > Math.PI ? "end" : null; 
-                    })
-                    .attr("transform", function (d) {
-                        var r = outerRadius + dr;
-                        var angle = d.angle + ((3 *Math.PI) / 2);
-                        var x = r * Math.cos(angle);
-                        var y = r * Math.sin(angle);
-                        
-                        if (d.angle > Math.PI) {
-                            x -= dx;
-                        }
-                        else {
-                            x += dx;
-                        }
-                        
-                        return "translate(" + x + ", " + y + ")";
-                    })
-                    .text(function (d, i) { return locations[i].name; });
-                    
-                    /*Lines from labels to arcs*/
-                    /*part in radial direction*/
-                    this.g.append("line")
-                    .attr("x1", function (d) { 
-                        return outerRadius * Math.cos(d.angle + ((3 * Math.PI) / 2)); 
-                    })
-                    .attr("y1", function (d) { 
-                        return outerRadius * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
-                    })
-                    .attr("x2", function (d) { 
-                        return (outerRadius + dr) * Math.cos(d.angle + ((3 * Math.PI) / 2)); 
-                    })
-                    .attr("y2", function (d) { 
-                        return (outerRadius + dr) * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
-                    })
-                    .style("stroke", "#FFF")
-                    .style("stroke-width", "0.5px");
-                    
-                    /*horizontal part*/
-                    this.g.append("line")
-                    .attr("x1", function (d) { 
-                        return (outerRadius + dr) * Math.cos(d.angle + ((3 * Math.PI) / 2)); 
-                    })
-                    .attr("y1", function (d) { 
-                        return (outerRadius + dr) * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
-                    })
-                    .attr("x2", function (d) {
-                        var x = (outerRadius + dr) * Math.cos(d.angle + ((3 * Math.PI) / 2));
-                        if (d.angle > Math.PI) {
-                            x -= dx - 5;
-                        }
-                        else {
-                            x += dx - 5;
-                        }
-                        return x;
-                    })
-                    .attr("y2", function (d) { 
-                        return (outerRadius + dr) * Math.sin(d.angle + ((3 * Math.PI) / 2)); 
-                    })
-                    .style("stroke", "#FFF")
-                    .style("stroke-width", "0.5px");
-                    
-                    /*//////////////////////////////////////////////////////////
-                    ////////////////// Extra Functions /////////////////////////
-                    //////////////////////////////////////////////////////////*/
-                    
-                    /*Returns an array of tick angles and labels, given a group*/
-                    function groupTicks(d) {
-                        var anglePerPerson = (d.endAngle - d.startAngle) / d.value;
-                        return d3.range(0, d.value, 100).map(function (v, i) {
-                            return {
-                                angle: v * anglePerPerson + d.startAngle,
-                                label: i % 5 ? null : v //Each 5th tick has a label
-                            };
+                groups[di] = {
+                    index: di,
+                    startAngle: x0,
+                    endAngle: x,
+                    value: (x - x0) / k
+                };
+                x += padding;
+            }//while
+            
+            i = -1;
+            while (++i < n) {
+                j = i - 1;
+                while (++j < n) {
+                    var source = subgroups[i + "-" + j], target = subgroups[j + "-" + i];
+                    if (source.value || target.value) {
+                        chords.push(source.value < target.value ? {
+                            source: target,
+                            target: source
+                        } : {
+                            source: source,
+                            target: target
                         });
-                    };
-                    
-                    //Hides all chords except the chords connecting to the subgroup / 
-                    //location of the given index.
-                    function highlightChords(index) {
-                        //If this subgroup is already highlighted, toggle all chords back on.
-                        if (focusedChordGroupIndex === index) {
-                            showAllChords();
-                            return;
-                        }
-                        
-                        hideAllChords();
-                        
-                        //Show only the ones with source or target == index
-                        d3.selectAll(".chord-source-" + index + ", .chord-target-" + index)
-                        .transition().duration(500)
-                        .style("fill-opacity", "0.7")
-                        .style("stroke-opacity", "1");
-                        
-                        focusedChordGroupIndex = index;
-                    };
-                    
-                    function showAllChords() {
-                        svg.selectAll("path.chord")
-                        .transition().duration(500)
-                        .style("fill-opacity", "0.7")
-                        .style("stroke-opacity", "1");
-                        
-                        focusedChordGroupIndex = null;
-                    };
-                    
-                    function hideAllChords() {
-                        svg.selectAll("path.chord")
-                        .transition().duration(500)
-                        .style("fill-opacity", "0")
-                        .style("stroke-opacity", "0");
-                    };
-                    
-                    function showChordToolTip(event, chord) {
-                        var prompt = "";
-                        
-                        // if (chord.source.index !== chord.target.index) {
-                        //     prompt += chord.source.value + " Kunden gingen von " + 
-                        //     locations[chord.target.index].name + " nach " + 
-                        //     locations[chord.source.index].name + ".";
-                        //     prompt += "<br>";
-                        //     prompt += chord.target.value + " Kunden gingen von " + 
-                        //     locations[chord.source.index].name + " nach " + 
-                        //     locations[chord.target.index].name + ".";
-                        // }
-                        // else {
-                        //     prompt += chord.source.value + " Kunden blieben in " + 
-                        //     locations[chord.source.index].name + ".";
-                        // }
-                        
-                        prompt += locations[chord.target.index].name + "<br>" + "... changed together with ... " + "<br>" + locations[chord.source.index].name + ".";
-                        
-                        const[x, y] = d3.pointer(event);    
-                        
-                        toolTip
-                        .style("opacity", 1)
-                        .style("font-size", "10px")
-                        .html(prompt)
-                        .style("left", x - toolTip.node().getBoundingClientRect().width / 32  + "px") // .style("left", d3.event.pageX - toolTip.node().getBoundingClientRect().width / 2 + "px")
-                        .style("top", y + 300 + "px"); // .style("top", (d3.event.pageY - 50) + "px");
-                    };
-                    
-                    function showArcToolTip(event, arc) {
-                        const[x, y] = d3.pointer(event);
-                        // console.log(locations)
-                        // console.log(arc)
-                        
-                        var prompt = locations[arc.index].name + "."; //Math.round(arc.value) 
-                        
-                        toolTip
-                        .style("opacity", 1)
-                        .html(prompt)
-                        .style("left", x + toolTip.node().getBoundingClientRect().width  + "px")
-                        .style("top", y + 300 + "px");
-                    };
-                    
-                    function hideToolTip() {
-                        toolTip.style("opacity", 0);
-                    };
-                    
-                    ////////////////////////////////////////////////////////////
-                    //////////// Custom Chord Layout Function //////////////////
-                    /////// Places the Chords in the visually best order ///////
-                    ///////////////// to reduce overlap ////////////////////////
-                    ////////////////////////////////////////////////////////////
-                    //////// Slightly adjusted by Nadieh Bremer ////////////////
-                    //////////////// VisualCinnamon.com ////////////////////////
-                    ////////////////////////////////////////////////////////////
-                    ////// Original from the d3.layout.chord() function ////////
-                    ///////////////// from the d3.js library ///////////////////
-                    //////////////// Created by Mike Bostock ///////////////////
-                    ////////////////////////////////////////////////////////////
-                    function customChordLayout() {
-                        var ε = 1e-6, ε2 = ε * ε, π = Math.PI, τ = 2 * π, τε = τ - ε, halfπ = π / 2, d3_radians = π / 180, d3_degrees = 180 / π;
-                        var chord = {}, chords, groups, matrix, n, padding = 0, sortGroups, sortSubgroups, sortChords;
-                        function relayout() {
-                            var subgroups = {}, groupSums = [], groupIndex = d3.range(n), subgroupIndex = [], k, x, x0, i, j;
-                            var numSeq;
-                            chords = [];
-                            groups = [];
-                            k = 0, i = -1;
-                            
-                            while (++i < n) {
-                                x = 0, j = -1, numSeq = [];
-                                while (++j < n) {
-                                    x += matrix[i][j];
-                                }
-                                groupSums.push(x);
-                                //////////////////////////////////////
-                                ////////////// New part //////////////
-                                //////////////////////////////////////
-                                for (var m = 0; m < n; m++) {
-                                    numSeq[m] = (n + (i - 1) - m) % n;
-                                }
-                                subgroupIndex.push(numSeq);
-                                //////////////////////////////////////
-                                //////////  End new part /////////////
-                                //////////////////////////////////////
-                                k += x;
-                            }//while
-                            
-                            k = (τ - padding * n) / k;
-                            x = 0, i = -1;
-                            while (++i < n) {
-                                x0 = x, j = -1;
-                                while (++j < n) {
-                                    var di = groupIndex[i], dj = subgroupIndex[di][j], v = matrix[di][dj], a0 = x, a1 = x += v * k;
-                                    subgroups[di + "-" + dj] = {
-                                        index: di,
-                                        subindex: dj,
-                                        startAngle: a0,
-                                        endAngle: a1,
-                                        value: v
-                                    };
-                                }//while
-                                
-                                groups[di] = {
-                                    index: di,
-                                    startAngle: x0,
-                                    endAngle: x,
-                                    value: (x - x0) / k
-                                };
-                                x += padding;
-                            }//while
-                            
-                            i = -1;
-                            while (++i < n) {
-                                j = i - 1;
-                                while (++j < n) {
-                                    var source = subgroups[i + "-" + j], target = subgroups[j + "-" + i];
-                                    if (source.value || target.value) {
-                                        chords.push(source.value < target.value ? {
-                                            source: target,
-                                            target: source
-                                        } : {
-                                            source: source,
-                                            target: target
-                                        });
-                                    }//if
-                                }//while
-                            }//while
-                            if (sortChords) resort();
-                        }//function relayout
-                        
-                        function resort() {
-                            chords.sort(function (a, b) {
-                                return sortChords((a.source.value + a.target.value) / 2, (b.source.value + b.target.value) / 2);
-                            });
-                        }
-                        chord.matrix = function (x) {
-                            if (!arguments.length) return matrix;
-                            n = (matrix = x) && matrix.length;
-                            chords = groups = null;
-                            return chord;
-                        };
-                        chord.padding = function (x) {
-                            if (!arguments.length) return padding;
-                            padding = x;
-                            chords = groups = null;
-                            return chord;
-                        };
-                        chord.sortGroups = function (x) {
-                            if (!arguments.length) return sortGroups;
-                            sortGroups = x;
-                            chords = groups = null;
-                            return chord;
-                        };
-                        chord.sortSubgroups = function (x) {
-                            if (!arguments.length) return sortSubgroups;
-                            sortSubgroups = x;
-                            chords = null;
-                            return chord;
-                        };
-                        chord.sortChords = function (x) {
-                            if (!arguments.length) return sortChords;
-                            sortChords = x;
-                            if (chords) resort();
-                            return chord;
-                        };
-                        chord.chords = function () {
-                            if (!chords) relayout();
-                            return chords;
-                        };
-                        chord.groups = function () {
-                            if (!groups) relayout();
-                            return groups;
-                        };
-                        return chord;
-                    };
-                    
-                    ////////////////////////////////////////////////////////////
-                    //////////// Custom Chord Path Generator ///////////////////
-                    ///////// Uses cubic bezier curves with quadratic //////////
-                    /////// spread of control points to minimise overlap ///////
-                    ////////////////// of adjacent chords. /////////////////////
-                    ////////////////////////////////////////////////////////////
-                    /////// Original from the d3.svg.chord() function //////////
-                    ///////////////// from the d3.js library ///////////////////
-                    //////////////// Created by Mike Bostock ///////////////////
-                    ////////////////////////////////////////////////////////////
-                    function customChordPathGenerator() {
-                        var source = function(d) { return d.source; };
-                        var target = function(d) { return d.target; };
-                        var radius = function(d) { return d.radius; };
-                        var startAngle = function(d) { return d.startAngle; };
-                        var endAngle = function(d) { return d.endAngle; };
-                        
-                        function chord(d, i) {
-                            var s = subgroup(this, source, d, i),
-                            t = subgroup(this, target, d, i);
-                            
-                            var path = "M" + s.p0
-                            + arc(s.r, s.p1, s.a1 - s.a0) + (equals(s, t)
-                            ? curve(s.r, s.p1, s.a1, s.r, s.p0, s.a0)
-                            : curve(s.r, s.p1, s.a1, t.r, t.p0, t.a0)
-                            + arc(t.r, t.p1, t.a1 - t.a0)
-                            + curve(t.r, t.p1, t.a1, s.r, s.p0, s.a0))
-                            + "Z";
-                            
-                            return path;
-                        }
-                        
-                        function subgroup(self, f, d, i) {
-                            var subgroup = f.call(self, d, i),
-                            r = radius.call(self, subgroup, i),
-                            a0 = startAngle.call(self, subgroup, i) - (Math.PI / 2),
-                            a1 = endAngle.call(self, subgroup, i) - (Math.PI / 2);
-                            
-                            return {
-                                r: r,
-                                a0: a0,
-                                a1: a1,
-                                p0: [r * Math.cos(a0), r * Math.sin(a0)],
-                                p1: [r * Math.cos(a1), r * Math.sin(a1)]
-                            };
-                        }
-                        
-                        function equals(a, b) {
-                            return a.a0 == b.a0 && a.a1 == b.a1;
-                        }
-                        
-                        function arc(r, p, a) {
-                            return "A" + r + "," + r + " 0 " + +(a > Math.PI) + ",1 " + p;
-                        }
-                        
-                        function curve(r0, p0, a0, r1, p1, a1) {
-                            var deltaAngle = Math.abs(mod((a1 - a0 + Math.PI), (2 * Math.PI)) - Math.PI);
-                            var radialControlPointScale = Math.pow((Math.PI - deltaAngle) / Math.PI, 2) * 0.9;
-                            var controlPoint1 = [p0[0] * radialControlPointScale, p0[1] * radialControlPointScale];
-                            var controlPoint2 = [p1[0] * radialControlPointScale, p1[1] * radialControlPointScale];
-                            var cubicBezierSvg = "C " + controlPoint1[0] + " " + controlPoint1[1] + ", " + 
-                            controlPoint2[0] + " " + controlPoint2[1] + ", " + 
-                            p1[0] + " " + p1[1];
-                            return cubicBezierSvg;
-                        }
-                        
-                        function mod(a, n) {
-                            return (a % n + n) % n;
-                        }
-                        
-                        chord.radius = function(v) {
-                            if (!arguments.length) return radius;
-                            radius = typeof v === "function" ? v : function() { return v; };
-                            return chord;
-                        };
-                        
-                        chord.source = function(v) {
-                            if (!arguments.length) return source;
-                            source = typeof v === "function" ? v : function() { return v; };
-                            return chord;
-                        };
-                        
-                        chord.target = function(v) {
-                            if (!arguments.length) return target;
-                            target = typeof v === "function" ? v : function() { return v; };
-                            return chord;
-                        };
-                        
-                        chord.startAngle = function(v) {
-                            if (!arguments.length) return startAngle;
-                            startAngle = typeof v === "function" ? v : function() { return v; };
-                            return chord;
-                        };
-                        
-                        chord.endAngle = function(v) {
-                            if (!arguments.length) return endAngle;
-                            endAngle = typeof v === "function" ? v : function() { return v; };
-                            return chord;
-                        };
-                        
-                        return chord;
-                    }
-                    
-                }
+                    }//if
+                }//while
+            }//while
+            if (sortChords) resort();
+        }//function relayout
+        
+        function resort() {
+            chords.sort(function (a, b) {
+                return sortChords((a.source.value + a.target.value) / 2, (b.source.value + b.target.value) / 2);
+            });
+        }
+        chord.matrix = function (x) {
+            if (!arguments.length) return matrix;
+            n = (matrix = x) && matrix.length;
+            chords = groups = null;
+            return chord;
+        };
+        chord.padding = function (x) {
+            if (!arguments.length) return padding;
+            padding = x;
+            chords = groups = null;
+            return chord;
+        };
+        chord.sortGroups = function (x) {
+            if (!arguments.length) return sortGroups;
+            sortGroups = x;
+            chords = groups = null;
+            return chord;
+        };
+        chord.sortSubgroups = function (x) {
+            if (!arguments.length) return sortSubgroups;
+            sortSubgroups = x;
+            chords = null;
+            return chord;
+        };
+        chord.sortChords = function (x) {
+            if (!arguments.length) return sortChords;
+            sortChords = x;
+            if (chords) resort();
+            return chord;
+        };
+        chord.chords = function () {
+            if (!chords) relayout();
+            return chords;
+        };
+        chord.groups = function () {
+            if (!groups) relayout();
+            return groups;
+        };
+        return chord;
+    };
+    
+    ////////////////////////////////////////////////////////////
+    //////////// Custom Chord Path Generator ///////////////////
+    ///////// Uses cubic bezier curves with quadratic //////////
+    /////// spread of control points to minimise overlap ///////
+    ////////////////// of adjacent chords. /////////////////////
+    ////////////////////////////////////////////////////////////
+    /////// Original from the d3.svg.chord() function //////////
+    ///////////////// from the d3.js library ///////////////////
+    //////////////// Created by Mike Bostock ///////////////////
+    ////////////////////////////////////////////////////////////
+    function customChordPathGenerator() {
+        var source = function(d) { return d.source; };
+        var target = function(d) { return d.target; };
+        var radius = function(d) { return d.radius; };
+        var startAngle = function(d) { return d.startAngle; };
+        var endAngle = function(d) { return d.endAngle; };
+        
+        function chord(d, i) {
+            var s = subgroup(this, source, d, i),
+            t = subgroup(this, target, d, i);
+            
+            var path = "M" + s.p0
+            + arc(s.r, s.p1, s.a1 - s.a0) + (equals(s, t)
+            ? curve(s.r, s.p1, s.a1, s.r, s.p0, s.a0)
+            : curve(s.r, s.p1, s.a1, t.r, t.p0, t.a0)
+            + arc(t.r, t.p1, t.a1 - t.a0)
+            + curve(t.r, t.p1, t.a1, s.r, s.p0, s.a0))
+            + "Z";
+            
+            return path;
+        }
+        
+        function subgroup(self, f, d, i) {
+            var subgroup = f.call(self, d, i),
+            r = radius.call(self, subgroup, i),
+            a0 = startAngle.call(self, subgroup, i) - (Math.PI / 2),
+            a1 = endAngle.call(self, subgroup, i) - (Math.PI / 2);
+            
+            return {
+                r: r,
+                a0: a0,
+                a1: a1,
+                p0: [r * Math.cos(a0), r * Math.sin(a0)],
+                p1: [r * Math.cos(a1), r * Math.sin(a1)]
+            };
+        }
+        
+        function equals(a, b) {
+            return a.a0 == b.a0 && a.a1 == b.a1;
+        }
+        
+        function arc(r, p, a) {
+            return "A" + r + "," + r + " 0 " + +(a > Math.PI) + ",1 " + p;
+        }
+        
+        function curve(r0, p0, a0, r1, p1, a1) {
+            var deltaAngle = Math.abs(mod((a1 - a0 + Math.PI), (2 * Math.PI)) - Math.PI);
+            var radialControlPointScale = Math.pow((Math.PI - deltaAngle) / Math.PI, 2) * 0.9;
+            var controlPoint1 = [p0[0] * radialControlPointScale, p0[1] * radialControlPointScale];
+            var controlPoint2 = [p1[0] * radialControlPointScale, p1[1] * radialControlPointScale];
+            var cubicBezierSvg = "C " + controlPoint1[0] + " " + controlPoint1[1] + ", " + 
+            controlPoint2[0] + " " + controlPoint2[1] + ", " + 
+            p1[0] + " " + p1[1];
+            return cubicBezierSvg;
+        }
+        
+        function mod(a, n) {
+            return (a % n + n) % n;
+        }
+        
+        chord.radius = function(v) {
+            if (!arguments.length) return radius;
+            radius = typeof v === "function" ? v : function() { return v; };
+            return chord;
+        };
+        
+        chord.source = function(v) {
+            if (!arguments.length) return source;
+            source = typeof v === "function" ? v : function() { return v; };
+            return chord;
+        };
+        
+        chord.target = function(v) {
+            if (!arguments.length) return target;
+            target = typeof v === "function" ? v : function() { return v; };
+            return chord;
+        };
+        
+        chord.startAngle = function(v) {
+            if (!arguments.length) return startAngle;
+            startAngle = typeof v === "function" ? v : function() { return v; };
+            return chord;
+        };
+        
+        chord.endAngle = function(v) {
+            if (!arguments.length) return endAngle;
+            endAngle = typeof v === "function" ? v : function() { return v; };
+            return chord;
+        };
+        
+        return chord;
+    }
+    
+}

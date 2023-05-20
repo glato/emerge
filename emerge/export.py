@@ -444,6 +444,7 @@ class D3Exporter:
                     
                     'metric_git_ws_complexity': analysis.radius_ws_complexity,
                     'metric_git_code_churn': analysis.radius_file_code_churn,
+                    'metric_git_sloc': analysis.radius_sloc,
 
                     'metric_git_number_authors': analysis.radius_git_number_authors
                 }

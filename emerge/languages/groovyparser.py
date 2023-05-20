@@ -101,7 +101,26 @@ class GroovyParser(AbstractParser, ParsingMixin):
         self._results[file_result.unique_name] = file_result
 
     def after_generated_file_results(self, analysis) -> None:
-        pass
+        # curate dependencies from the first scan to match the real dependencies
+        filtered_results = {k: v for (k, v) in self.results.items() if v.analysis is analysis and isinstance(v, FileResult)}
+
+        result: FileResult
+        for _, result in filtered_results.items():
+            curated_dependencies = []
+
+            for dependency in result.scanned_import_dependencies:
+                curated = False
+                haystack = dependency.replace(".", "/") + ".groovy"
+
+                for needle, _ in filtered_results.items():
+                    if (needle in haystack) or (haystack in needle):
+                        curated = True
+                        curated_dependencies.append(needle)
+                        break
+                if not curated:
+                    curated_dependencies.append(dependency)
+
+            result.scanned_import_dependencies = curated_dependencies
 
     def create_unique_entity_name(self, entity: AbstractEntityResult) -> None:
         if entity.module_name:

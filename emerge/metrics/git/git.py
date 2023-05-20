@@ -62,9 +62,19 @@ class GitMetrics(CodeMetric):
 
     def init(self):
         if self.analysis.source_directory and self.analysis.git_directory:
-            self.file_result_prefix = self.analysis.source_directory.replace(self.analysis.git_directory + '/', "")
-            self.file_result_prefix_full = self.file_result_prefix
-            self.file_result_prefix = f'{Path(self.file_result_prefix).parent}'
+            if (self.analysis.source_directory != self.analysis.git_directory):
+
+                self.file_result_prefix = self.analysis.source_directory.replace(self.analysis.git_directory + '/', "")
+                self.file_result_prefix_full = self.file_result_prefix
+                self.file_result_prefix = f'{Path(self.file_result_prefix).parent}'
+
+                if self.file_result_prefix == '.':
+                    self.file_result_prefix = ""
+
+            else:
+                self.file_result_prefix = "" # f'{Path(self.analysis.source_directory).name}'
+                self.file_result_prefix_full = "" # self.analysis.source_directory.replace(os.path.dirname(self.analysis.source_directory) + "/", "")
+                pass
 
     def calculate_from_results(self, results: Dict[str, AbstractResult]):
         self.init()
@@ -90,7 +100,7 @@ class GitMetrics(CodeMetric):
             self.earliest_commit_date = self.commit_dates[-1]
 
     def _calculate_git_metrics(self, results):
-        results_keys = results.keys()
+        results_keys = list(results.keys())
         repository = Repository(self.analysis.git_directory, order='reverse', only_no_merge=self.git_exclude_merge_commits)
     
         temporal_edges_found = 0
@@ -122,10 +132,15 @@ class GitMetrics(CodeMetric):
                     # check if the commit is relevant for the metrics, i.e. check if it includes at least one file that is contained in the analysis scan
                     if file.new_path is not None:
                         prefixed_file_path = file.new_path.replace(self.file_result_prefix, '').lstrip('/')
-                        if prefixed_file_path not in results_keys:
-                            # LOGGER.info(f'skipping non-relevant file: {prefixed_file_path}')
+
+                        found = False
+                        for key in results_keys:
+                            if prefixed_file_path in key:
+                                found = True
+
+                        if not found:
                             continue
-                    
+                       
                     if file.new_path is not None:
                         file_array.append(file.filename)
 
@@ -158,14 +173,20 @@ class GitMetrics(CodeMetric):
 
                 possible_edges = list(combinations(filepath_array, 2))
                 
+                if len(file_array) > 1:
+                    pass
+
                 for edge in possible_edges:
                     source = target = ""
                     prefixed_source_edge = edge[0].replace(self.file_result_prefix, '').lstrip('/')
                     prefixed_target_edge = edge[-1].replace(self.file_result_prefix, '').lstrip('/')
 
-                    if prefixed_source_edge in results_keys:
+                    source_edge_in_results = any(prefixed_source_edge in x for x in results_keys)
+                    target_edge_in_results = any(prefixed_target_edge in x for x in results_keys)
+
+                    if source_edge_in_results:
                         source = prefixed_source_edge
-                    if prefixed_target_edge in results_keys:
+                    if target_edge_in_results:
                         target = prefixed_target_edge
 
                     if source and target:
