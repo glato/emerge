@@ -163,7 +163,6 @@ function addGitMetricToFileNodes() {
             
             // add git code churn
             for (const [key, value] of Object.entries(fileChurnMap)) {
-                console.log(`${key}: ${value}`);
                 if (nodeSearchPath.includes(key)) {
                     node['metric_git_code_churn'] = value
                     node.metrics['metric_git_code_churn'] = value
@@ -172,7 +171,6 @@ function addGitMetricToFileNodes() {
             
             // add git whitespace complexity
             for (const [key, value] of Object.entries(whiteSpaceComplexityMap)) {
-                console.log(`${key}: ${value}`);
                 if (nodeSearchPath.includes(key)) {
                     node['metric_git_ws_complexity'] = value
                     node.metrics['metric_git_ws_complexity'] = value
@@ -181,7 +179,6 @@ function addGitMetricToFileNodes() {
             
             // add git sloc
             for (const [key, value] of Object.entries(slocMap)) {
-                console.log(`${key}: ${value}`);
                 if (nodeSearchPath.includes(key)) {
                     node['metric_git_sloc'] = value
                     node.metrics['metric_git_sloc'] = value
@@ -190,7 +187,6 @@ function addGitMetricToFileNodes() {
             
             // add git number authors
             for (const [key, value] of Object.entries(authorsMap)) {
-                console.log(`${key}: ${value}`);
                 if (nodeSearchPath.includes(key)) {
                     node['metric_git_contributors'] = value
                     node.metrics['metric_git_contributors'] = value
@@ -199,7 +195,6 @@ function addGitMetricToFileNodes() {
             
             // add all git contributors to file
             for (const [key, value] of Object.entries(authorsMap)) {
-                console.log(`${key}: ${value}`);
                 if (nodeSearchPath.includes(key)) {
                     node['metric_git_contributors'] = Object.keys(value)
                     node.metrics['metric_git_contributors'] = Object.keys(value)
@@ -477,66 +472,79 @@ function generateTimeSeriesChart() {
     let timeSeriesComplexity = []
     let timeSeriesSloc = []
     let timeSeriesChurn = []
-    
+        
     for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
         
         // prepare complexity data for chart
         for (const [key, value] of Object.entries(commit_metrics[i].ws_complexity)) {
-            if (key.includes(fileResultPrefixFull)) {
-                
-                const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
-                if (Object.keys(selectedNodesMap).length > 0) {
-                    if ((matchingKey in selectedNodesMap) == false) {
-                        continue
+            
+            let filter = true
+            if (Object.keys(selectedNodesMap).length > 0) {
+                for (const [selectedNode, v] of Object.entries(selectedNodesMap)) {
+                    if (selectedNode.includes(key.toLowerCase())) {
+                        filter = false
+                    }
+                }
+            } else {
+                filter = false
+            }
+            
+            if (filter == true) {
+                continue
+            }
+            
+            for (const [file, complexity] of Object.entries(timeSeriesComplexityTotal)) {
+                if (file !== key) {
+                    timeSeriesComplexity.push(
+                        {
+                            'filepath' : file,
+                            'wscomplexity' : complexity,
+                            'date': commit_metrics[i].exact_date.replace(/_/g, "-")
+                        }
+                        )
                     }
                 }
                 
-                for (const [file, complexity] of Object.entries(timeSeriesComplexityTotal)) {
+                timeSeriesComplexityTotal[key] = value
+                
+                let timeSeriesComplexityEntry = {
+                    'filepath' : key,
+                    'wscomplexity' : value,
+                    'date': commit_metrics[i].exact_date.replace(/_/g, "-") // TODO ...
+                }
+                timeSeriesComplexity.push(timeSeriesComplexityEntry)
+            }
+            
+            // prepare sloc data for chart
+            for (const [key, value] of Object.entries(commit_metrics[i].sloc)) {
+                
+                let filter = true
+                if (Object.keys(selectedNodesMap).length > 0) {
+                    for (const [selectedNode, v] of Object.entries(selectedNodesMap)) {
+                        if (selectedNode.includes(key.toLowerCase())) {
+                            filter = false
+                        }
+                    }
+                } else {
+                    filter = false
+                }
+                
+                if (filter == true) {
+                    continue
+                }
+                
+                for (const [file, sloc] of Object.entries(timeSeriesSlocTotal)) {
                     if (file !== key) {
-                        timeSeriesComplexity.push(
+                        timeSeriesSloc.push(
                             {
                                 'filepath' : file,
-                                'wscomplexity' : complexity,
+                                'sloc' : sloc,
                                 'date': commit_metrics[i].exact_date.replace(/_/g, "-")
                             }
                             )
                         }
                     }
                     
-                    timeSeriesComplexityTotal[key] = value
-                    
-                    let timeSeriesComplexityEntry = {
-                        'filepath' : key,
-                        'wscomplexity' : value,
-                        'date': commit_metrics[i].exact_date.replace(/_/g, "-") // TODO ...
-                    }
-                    timeSeriesComplexity.push(timeSeriesComplexityEntry)
-                }
-            }
-            
-            // prepare sloc data for chart
-            for (const [key, value] of Object.entries(commit_metrics[i].sloc)) {
-                if (key.includes(fileResultPrefixFull)) {
-                    
-                    const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
-                    if (Object.keys(selectedNodesMap).length > 0) {
-                        if ((matchingKey in selectedNodesMap) == false) {
-                            continue
-                        }
-                    }
-                    
-                    for (const [file, sloc] of Object.entries(timeSeriesSlocTotal)) {
-                        if (file !== key) {
-                            timeSeriesSloc.push(
-                                {
-                                    'filepath' : file,
-                                    'sloc' : sloc,
-                                    'date': commit_metrics[i].exact_date.replace(/_/g, "-")
-                                }
-                                )
-                            }
-                    }
-                        
                     timeSeriesSlocTotal[key] = value
                     
                     let timeSeriesSlocEntry = {
@@ -546,17 +554,23 @@ function generateTimeSeriesChart() {
                     }
                     timeSeriesSloc.push(timeSeriesSlocEntry)
                 }
-            }
                 
-            // prepare churn data for chart
-            for (const [key, value] of Object.entries(commit_metrics[i].churn)) {
-                if (key.includes(fileResultPrefixFull)) {
-                    
-                    const matchingKey = key.replace(fileResultPrefix + "/", "").toLowerCase()
+                
+                // prepare churn data for chart
+                for (const [key, value] of Object.entries(commit_metrics[i].churn)) {
+                    let filter = true
                     if (Object.keys(selectedNodesMap).length > 0) {
-                        if ((matchingKey in selectedNodesMap) == false) {
-                            continue
+                        for (const [selectedNode, v] of Object.entries(selectedNodesMap)) {
+                            if (selectedNode.includes(key.toLowerCase())) {
+                                filter = false
+                            }
                         }
+                    } else {
+                        filter = false
+                    }
+                    
+                    if (filter == true) {
+                        continue
                     }
                     
                     for (const [file, churn] of Object.entries(timeSeriesChurnTotal)) {
@@ -581,52 +595,49 @@ function generateTimeSeriesChart() {
                         timeSeriesChurn.push(timeSeriesChurnEntry)
                     }
                 }
-        }
-            
-        let complexityChart = LineChart(timeSeriesComplexity, {
-            x: d => Date.parse(d.date),
-            y: d => d.wscomplexity,
-            z: d => d.filepath,
-            yLabel: "Whitespace Complexity",
-            width: 1000,
-            height: 300,
-            color: "lightsteelblue",
-            voronoi: false,
-            id: "timeSeriesComplexityChart"
-        })
-        
-        let slocChart = LineChart(timeSeriesSloc, {
-            x: d => Date.parse(d.date),
-            y: d => d.sloc,
-            z: d => d.filepath,
-            yLabel: "SLOC",
-            width: 1000,
-            height: 300,
-            color: "lightsteelblue",
-            voronoi: false,
-            id: "timeSeriesSlocChart"
-        })
-        
-        let churnChart = LineChart(timeSeriesChurn, {
-            x: d => Date.parse(d.date),
-            y: d => d.churn,
-            z: d => d.filepath,
-            yLabel: "Code churn",
-            width: 1000,
-            height: 300,
-            color: "lightsteelblue",
-            voronoi: false,
-            id: "timeSeriesChurnChart"
-        })
-            
-        document.getElementById("my_dataviz").appendChild(complexityChart);
-        document.getElementById("time_series_sloc").appendChild(slocChart);
-        document.getElementById("my_dataviz2").appendChild(churnChart);
-}
+                
+                let complexityChart = LineChart(timeSeriesComplexity, {
+                    x: d => Date.parse(d.date),
+                    y: d => d.wscomplexity,
+                    z: d => d.filepath,
+                    yLabel: "Whitespace Complexity",
+                    width: 1000,
+                    height: 300,
+                    color: "lightsteelblue",
+                    voronoi: false,
+                    id: "timeSeriesComplexityChart"
+                })
+                
+                let slocChart = LineChart(timeSeriesSloc, {
+                    x: d => Date.parse(d.date),
+                    y: d => d.sloc,
+                    z: d => d.filepath,
+                    yLabel: "SLOC",
+                    width: 1000,
+                    height: 300,
+                    color: "lightsteelblue",
+                    voronoi: false,
+                    id: "timeSeriesSlocChart"
+                })
+                
+                let churnChart = LineChart(timeSeriesChurn, {
+                    x: d => Date.parse(d.date),
+                    y: d => d.churn,
+                    z: d => d.filepath,
+                    yLabel: "Code churn",
+                    width: 1000,
+                    height: 300,
+                    color: "lightsteelblue",
+                    voronoi: false,
+                    id: "timeSeriesChurnChart"
+                })
+                
+                document.getElementById("my_dataviz").appendChild(complexityChart);
+                document.getElementById("time_series_sloc").appendChild(slocChart);
+                document.getElementById("my_dataviz2").appendChild(churnChart);
+            }
             
 function generateChangeCouplingChart() {
-
-        console.log(nodeColorMap)
 
         let flows = []
         let locations = []
@@ -643,7 +654,22 @@ function generateChangeCouplingChart() {
                 
                 const matchingSourceKey = link.source
                 const matchingTargetKey = link.target
-                
+ 
+                let filter = true
+                if (Object.keys(selectedNodesMap).length > 0) {
+                    for (const [selectedNode, v] of Object.entries(selectedNodesMap)) {
+                        if ( selectedNode.includes(matchingSourceKey.toLowerCase()) || selectedNode.includes(matchingTargetKey.toLowerCase()) ) {
+                            filter = false
+                        }
+                    }
+                } else {
+                    filter = false
+                }
+
+                if (filter == true) {
+                    continue
+                }
+
                 if ( !(locations.find(e => e.name === matchingSourceKey)) ) {
                     
                     if ( !(matchingSourceKey in locationColorMap) ) {
@@ -672,7 +698,6 @@ function generateChangeCouplingChart() {
                     
                     if ( !(matchingTargetKey in locationColorMap) ) {
                         
-
                         // find the corresponding node color
                         for (const [key, value] of Object.entries(nodeColorMap)) {
                             if (key.includes(matchingTargetKey)) {
@@ -686,7 +711,6 @@ function generateChangeCouplingChart() {
                         //     console.log("should not happen")
                         //     locationColorMap[matchingTargetKey] = '#FFFFFF' // "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
                         // }
-
                     }
                     
                     let location = {
@@ -965,7 +989,7 @@ var chords = container.selectAll("path.chord")
     .style("text-anchor", function (d) { 
         return d.angle > Math.PI ? "end" : null; 
     })
-    .text(function (d) { return d.label; });
+    //.text(function (d) { return d.label; });
     
     /*//////////////////////////////////////////////////////////
     ////////////////// Initiate Names //////////////////////////
@@ -995,7 +1019,13 @@ var chords = container.selectAll("path.chord")
         
         return "translate(" + x + ", " + y + ")";
     })
-    .text(function (d, i) { return locations[i].name; });
+    .text(function (d, i) {
+        if (locations[i].name.includes("/")) {
+            return locations[i].name.substring(locations[i].name.lastIndexOf('/') + 1)
+        } else {
+            return locations[i].name
+        }        
+    });
     
     /*Lines from labels to arcs*/
     /*part in radial direction*/
