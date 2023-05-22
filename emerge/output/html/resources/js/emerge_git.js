@@ -16,15 +16,21 @@ function initGitMetricsForDateRange() {
     // console.log("found last index: " + gitMetricsIndexTo + " for `to` " + dateRangePickerTo)
     changeCouplingMapForDateRange = calculateCouplingForDateRange()
     // console.log(changeCouplingMapForDateRange)
+    // console.log(changeCouplingMapForDateRange)
     addGitMetricToFileNodes()
 }
 
 function nodeNamesHaveChangeCoupling(sourceName, targetName) {
-    if (sourceName in changeCouplingMapForDateRange) {
-        if (changeCouplingMapForDateRange[sourceName].has(targetName)) {
-            return true
+    for (const [key, value] of Object.entries(changeCouplingMapForDateRange)) {
+        if (sourceName.includes( key ) ) {
+            for (const k of changeCouplingMapForDateRange[key]) {
+                if (targetName.includes(k)) {
+                    return true
+                }
+            }
         }
     }
+
     return false
 }
 
