@@ -29,6 +29,22 @@ const semanticHeaderYellow = '#f5bc42'
 const contributorsPurple = '#ff00ff'
 const changeCouplingColor = '#ff0000'
 
+let metricNameMap = {
+    "metric_ws_complexity_in_file" : "whitespace complexity",
+    "metric_number_of_methods_in_file" : "number of methods",
+    "metric_sloc_in_file" : "source lines of code",
+    "metric_fan_in_dependency_graph" : "fan in (dependency graph)",
+    "metric_fan_out_dependency_graph" : "fan out (dependency graph)",
+    //"metric_file_result_dependency_graph_louvain_modularity_in_file" : null,
+    "metric_git_code_churn" : "code churn (git)",
+    "metric_git_ws_complexity" : "whitespace complexity (git)",
+    "metric_git_sloc" : "source lines of code (git)",
+    // "metric_git_contributors" : "contributors (git)",
+    "metric_git_number_authors": "number of authors (git)",
+    "metric_fan_in_complete_graph" : "fan in (complete graph)",
+    "metric_fan_out_complete_graph" : "fan out (complete graph)"
+}
+
 /**
 * * MARK: - Math constants
 */
@@ -807,22 +823,23 @@ function createMetricsMenuEntries() {
     applyMetricHtml = ""
     
     for (let key in currentMetricKeys) {
-        applyMetricHtml += '<li> &nbsp; <input data-value="'
-        applyMetricHtml += currentMetricKeys[key]
-        applyMetricHtml += '" type="checkbox" onclick="animateRadiusWithMetric(\''
-        applyMetricHtml += currentMetricKeys[key]
-        applyMetricHtml += '\');"/>&nbsp; <span id="'
-        applyMetricHtml += '" style="font-size:10px;">'
-        
-        let visibleMetricName = currentMetricKeys[key].replace(/_/gi, " ").replace(/metric/gi, "")
-        
-        // reformat the visible metric name if necessary
-        if (visibleMetricName.includes('louvain modularity')) { visibleMetricName = 'louvain modularity' }
-        
-        applyMetricHtml += visibleMetricName
-        applyMetricHtml += '</span> <small><span id="'
-        applyMetricHtml += 'badge_' + currentMetricKeys[key]
-        applyMetricHtml += '" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" class="badge badge-primary badge-pill text-bg-primary"> ?</span> </small> &nbsp;</li>'
+
+        if ( Object.keys(metricNameMap).includes(currentMetricKeys[key]) ) {
+            
+            applyMetricHtml += '<li> &nbsp; <input data-value="'
+            applyMetricHtml += currentMetricKeys[key]
+            applyMetricHtml += '" type="checkbox" onclick="animateRadiusWithMetric(\''
+            applyMetricHtml += currentMetricKeys[key]
+            applyMetricHtml += '\');"/>&nbsp; <span id="'
+            applyMetricHtml += '" style="font-size:10px;">'
+            
+            let visibleMetricName = metricNameMap[currentMetricKeys[key]]
+            
+            applyMetricHtml += visibleMetricName
+            applyMetricHtml += '</span> <small><span id="'
+            applyMetricHtml += 'badge_' + currentMetricKeys[key]
+            applyMetricHtml += '" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" class="badge badge-primary badge-pill text-bg-primary"> ?</span> </small> &nbsp;</li>'
+        }
     }
     
     d3.select("#dropdown-apply-metric").html(applyMetricHtml)
