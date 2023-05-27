@@ -31,15 +31,25 @@ const changeCouplingColor = '#ff0000'
 
 let metricNameMap = {
     "metric_ws_complexity_in_file" : "whitespace complexity",
-    "metric_number_of_methods_in_file" : "number of methods",
-    "metric_sloc_in_file" : "source lines of code",
+    "metric_number_of_methods_in_file" : "number of methods (file)",
+    "metric_number_of_methods_in_entity" : "number of methods (entity)",
+    "metric_sloc_in_file" : "source lines of code (file)",
+    "metric_sloc_in_entity" : "source lines of code (entity)",
     "metric_fan_in_dependency_graph" : "fan in (dependency graph)",
     "metric_fan_out_dependency_graph" : "fan out (dependency graph)",
+    "metric_fan_in_inheritance_graph" : "fan in (inheritance graph)",
+    "metric_fan_out_inheritance_graph" : "fan out (inheritance graph)",
+    "metric_fan_in_complete_graph" : "fan in (complete graph)",
+    "metric_fan_out_complete_graph" : "fan out (complete graph)",
+
     //"metric_file_result_dependency_graph_louvain_modularity_in_file" : null,
+
     "metric_git_code_churn" : "code churn (git)",
     "metric_git_ws_complexity" : "whitespace complexity (git)",
     "metric_git_sloc" : "source lines of code (git)",
+
     // "metric_git_contributors" : "contributors (git)",
+    
     "metric_git_number_authors": "number of authors (git)",
     "metric_fan_in_complete_graph" : "fan in (complete graph)",
     "metric_fan_out_complete_graph" : "fan out (complete graph)"
@@ -821,6 +831,8 @@ function createOverallMetricResults() {
 function createMetricsMenuEntries() {
     // create apply metrics menu entries
     applyMetricHtml = ""
+
+    console.log(currentMetricKeys)
     
     for (let key in currentMetricKeys) {
 
