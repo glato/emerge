@@ -23,3 +23,23 @@ function mergeDicts(dict1, dict2) {
     }
     return result;
 }
+
+function mergeDictsToMostCurrentValues(dict1, dict2) {
+    const result = {};
+
+    for (const key in dict1) {  
+
+        if (dict2.hasOwnProperty(key)) {
+            result[key] = dict2[key]
+        } else {
+            result[key] = dict1[key];
+        }
+    }
+
+    for (const key in dict2) {
+        if (!dict1.hasOwnProperty(key)) {
+            result[key] = dict2[key];
+        }
+    }
+    return result;
+}

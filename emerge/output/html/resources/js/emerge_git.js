@@ -80,7 +80,7 @@ function calculateSlocForDateRange() {
     
     for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
         let nextSlocDict = commit_metrics[i].sloc
-        totalSlocDict = mergeDicts(totalSlocDict, nextSlocDict)
+        totalSlocDict = mergeDictsToMostCurrentValues(totalSlocDict, nextSlocDict)
     }
     
     return totalSlocDict
@@ -91,7 +91,7 @@ function calculateWhiteSpaceComplexityForDateRange() {
     
     for (let i = gitMetricsIndexFrom; i < gitMetricsIndexTo; i++) {
         let nextWhiteSpaceComplexityDict = commit_metrics[i].ws_complexity
-        totalWhiteSpaceComplexityDict = mergeDicts(totalWhiteSpaceComplexityDict, nextWhiteSpaceComplexityDict)
+        totalWhiteSpaceComplexityDict = mergeDictsToMostCurrentValues(totalWhiteSpaceComplexityDict, nextWhiteSpaceComplexityDict)
     }
     
     return totalWhiteSpaceComplexityDict
@@ -335,7 +335,7 @@ function LineChart(data, {
     color = "currentColor", // stroke color of line, as a constant or a function of *z*
     strokeLinecap, // stroke line cap of line
     strokeLinejoin, // stroke line join of line
-    strokeWidth = 1.5, // stroke width of line
+    strokeWidth = 1.0, // stroke width of line
     strokeOpacity, // stroke opacity of line
     mixBlendMode = "multiply", // blend mode of lines
     voronoi, // show a Voronoi overlay? (for debugging)
@@ -446,9 +446,12 @@ function LineChart(data, {
     .attr("y", -8);
     
     function pointermoved(event) {
+        let strokeColor = "#323232"
+        if (!darkMode) { strokeColor = "#828282"}
+        
         const [xm, ym] = d3.pointer(event);
         const i = d3.least(I, i => Math.hypot(xScale(X[i]) - xm, yScale(Y[i]) - ym)); // closest point
-        path.style("stroke", ([z]) => Z[i] === z ? null : "dimgray").filter(([z]) => Z[i] === z).raise();
+        path.style("stroke", ([z]) => Z[i] === z ? null : strokeColor).filter(([z]) => Z[i] === z).raise();
         dot.attr("transform", `translate(${xScale(X[i])},${yScale(Y[i])})`);
         if (T) dot.select("text").text(T[i]);
         svg.property("value", O[i]).dispatch("input", {bubbles: true});
