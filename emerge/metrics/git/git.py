@@ -42,6 +42,11 @@ class GitMetrics(CodeMetric):
         super().__init__(analysis)
 
         self.alanysis = analysis
+
+        # pylint: disable=broad-exception-raised
+        if analysis.git_directory == None:
+            raise Exception('❗️ No git directory path found, please check in yaml config')
+
         self.git_directory = analysis.git_directory
 
         self.ws_complexity_metric = WhitespaceMetric(analysis)

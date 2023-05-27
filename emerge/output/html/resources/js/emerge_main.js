@@ -99,19 +99,29 @@ let currentPassiveEdgeColor = passiveEdgeColor
 
 let dateRangePickerFrom = ""
 let dateRangePickerTo = ""
-
-let commit_dates = commit_metrics.map(x => x.date);
-let commit_first_date = commit_dates[0]
-let commit_last_date = commit_dates[commit_dates.length - 1]
+let fileResultPrefix = ""
+let fileResultPrefixFull = ""
 
 let includeGitMetrics = false
+let commit_dates = []
+let commit_first_date = ""
+let commit_last_date = ""
+
+if (typeof commit_metrics !== 'undefined') {
+    fileResultPrefix = commit_metrics[0].file_result_prefix // TODO: pass/extract as/from extra common git metrics dict
+    fileResultPrefixFull = commit_metrics[0].file_result_prefix_full
+    commit_dates = commit_metrics.map(x => x.date);
+    commit_first_date = commit_dates[0]
+    commit_last_date = commit_dates[commit_dates.length - 1]
+    dateRangePickerFrom = commit_first_date
+    dateRangePickerTo = commit_last_date
+    includeGitMetrics = true
+}
+
 let gitMetricsIndexFrom = 0
 let gitMetricsIndexTo = 0
 
 let nodeColorMap = {}
-
-dateRangePickerFrom = commit_first_date
-dateRangePickerTo = commit_last_date
 
 const nodeStrokeStyle = "#333333";
 
@@ -142,9 +152,6 @@ let currentTranslation = {
     vertical: 0,
     lastDirection: ""
 }
-
-let fileResultPrefix = commit_metrics[0].file_result_prefix // TODO: pass/extract as/from extra common git metrics dict
-let fileResultPrefixFull = commit_metrics[0].file_result_prefix_full
 
 let activeMetrics
 let currentMetricKeys
@@ -907,7 +914,7 @@ function updateAppUI() {
     }
     
     // currently only show git functionality for file dependency graphs
-    if (currentGraphType.includes('file_result_dependency_graph')) {
+    if (currentGraphType.includes('file_result_dependency_graph') && includeGitMetrics) {
         $("#formSwitchChurnHeatmap").removeClass('d-none');
         $("#formSwitchHotspotHeatmap").removeClass('d-none');
         $("#button_complexity_churn").removeClass('d-none');
@@ -928,8 +935,11 @@ function updateAppUI() {
 
 function initAppUI() {
     updateAppUI()
-    initGitMetricsForDateRange()
-    initDateRangeUI()
+    if (includeGitMetrics) {
+        initGitMetricsForDateRange()
+        initDateRangeUI()
+    }
+
     initModals()
 }
 

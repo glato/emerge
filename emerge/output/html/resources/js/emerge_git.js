@@ -2,11 +2,13 @@ let changeCouplingMapForDateRange = {}
 
 function clickDateRangePickerCancel() {
     console.log("reset date range picker")
-    initDateRangeUI()
-    dateRangePickerFrom = commit_first_date
-    dateRangePickerTo = commit_last_date
-    initGitMetricsForDateRange()
-    showToastDateRangeUpdate()
+    if (includeGitMetrics) {
+        initDateRangeUI()
+        dateRangePickerFrom = commit_first_date
+        dateRangePickerTo = commit_last_date
+        initGitMetricsForDateRange()
+        showToastDateRangeUpdate()
+    }
 }
 
 function initGitMetricsForDateRange() {
