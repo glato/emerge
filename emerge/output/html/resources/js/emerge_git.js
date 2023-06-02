@@ -237,14 +237,14 @@ function initDateRangeUI() {
         "minDate": commit_first_date,
         "maxDate": commit_last_date,
         
-        ranges: {
-            'Last 3 days': [moment().subtract(2, 'days'), moment()],
-            'Last 10 days': [moment().subtract(9, 'days'), moment()],
-            'Last 30 days': [moment().subtract(29, 'days'), moment()],
-            'Last 60 days': [moment().subtract(59, 'days'), moment()],
-            'This month': [moment().startOf('month'), moment().endOf('month')],
-            'Last month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        },
+        // ranges: {
+        //     'Last 3 days': [moment().subtract(2, 'days'), moment()],
+        //     'Last 10 days': [moment().subtract(9, 'days'), moment()],
+        //     'Last 30 days': [moment().subtract(29, 'days'), moment()],
+        //     'Last 60 days': [moment().subtract(59, 'days'), moment()],
+        //     'This month': [moment().startOf('month'), moment().endOf('month')],
+        //     'Last month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        // },
         
         isInvalidDate: function(date) {
             if ( commit_dates.includes(date.format('DD/MM/YYYY')) ) {

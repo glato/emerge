@@ -175,18 +175,14 @@ function calculateHeatmapScore(node) {
         if (node.hasOwnProperty('metric_git_code_churn') && node.hasOwnProperty('metric_git_ws_complexity') ) {
             if (analysis_config['hotspot_heatmap']['metrics']['active']['churn'] == true && analysis_config['hotspot_heatmap']['metrics']['active']['ws_complexity'] == true) {
                 
-                churnScore = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['churn']
+                churnScore = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['churn'] * 2.0
                 ws_complexity_score = node.metric_git_code_churn * analysis_config['hotspot_heatmap']['metrics']['weights']['ws_complexity'] * 0.75
                 
                 if ('metric_fan_out_dependency_graph' in node) {
-                    connectivity_score = node.metric_fan_out_dependency_graph * 5.0
+                    connectivity_score = node.metric_fan_out_dependency_graph * 1.5
                 }
 
-                if ('metric_git_sloc' in node) {
-                    sloc_score = node.metric_git_sloc * 5.0
-                }
-
-                totalScore = (churnScore + ws_complexity_score + connectivity_score + sloc_score)
+                totalScore = (churnScore + ws_complexity_score + connectivity_score )
                 if (totalScore > analysis_config['hotspot_heatmap']['score']['limit'] * 1.25  ) {
                     totalScore = analysis_config['hotspot_heatmap']['score']['limit'] * 1.25
                 }

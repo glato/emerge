@@ -45,7 +45,7 @@ class Analysis:
         self.source_directory: Optional[str] = None
         self.git_directory: Optional[str] = None
         self.include_git_metrics: Optional[bool] = False
-        self.git_commit_limit: Optional[int] = 2000
+        self.git_commit_limit: Optional[int] = 150
         self.git_exclude_merge_commits: Optional[bool] = True
 
         self.export_directory: Optional[str] = None
@@ -70,16 +70,16 @@ class Analysis:
         self.heatmap_sloc_active: Optional[bool] = True
         self.heatmap_fan_out_active: Optional[bool] = True
         self.heatmap_sloc_weight: Optional[float] = 1.5
-        self.heatmap_fan_out_weight: Optional[float] = 1.7
+        self.heatmap_fan_out_weight: Optional[float] = 1.5
         self.heatmap_score_base: Optional[int] = 10
         self.heatmap_score_limit: Optional[int] = 300
 
         # additional config / code churn heatmap
         self.heatmap_churn_active: Optional[bool] = True
         self.heatmap_ws_complexity_active: Optional[bool] = True
-        self.heatmap_churn_weight: Optional[float] = 1.5
-        self.heatmap_ws_weight: Optional[float] = 1.7
-        
+        self.heatmap_churn_weight: Optional[float] = 1.3
+        self.heatmap_ws_weight: Optional[float] = 1.5
+
         # for churn heatmap calculation
         self.heatmap_churn_score_base: Optional[int] = 10
         self.heatmap_churn_score_limit: Optional[int] = 500
@@ -305,10 +305,12 @@ class Analysis:
             )
 
         if self.export_tabular_file:
-            TableExporter.export_statistics_and_metrics_as_file(statistics, overall_metric_results, local_metric_results, analysis_name, self.export_directory)
+            TableExporter.export_statistics_and_metrics_as_file(
+                statistics, overall_metric_results, local_metric_results, analysis_name, self.export_directory)
 
         if self.export_json:
-            JSONExporter.export_statistics_and_metrics(statistics, overall_metric_results, local_metric_results, analysis_name, self.export_directory)
+            JSONExporter.export_statistics_and_metrics(statistics, overall_metric_results,
+                                                       local_metric_results, analysis_name, self.export_directory)
 
         if self.export_tabular_console_overall:
             TableExporter.export_statistics_and_metrics_to_console(statistics, overall_metric_results, None, analysis_name)
@@ -320,7 +322,8 @@ class Analysis:
         LOGGER.info_done(f'all your generated/exported data can be found here: {resolved_export_path}')
         if self.export_d3:
             pyperclip.copy(f'file://{resolved_export_path}/html/emerge.html')
-            LOGGER.info_done(f'copy the following path to your browser and start your web app: 👉 file://{resolved_export_path}/html/emerge.html')
+            LOGGER.info_done(
+                f'copy the following path to your browser and start your web app: 👉 file://{resolved_export_path}/html/emerge.html')
             LOGGER.info_done('... also tried to copy the link to your pasteboard, just try to paste it in your browser 🚀')
 
     @property
@@ -385,7 +388,8 @@ class Analysis:
         Returns:
             Optional[AbstractEntityResult]: the first found result given by entity name, otherwise None.
         """
-        res: Dict[str, AbstractEntityResult] = {k: v for (k, v) in results.items() if isinstance(v, AbstractEntityResult) and v.entity_name == name}
+        res: Dict[str, AbstractEntityResult] = {k: v for (k, v) in results.items(
+        ) if isinstance(v, AbstractEntityResult) and v.entity_name == name}
         if bool(res):
             return res[list(res.keys())[0]]
         return None
@@ -399,7 +403,8 @@ class Analysis:
         Returns:
             Optional[AbstractResult]: the first found result given by unique name, otherwise None.
         """
-        results: Dict[str, AbstractResult] = {k: v for (k, v) in self.results.items() if isinstance(v, AbstractResult) and v.unique_name == unique_name}
+        results: Dict[str, AbstractResult] = {k: v for (k, v) in self.results.items(
+        ) if isinstance(v, AbstractResult) and v.unique_name == unique_name}
         if bool(results):
             return results[list(results.keys())[0]]
         return None
@@ -458,7 +463,8 @@ class Analysis:
                 parent_analysis_source_path = f"{Path(absolute_path_to_directory).parent}/"
                 relative_file_path_to_analysis = absolute_path_to_directory.replace(parent_analysis_source_path, "")
                 relative_path_parent = f'{Path(root)}'.replace(f'{ Path(self.source_directory).parent}/', "")
-                relative_path_directoy_node = f'{Path(root)}/{relative_file_path_to_analysis}'.replace(f"{Path(self.source_directory).parent}/", "")
+                relative_path_directoy_node = f'{Path(root)}/{relative_file_path_to_analysis}'.replace(
+                    f"{Path(self.source_directory).parent}/", "")
 
                 directory_node = FileSystemNode(FileSystemNodeType.DIRECTORY, relative_path_directoy_node)
                 filesystem_graph.filesystem_nodes[directory_node.absolute_name] = directory_node
@@ -527,7 +533,7 @@ class Analysis:
                     self.scanned_files_nodes_in_directories[relative_root].append(relative_file_path_to_analysis)
                 else:
                     self.scanned_files_nodes_in_directories[relative_root].append(relative_file_path_to_analysis)
-                   
+
                 with open(absolute_path_to_file, encoding="ISO-8859-1") as file:
                     file_content = file.read()
                     file_node = FileSystemNode(FileSystemNodeType.FILE, relative_file_path_to_analysis, file_content)

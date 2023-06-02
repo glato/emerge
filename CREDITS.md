@@ -23,6 +23,7 @@ emerge contains third party code from the following people/projects
 - Sam Leach/@SamuelLeach - https://gist.github.com/samuelleach/5497403
 - Pranav C Balan - https://stackoverflow.com/questions/41287778/get-all-possible-object-keys-from-a-list-of-objects-javascript-typescript
 - Scott Johnson / https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197
+- Adam Tornhill (whitespace complexity implementation)
 
 If I missed someone or gave wrong credit, please contact me and I'll update this.
 
@@ -53,6 +54,8 @@ pyparsing
 python-louvain
 PyYAML
 tabulate
+PyDriller
+pyperclip
 ```
 
 If I missed some library or framework or gave wrong credit, please contact me and I'll update this.

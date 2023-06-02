@@ -9,7 +9,7 @@
 ![PyPI](https://img.shields.io/pypi/dw/emerge-viz)
 ![PyPI](https://img.shields.io/pypi/dm/emerge-viz)
 
-**Emerge** (or **emerge-viz**) is a code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can use it to scan the source code of a project, calculate metric results and statistics, map the source code to graph structures (e.g. a dependency graph or a filesystem graph), export the results in other file formats and even create an **interactive web application** for further exploration. Emerge currently has scanning support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`, `Go`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
+**Emerge** (or **emerge-viz**) is an interactive code analysis tool to gather insights about source code structure, metrics, dependencies and complexity of software projects. You can scan the source code of a project, calculate metric results and statistics, generate an interactive web app with graph structures (e.g. a dependency graph or a filesystem graph) and export the results in some file formats. Emerge currently has parsing support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`, `Go`. The structure, coloring and clustering is calculated and based on the idea of combining a [force-directed graph](https://github.com/d3/d3-force) simulation and [Louvain modularity](https://github.com/taynaud/python-louvain). emerge is mainly written in Python 3 and is tested on macOS, linux and modern web browsers (i.e. latest Safari, Chrome, Firefox, Edge).
 
 ![screenshot 1](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-3-0-screenshot-01.png)
 ![screenshot 2](https://raw.githubusercontent.com/glato/assets/emerge/emerge-1-3-0-screenshot-02.png)
@@ -35,7 +35,8 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 - File scan support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`
 - Basic entity scan/extraction (e.g. classes) for the following languages: `Groovy`, `Java`, `Kotlin`, `Swift`
-- Basic implementation of the following software metrics: SLOC, Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
+- Implementation of the following software metrics: SLOC, Whitespace Complexity (impl. by A. Tornhill), Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
+- Experimental implementation of additional `git-based` metrics (SLOC, Whitespace Complexity, Change Coupling)
 - Infer meaning by feature/semantic keyword extraction based on [term frequency-inverse document frequency](https://en.wikipedia.org/wiki/Tf–idf)
 - Logging support with configurable log levels
 - Configuration support based on YAML syntax to configure multiple/specific analyses
@@ -60,9 +61,11 @@ The main goal of this project is to create a free/ open source tool, that can ea
     - [Dark mode support](https://github.com/coliff/dark-mode-switch)
     - Visual live search (OR'ed with multiple search terms) of entities
     - The option to include a semantic search based on [term frequency-inverse document frequency](https://en.wikipedia.org/wiki/Tf–idf)
+    - The option to include git-based metainformation e.g. contributor names
     - Selection and highlighting of individual nodes
     - [Concave hull](https://github.com/AndriiHeonia/hull) visualization of single clusters
     - [Heatmap](https://github.com/mourner/simpleheat) visualization support of potentially harmful nodes based on a SLOC/Fan-Out score
+    - [Heatmap] visualization of of `git-based` metrics e.g. code churn
     - Display of cluster metrics to facilitate comparability
     - Interactivity given by translation, zooming, dragging and hovering over nodes
   - Tabular console output
@@ -490,8 +493,8 @@ The yaml configuration is basically defined at the following levels:
 | `analysis_name`                  | a specific analysis name |
 | `source_directory`               | the source directory where the recursive file scan should start |
 | `git_directory`               | the git repo directory, if git metrics should be included |
-| `git_commit_limit`               | how many commits from the last commit should be mined? default: `2000` |
-| `git_exclude_merge_commits`               | should merge commits be excluded from mining all metrics? default: `true` |
+| `git_commit_limit`               | how many commits from the last commit should be mined? default: `150` |
+| `git_exclude_merge_commits`      | should merge commits be excluded from mining all metrics? default: `true` |
 | `ignore_files_containing`        | exclude file names from the scan that contain the given substrings |
 | `ignore_directories_containing`  | exclude directory names from the scan that contain the given substrings |
 | `only_permit_languages`          | possible values include: java, kotlin, objc, swift, ruby, groovy, javascript, c - explicitly prevents any other language from scanning besides the one you set here |
@@ -520,6 +523,8 @@ The yaml configuration is basically defined at the following levels:
 | `fan_in_out`           | apply a fan in/ fan out graph metric to every file, create an overall metric |
 | `louvain_modularity`   | apply a louvain modularity metric to every file, create an overall metric |
 | `tfidf`                | apply a tfidf metric to every file and extract relevant semantic keywords|
+| `ws_complexity`        | apply a whitespace complexity metric to every file |
+| `git_metrics`          | include some git-based metrics and try to apply them to every file |
 |                        | |
 
 ## entity_scan metrics
