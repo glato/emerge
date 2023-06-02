@@ -223,6 +223,23 @@ git clone https://github.com/glato/emerge.git
 brew install graphviz
 ```
 
+If you encounter the following error on an Apple silicon Mac
+
+```sh
+pygraphviz/graphviz_wrap.c:2711:10: fatal error: 'graphviz/cgraph.h' file not found
+      #include "graphviz/cgraph.h"
+               ^~~~~~~~~~~~~~~~~~~
+      1 error generated.
+```
+
+you need to run the following command once to update the pygraphviz include directories for the new homebrew environment
+
+```sh
+pip install --global-option=build_ext --global-option="-I$(brew --prefix graphviz)/include/" --global-option="-L$(brew --prefix graphviz)/lib/" pygraphviz
+```
+
+See the issue in context [here](https://github.com/pygraphviz/pygraphviz/issues/11).
+
 ### 2️⃣.2️⃣ ~ (*macOS*) Create a virtual environment
 
 Check of you have the latest Python 3 installed on your macOS. I recommend installing/using Python 3 from [Homebrew](https://brew.sh). Create a Python 3 virtual environment (optionally within the project structure)
