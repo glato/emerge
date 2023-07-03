@@ -110,7 +110,7 @@ function calculateAuthorsForDateRange() {
 }
 
 function addGitMetricToFileNodes() {
-    if (currentGraphType.includes('file_result_dependency_graph')) {
+    if (currentGraph && currentGraphType.includes('file_result_dependency_graph')) {
         let fileChurnMap = calculateFileChurnForDateRange()
         let whiteSpaceComplexityMap = calculateWhiteSpaceComplexityForDateRange()
         let slocMap = calculateSlocForDateRange()
