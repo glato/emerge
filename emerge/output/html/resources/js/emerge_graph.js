@@ -367,22 +367,13 @@ function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
     const scaledFontSize = 14 * scaleFactor;
     context.font = scaledFontSize + 'px Helvetica';
 
-    // Set the text box width based on the maximum label width
-    let textBoxWidth = 0;
-    for (metricKey in nodeMetrics) {
-        const val = nodeMetrics[metricKey];
-        let human_readable_metric_name = metricKey.replace('metric_', '').replace(/_/gi, " ")
-        const w = context.measureText(human_readable_metric_name + ": " + val).width;
-        if (textBoxWidth < w) {
-            textBoxWidth = w;
-        }
-    }
-    
-    // check if actually the title line width if bigger than any metric label line width?
-    const nodeTitleLineWidth = context.measureText(text).width
-    if (nodeTitleLineWidth > textBoxWidth) {
-        textBoxWidth = nodeTitleLineWidth;
-    }
+    // Extract code metrics and semantic keywords from `nodeMetrics` object:
+    const codeMetricLabels = formatCodeMetricLabels(nodeMetrics);
+    const semanticKeywords = formatSemanticKeywords(nodeMetrics);
+
+    // Set the text box width based on the maximum text width:
+    const allTextLabels = [text, ...codeMetricLabels, ...semanticKeywords];
+    const textBoxWidth = Math.max(...allTextLabels.map(text => context.measureText(text).width));
     
     // Offset text from left edge of box:
     const xTextOffset = 5 * scaleFactor;
@@ -406,19 +397,9 @@ function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
     context.fillText(text, xText, yCurrent - yTextOffset);
     
     // Draw boxes/rows for all metric labels
-    let renderWithTags = false;
-    for (metricKey in nodeMetrics) {
-        // Do not include any tag/tfidf metrics in the primary metric section:
-        if (metricKey.includes('metric_tag')) {
-            renderWithTags = true;
-            continue
-        }
-        
+    for (metricLabel of codeMetricLabels) {
         // Shift `yCurrent` (bottom edge of the box) by the boxHeight:
         yCurrent += boxHeight;
-        
-        let human_readable_metric_name = metricKey.replace('metric_', '').replace(/_/gi, " ");
-        let metricItemText = human_readable_metric_name + ": " + nodeMetrics[metricKey];
         
         // Draw box with current metric label:
         drawBox(context,
@@ -426,15 +407,15 @@ function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
             { strokeColor: toolTipMetricItemBoxColor, fillColor: toolTipMetricItemBoxFillColor },
         );
         context.fillStyle = toolTipMetricItemTextColor;
-        context.fillText(metricItemText, xText, yCurrent - yTextOffset);
+        context.fillText(metricLabel, xText, yCurrent - yTextOffset);
     }
     
-    // Draw boxes/rows for tag/tfidf metric section:
-    if (renderWithTags) {
+    // Draw boxes/rows for tfidf semantic keywords section:
+    if (semanticKeywords.length) {
         // Shift `yCurrent` (bottom edge of the box) by the boxHeight:
         yCurrent += boxHeight;
         
-        // Draw the header/title for the tag/tfidf section:
+        // Draw the header/title for the tfidf semantic keywords section:
         drawBox(context,
             { y: yCurrent - boxHeight, ...boxDefaults },
             { strokeColor: hexToRGB("#333333", 1.0), fillColor: hexToRGB("#f5bc42", 1.0) },
@@ -442,26 +423,19 @@ function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
         context.fillStyle = hexToRGB("#333333", 0.8);
         context.fillText('Semantic keywords', xText, yCurrent - yTextOffset);
         
-        // Draw boxes/rows for all tag/tfidf metrics:
-        for (metricKey in nodeMetrics) {
-            
-            // Skip metrics that aren't tag/tfidf metrics:
-            if (!metricKey.includes('metric_tag')) {
-                continue
-            }
+        // Draw boxes/rows for all tfidf semantic keywords:
+        for (keyword of semanticKeywords) {
             
             // Shift `yCurrent` (bottom edge of the box) by the boxHeight:
             yCurrent += boxHeight;
             
-            let metricItemText = metricKey.replace('metric_tag', '').replace(/_/gi, "");
-            
-            // Draw box with current tag/tfidf:
+            // Draw box with current tfidf semantic keyword:
             drawBox(context,
                 { y: yCurrent - boxHeight, ...boxDefaults },
                 { strokeColor: toolTipMetricItemBoxColor, fillColor: toolTipMetricItemBoxFillColor },
             );
             context.fillStyle = toolTipMetricItemTextColor;
-            context.fillText(metricItemText, xText, yCurrent - yTextOffset);
+            context.fillText(keyword, xText, yCurrent - yTextOffset);
         }
     }
 }
@@ -474,6 +448,18 @@ function drawBox(context, {x, y, width, height}, {strokeColor, fillColor}) {
     
     context.fillStyle = fillColor
     context.fillRect(x, y, width, height);
+}
+
+function formatCodeMetricLabels(nodeMetrics) {
+    return Object.entries(nodeMetrics)
+        .filter(([key, _]) => !key.startsWith("metric_tag"))
+        .map(([key, value]) => key.replace('metric_', '').replace(/_/gi, " ") + ": " + value);
+}
+
+function formatSemanticKeywords(nodeMetrics) {
+    return Object.keys(nodeMetrics)
+        .filter(key => key.startsWith("metric_tag"))
+        .map(key => key.replace('metric_tag', '').replace(/_/gi, ""));
 }
 
 // borrowed from Scott Johnson / https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197 with minor adjustments
