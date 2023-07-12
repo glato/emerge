@@ -8,6 +8,8 @@ analyses:
   - py
   only_permit_file_extensions:
   - .py
+  ignore_directories_containing:
+  - __pycache__
   file_scan:
   - number_of_methods
   - source_lines_of_code
