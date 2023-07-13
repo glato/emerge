@@ -271,7 +271,7 @@ function drawNodes(context) {
                 context.lineWidth = 1.0;
                 context.stroke();
                 
-                drawNodeToolTip(closeNode.id, closeNode.x + 14, closeNode.y - 7, closeNode.metrics)
+                drawNodeToolTip(closeNode.id, closeNode.x + 8, closeNode.y - 7, closeNode.metrics)
             }
         }
     });
@@ -357,115 +357,109 @@ function stringIncludedInNodeContributors(string, node) {
 function drawNodeToolTip(text, xPos, yPos, nodeMetrics) {
     
     // $('#overallStatisticsModal').modal('show');
+
+    // Calculate scale factor to maintain fixed size when d3 canvas zoom changes.
+    const zoomTransform = d3.zoomTransform(context.canvas);
+    const scaleFactor = 1 / zoomTransform.k;
+
+    // Scale linewidth and font so they're unchanged when zooming:
+    context.lineWidth = scaleFactor;
+    const scaledFontSize = 14 * scaleFactor;
+    context.font = scaledFontSize + 'px Helvetica';
+
+    // Extract code metrics and semantic keywords from `nodeMetrics` object:
+    const codeMetricLabels = formatCodeMetricLabels(nodeMetrics);
+    const semanticKeywords = formatSemanticKeywords(nodeMetrics);
+
+    // Set the text box width based on the maximum text width:
+    const allTextLabels = [text, ...codeMetricLabels, ...semanticKeywords];
+    const textBoxWidth = Math.max(...allTextLabels.map(text => context.measureText(text).width));
     
-    const fontSize = 14
-    context.font = fontSize + 'px Helvetica';
-    
-    // determine the maximum label width
-    let maxLineWidth = 0
-    for (metricKey in nodeMetrics) {
-        const val = nodeMetrics[metricKey]
-        let human_readable_metric_name = metricKey.replace('metric_', '').replace(/_/gi, " ")
-        const w = context.measureText(human_readable_metric_name + ": " + val).width;
-        if (maxLineWidth < w) {
-            maxLineWidth = w
-        }
-    }
-    
-    // check if actually the title line width if bigger than any metric label line width?
-    const nodeTitleLineWidth = context.measureText(text).width
-    if (nodeTitleLineWidth > maxLineWidth)
-    maxLineWidth = nodeTitleLineWidth
-    
-    // draw the header/title of the toolip    
-    let lineHeight = fontSize * 1.286;
-    context.fillStyle = hexToRGB("#0069d9", 1.0);
-    context.fillRect(xPos - 6, (yPos - lineHeight) + 2, maxLineWidth + 10, lineHeight + 4);
-    context.strokeStyle = hexToRGB("#333333", 1.0);
-    context.strokeRect(xPos - 6, (yPos - lineHeight) + 2, maxLineWidth + 10, lineHeight + 4)
-    
+    // Offset text from left edge of box:
+    const xTextOffset = 5 * scaleFactor;
+    const xText = xPos + xTextOffset;
+    // Offset text from bottom edge of box:
+    const yTextOffset = 5 * scaleFactor;
+    // yCurrent represents the bottom edge of the box, which changes for each box:
+    let yCurrent = yPos;
+
+    // Define dimensions of each box/row containing metrics/labels/tags:
+    const boxWidth = textBoxWidth + 2 * xTextOffset;
+    const boxHeight = scaledFontSize * 1.286;
+    const boxDefaults = { x: xPos, width: boxWidth, height: boxHeight };
+
+    // Draw the header/title with node label:
+    drawBox(context,
+        { y: yCurrent - boxHeight, ...boxDefaults },
+        { strokeColor: hexToRGB("#333333", 1.0), fillColor: hexToRGB("#0069d9", 1.0) },
+    );
     context.fillStyle = hexToRGB("#FFFFFF", 0.8);
-    context.fillText(text, xPos, yPos);
+    context.fillText(text, xText, yCurrent - yTextOffset);
     
-    // now draw the second tooltip box with all metric labels
-    let metricItem = 1
-    const metricFontSize = 14
-    const metricLineHeight = (metricFontSize * 1.286);
-    let yPosOffset = yPos + 10
-    let newYPos = 0
-    let renderWithTags = false
-    
-    context.font = metricFontSize + 'px Helvetica';
-    
-    for (metricKey in nodeMetrics) {
+    // Draw boxes/rows for all metric labels
+    for (metricLabel of codeMetricLabels) {
+        // Shift `yCurrent` (bottom edge of the box) by the boxHeight:
+        yCurrent += boxHeight;
         
-        // do not include any tag/tfidf metric in the primary metric section
-        if (metricKey.includes('metric_tag')) {
-            renderWithTags = true
-            continue
-        }
-        
-        let val = nodeMetrics[metricKey]
-        let human_readable_metric_name = metricKey.replace('metric_', '').replace(/_/gi, " ")
-        let metricItemText = human_readable_metric_name + ": " + val
-        
-        newYPos = yPosOffset + (metricLineHeight * metricItem)
-        
-        // Interesting bug: on Safari it seems to cause random lags if you do fillStyle/fillRect BEFORE strokeStyle/strokeRect
-        context.strokeStyle = toolTipMetricItemBoxColor
-        context.strokeRect(xPos - 6, (newYPos - metricLineHeight), maxLineWidth + 10, metricLineHeight)
-        
-        context.fillStyle = toolTipMetricItemBoxFillColor
-        context.fillRect(xPos - 6, (newYPos - metricLineHeight), maxLineWidth + 10, metricLineHeight);
-        
+        // Draw box with current metric label:
+        drawBox(context,
+            { y: yCurrent - boxHeight, ...boxDefaults },
+            { strokeColor: toolTipMetricItemBoxColor, fillColor: toolTipMetricItemBoxFillColor },
+        );
         context.fillStyle = toolTipMetricItemTextColor;
-        context.fillText(metricItemText, xPos, newYPos - 4);
-        
-        metricItem = metricItem + 1
+        context.fillText(metricLabel, xText, yCurrent - yTextOffset);
     }
     
-    // render tag/tfidf metric section
-    if (renderWithTags) {
-        let metricItem = 1
-        newYPos += 20
+    // Draw boxes/rows for tfidf semantic keywords section:
+    if (semanticKeywords.length) {
+        // Shift `yCurrent` (bottom edge of the box) by the boxHeight:
+        yCurrent += boxHeight;
         
-        // draw the header/title of the toolip    
-        context.fillStyle = hexToRGB("#f5bc42", 1.0);
-        context.fillRect(xPos - 6, (newYPos - lineHeight) + 2, maxLineWidth + 10, lineHeight + 4);
-        context.strokeStyle = hexToRGB("#333333", 1.0);
-        context.strokeRect(xPos - 6, (newYPos - lineHeight) + 2, maxLineWidth + 10, lineHeight + 4)
+        // Draw the header/title for the tfidf semantic keywords section:
+        drawBox(context,
+            { y: yCurrent - boxHeight, ...boxDefaults },
+            { strokeColor: hexToRGB("#333333", 1.0), fillColor: hexToRGB("#f5bc42", 1.0) },
+        );
         context.fillStyle = hexToRGB("#333333", 0.8);
-        context.fillText('Semantic keywords', xPos, newYPos);
+        context.fillText('Semantic keywords', xText, yCurrent - yTextOffset);
         
-        let yTagPosOffset = newYPos + 10
-        
-        // render tag/tfidf metrics
-        for (metricKey in nodeMetrics) {
+        // Draw boxes/rows for all tfidf semantic keywords:
+        for (keyword of semanticKeywords) {
             
-            // do not include any tag/tfidf metric in the primary metric section
-            if (!metricKey.includes('metric_tag')) {
-                continue
-            }
+            // Shift `yCurrent` (bottom edge of the box) by the boxHeight:
+            yCurrent += boxHeight;
             
-            let val = nodeMetrics[metricKey]
-            let human_readable_metric_name = metricKey.replace('metric_tag', '').replace(/_/gi, "")
-            let metricItemText = human_readable_metric_name // + ": " + val
-            
-            newYPos = yTagPosOffset + (metricLineHeight * metricItem)
-            
-            // Interesting bug: on Safari it seems to cause random lags if you do fillStyle/fillRect BEFORE strokeStyle/strokeRect
-            context.strokeStyle = toolTipMetricItemBoxColor
-            context.strokeRect(xPos - 6, (newYPos - metricLineHeight), maxLineWidth + 10, metricLineHeight)
-            
-            context.fillStyle = toolTipMetricItemBoxFillColor
-            context.fillRect(xPos - 6, (newYPos - metricLineHeight), maxLineWidth + 10, metricLineHeight);
-            
+            // Draw box with current tfidf semantic keyword:
+            drawBox(context,
+                { y: yCurrent - boxHeight, ...boxDefaults },
+                { strokeColor: toolTipMetricItemBoxColor, fillColor: toolTipMetricItemBoxFillColor },
+            );
             context.fillStyle = toolTipMetricItemTextColor;
-            context.fillText(metricItemText, xPos, newYPos - 4);
-            
-            metricItem = metricItem + 1
+            context.fillText(keyword, xText, yCurrent - yTextOffset);
         }
     }
+}
+
+
+function drawBox(context, {x, y, width, height}, {strokeColor, fillColor}) {
+    // Interesting bug: on Safari it seems to cause random lags if you do fillStyle/fillRect BEFORE strokeStyle/strokeRect
+    context.strokeStyle = strokeColor;
+    context.strokeRect(x, y, width, height);
+    
+    context.fillStyle = fillColor
+    context.fillRect(x, y, width, height);
+}
+
+function formatCodeMetricLabels(nodeMetrics) {
+    return Object.entries(nodeMetrics)
+        .filter(([key, _]) => !key.startsWith("metric_tag"))
+        .map(([key, value]) => key.replace('metric_', '').replace(/_/gi, " ") + ": " + value);
+}
+
+function formatSemanticKeywords(nodeMetrics) {
+    return Object.keys(nodeMetrics)
+        .filter(key => key.startsWith("metric_tag"))
+        .map(key => key.replace('metric_tag', '').replace(/_/gi, ""));
 }
 
 // borrowed from Scott Johnson / https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197 with minor adjustments
