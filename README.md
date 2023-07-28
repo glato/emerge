@@ -119,7 +119,7 @@ analyses:
   .
 ```
 
-💡The Docker container itself is path independent. Feel free to use your own volume mount and project config path.
+💡The Docker container itself is path independent. Feel free to use your own volume mount and project config paths.
 
 ## How to install and use emerge as a user
 
