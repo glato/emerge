@@ -91,7 +91,7 @@ config.yml
 The command to run the analysis is than:
 
 ```text
-docker run --rm -v <YOUR_WORKING_FOLDER_PATH>:/tmp/emerge emerge /tmp/emerge/config.yml
+docker run --rm -v <YOUR_WORKING_FOLDER_PATH>:/tmp/emerge achtelik/emerge:2.0.0 /tmp/emerge/config.yml
 ```
 
 The last parameter is the path to the config.yml inside the Docker container.
