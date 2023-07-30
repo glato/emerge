@@ -74,6 +74,53 @@ The main goal of this project is to create a free/ open source tool, that can ea
 
 &nbsp;
 
+## How to use emerge as Docker container
+
+The easiest way to use emerge in a pre build Docker container. The only prerequisite is to have a Docker engine. For example the [Docker Desktop](https://docs.docker.com/engine/install/).
+
+Prepare your working folder like this
+```text
+config.yml
+📁export
+📁source
+```
+* config.yml = configuration file
+* export = folder for your export
+* source = folder which contains your source code.
+
+The command to run the analysis is than:
+
+```text
+docker run --rm -v <YOUR_WORKING_FOLDER_PATH>:/tmp/emerge achtelik/emerge:2.0.0 /tmp/emerge/config.yml
+```
+
+The last parameter is the path to the config.yml inside the Docker container.
+
+⚡You can ignore the Pyperclip error at the end of the run.
+
+### config.yml
+If you use the suggestion from above, than pay attention that your `analyses.source_directory` and `export.directory` path have to start with `/tmp/emerge`. This is necessary because your analysis is running inside the Docker container.
+
+For example:
+```text
+---
+project_name: java_project_example
+loglevel: info
+analyses:
+- analysis_name: full java check
+  source_directory: /tmp/emerge/source
+  .
+  .
+  .
+  export:
+  - directory: /tmp/emerge/export
+  .
+  .
+  .
+```
+
+💡The Docker container itself is path independent. Feel free to use your own volume mount and project config paths.
+
 ## How to install and use emerge as a user
 
 Basically there are two ways to install emerge. If you're familiar with `pip` (a virtual environment by using `pyenv`, `virtualenv` and `virtualenvwrapper` is recommended, but not needed) you can simply install the latest version of emerge with the following few steps.
