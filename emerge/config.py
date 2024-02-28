@@ -732,7 +732,7 @@ class YamlLoader:
             with open(yaml_file_name, encoding="utf-8") as yaml_file:
                 self._config_file_content = yaml_file.read()
         except OSError:
-            LOGGER.error(f'coould not open file: {yaml_file_name}')
+            LOGGER.error(f'could not open file: {yaml_file_name}')
 
     def _load_yaml_from_config_file_content(self):
         try:
