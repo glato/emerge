@@ -144,12 +144,12 @@ class LayerProcessor:
 
         # Get the dependency graph to find all nodes
         graph = self.analysis.graph_representations.get('file_result_dependency_graph')
-        if not graph or not graph.graph:
+        if not graph or not graph.digraph:
             LOGGER.warning('No dependency graph available for layer processing')
             return {}
 
         # Process each node in the graph
-        for node in graph.graph.nodes():
+        for node in graph.digraph.nodes():
             matching_layers = []
             highest_prominence_level = self._prominence_to_level('background')
             assigned_prominence = 'background'
