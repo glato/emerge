@@ -1,0 +1,57 @@
+---
+# Example 1: Simple layer visualization with prominence levels
+project_name: simple-layer-example
+loglevel: info
+
+analyses:
+  - analysis_name: layered-architecture
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # Define visualization layers with prominence levels
+    visualization_layers:
+      enabled: true
+      layers:
+        # High prominence: Core application files
+        - name: "Core Layer"
+          prominence: "high"
+          color: "#FF0000"  # Red
+          files:
+            - "main.py"
+            - "app.py"
+
+        # Medium prominence: Business logic
+        - name: "Business Logic"
+          prominence: "medium"
+          color: "#00FF00"  # Green
+          directories:
+            - "services"
+            - "controllers"
+
+        # Low prominence: Utilities and helpers
+        - name: "Utilities"
+          prominence: "low"
+          color: "#0000FF"  # Blue
+          patterns:
+            - "*_utils.py"
+            - "*_helper.py"
+          directories:
+            - "utils"
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output
+      - d3
+
+# Result: Interactive visualization showing:
+# - Red nodes (high prominence): Large, fully opaque - core files
+# - Green nodes (medium prominence): Normal size, 80% opacity - business logic
+# - Blue nodes (low prominence): Smaller, 50% opacity - utilities
+# - Gray nodes (background): Smallest, 20% opacity - everything else

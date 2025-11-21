@@ -452,6 +452,56 @@ class D3Exporter:
             d3_js_string += 'const entry_point_paths = {}\n'
             d3_js_string += 'const node_path_colors = {}\n\n'
 
+        # Export visualization layers data if available
+        if hasattr(analysis, 'layer_definitions') and analysis.layer_definitions:
+            layer_data = {
+                'layers': analysis.layer_definitions,
+                'enabled': True
+            }
+
+            d3_js_string += 'const visualization_layers = '
+            d3_js_string += json.dumps(layer_data)
+            d3_js_string += '\n\n'
+
+            # Export node layer assignments (mapping nodes to layers)
+            node_layers = {}
+            if hasattr(analysis, 'node_layer_assignments'):
+                for node, layers in analysis.node_layer_assignments.items():
+                    node_layers[node] = layers
+
+            d3_js_string += 'const node_layer_assignments = '
+            d3_js_string += json.dumps(node_layers)
+            d3_js_string += '\n\n'
+
+            # Export node prominence levels
+            from emerge.layers import LayerProcessor
+            node_prominence = {}
+            if hasattr(analysis, 'node_layer_assignments'):
+                for node, layers in analysis.node_layer_assignments.items():
+                    # Find the highest prominence for this node
+                    highest_prominence = 'background'
+                    highest_level = 3
+                    for layer_def in analysis.layer_definitions:
+                        if layer_def['name'] in layers:
+                            level = LayerProcessor._prominence_to_level(layer_def['prominence'])
+                            if level < highest_level:
+                                highest_level = level
+                                highest_prominence = layer_def['prominence']
+                    node_prominence[node] = {
+                        'prominence': highest_prominence,
+                        'opacity': LayerProcessor.get_prominence_opacity(highest_prominence),
+                        'radius_multiplier': LayerProcessor.get_prominence_radius_multiplier(highest_prominence)
+                    }
+
+            d3_js_string += 'const node_prominence = '
+            d3_js_string += json.dumps(node_prominence)
+            d3_js_string += '\n\n'
+        else:
+            # Export empty layer data if not available
+            d3_js_string += 'const visualization_layers = {enabled: false, layers: []}\n'
+            d3_js_string += 'const node_layer_assignments = {}\n'
+            d3_js_string += 'const node_prominence = {}\n\n'
+
         d3_js_string += "const analysis_name = '" + analysis.analysis_name + "'"
         d3_js_string += '\n\n'
 

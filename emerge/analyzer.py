@@ -98,6 +98,10 @@ class Analyzer:
         if analysis.path_analysis:
             self._perform_path_analysis(analysis)
 
+        # Perform layer processing if configured
+        if analysis.visualization_layers:
+            self._perform_layer_processing(analysis)
+
         # Apply metric-based filters if configured
         if analysis.metric_filters:
             LOGGER.info('applying metric filters to results')
@@ -255,6 +259,27 @@ class Analyzer:
         analysis.entry_point_paths = paths
 
         LOGGER.info_done(f'path analysis complete - traced {len(paths)} paths from {len(entry_points)} entry points')
+
+    @staticmethod
+    def _perform_layer_processing(analysis: Analysis):
+        """Performs visualization layer processing for a given analysis.
+
+        Args:
+            analysis (Analysis): A given analysis.
+        """
+        from emerge.layers import LayerProcessor
+
+        LOGGER.info_start(f'starting layer processing for {analysis.analysis_name}')
+
+        processor = LayerProcessor(analysis)
+        layer_data = processor.process_layers()
+
+        if layer_data:
+            num_layers = len(layer_data.get('layer_definitions', []))
+            num_nodes = len(layer_data.get('node_layer_assignments', {}))
+            LOGGER.info_done(f'layer processing complete - assigned {num_nodes} nodes to {num_layers} layers')
+        else:
+            LOGGER.warning('layer processing produced no results')
 
     def _collect_all_results(self):
         """Collects results from all configured analyses.

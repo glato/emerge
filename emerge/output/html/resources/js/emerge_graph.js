@@ -88,37 +88,54 @@ function drawEdges(context) {
 
 function drawNodes(context) {
     currentGraph.nodes.forEach(function(d, i) {
-        
+
         context.beginPath();
-        
+
+        // Apply layer-based radius modification if layer visualization is active
+        let nodeRadius = d.radius;
+        let nodeOpacity = 1.0;
+
+        if (typeof isLayerVisualizationActive === 'function' && isLayerVisualizationActive()) {
+            if (d.layerRadiusMultiplier !== undefined) {
+                nodeRadius = d.radius * d.layerRadiusMultiplier;
+            }
+            if (d.layerOpacity !== undefined) {
+                nodeOpacity = d.layerOpacity;
+            }
+        }
+
         //render outer circle if node was selected
         if (d.id.toLowerCase() in selectedNodesMap) {
-            
-            context.arc(d.x, d.y, d.radius + 2.0, 0, TWO_TIMES_PI);
+
+            context.arc(d.x, d.y, nodeRadius + 2.0, 0, TWO_TIMES_PI);
             context.fillStyle = '#FF0000' //activeSelectionColor
             drawNodeLabel(d.id, d.x + 14, d.y - 7)
             context.fill();
         }
-        
-        context.arc(d.x, d.y, d.radius, 0, TWO_TIMES_PI, true);
+
+        context.arc(d.x, d.y, nodeRadius, 0, TWO_TIMES_PI, true);
         
         if (fadeUnselectedNodes == true || normalHeatmapIsActive() || churnHeatmapIsActive() || hotspotHeatmapIsActive()) {
             context.strokeStyle = nodeStrokeStyle
-            context.fillStyle = hexToRGB(nodeStrokeStyle, unselectedNodesOpacity)
+            let opacity = unselectedNodesOpacity;
+            if (typeof isLayerVisualizationActive === 'function' && isLayerVisualizationActive()) {
+                opacity = Math.min(unselectedNodesOpacity, nodeOpacity);
+            }
+            context.fillStyle = hexToRGB(nodeStrokeStyle, opacity)
             context.stroke();
-            
+
             if (nodeLabelsEnabled) {
                 context.fillStyle = currentPassiveNodeLabelColor;
                 drawNodeLabel(d.id, d.x + 14, d.y - 7)
-                context.fillStyle = nodeColorByModularity(d, unselectedNodesOpacity)
+                context.fillStyle = nodeColorByModularity(d, opacity)
             }
-            
+
         } else {
-            
+
             if (closeNode == null) { // not hovering over any node
                 if (isSearching == false) {
-                    
-                    context.fillStyle = nodeColorByModularity(d)
+
+                    context.fillStyle = nodeColorByModularity(d, nodeOpacity)
                     context.strokeStyle = nodeStrokeStyle;
                     context.stroke();
                     

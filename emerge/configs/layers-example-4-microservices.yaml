@@ -1,0 +1,113 @@
+---
+# Example 4: Microservices Architecture Layer Visualization
+# Demonstrates using layers to highlight service boundaries and shared components
+project_name: microservices-layers
+loglevel: info
+
+analyses:
+  - analysis_name: service-architecture
+    source_directory: /path/to/microservices/src
+    only_permit_languages:
+      - py
+      - java
+      - js
+    only_permit_file_extensions:
+      - .py
+      - .java
+      - .js
+
+    # Microservices layer visualization
+    visualization_layers:
+      enabled: true
+      layers:
+        # API Gateway (Highest prominence - entry point)
+        - name: "API Gateway"
+          prominence: "high"
+          color: "#FF0000"  # Red
+          directories:
+            - "api-gateway"
+
+        # Core Business Services (High prominence)
+        - name: "User Service"
+          prominence: "high"
+          color: "#2196F3"  # Blue
+          directories:
+            - "services/user-service"
+
+        - name: "Order Service"
+          prominence: "high"
+          color: "#4CAF50"  # Green
+          directories:
+            - "services/order-service"
+
+        - name: "Payment Service"
+          prominence: "high"
+          color: "#FF9800"  # Orange
+          directories:
+            - "services/payment-service"
+
+        # Supporting Services (Medium prominence)
+        - name: "Notification Service"
+          prominence: "medium"
+          color: "#9C27B0"  # Purple
+          directories:
+            - "services/notification-service"
+
+        - name: "Analytics Service"
+          prominence: "medium"
+          color: "#00BCD4"  # Cyan
+          directories:
+            - "services/analytics-service"
+
+        # Shared Libraries (Low prominence but important)
+        - name: "Shared: Common"
+          prominence: "low"
+          color: "#607D8B"  # Blue Gray
+          directories:
+            - "shared/common"
+            - "shared/models"
+
+        - name: "Shared: Auth"
+          prominence: "low"
+          color: "#795548"  # Brown
+          directories:
+            - "shared/auth"
+            - "shared/security"
+
+        # Infrastructure (Background)
+        - name: "Infrastructure"
+          prominence: "background"
+          color: "#9E9E9E"  # Gray
+          directories:
+            - "infrastructure"
+            - "config"
+            - "deployment"
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+      - louvain_modularity
+
+    export:
+      - directory: /path/to/output/microservices
+      - d3
+      - graphml
+
+# Result: Service-oriented visualization showing:
+# - API Gateway (red): Highly visible entry point
+# - Core services (blue/green/orange): Clear service boundaries
+# - Supporting services (purple/cyan): Secondary importance
+# - Shared libraries (gray tones): Background support
+# - Infrastructure (light gray): Minimal prominence
+#
+# Analysis insights:
+# - Toggle individual services to see their dependencies
+# - Toggle "Shared" layers to see which services depend on common code
+# - Identify services with too many cross-service dependencies
+# - Verify that services maintain proper boundaries
+#
+# Architecture validation:
+# - High coupling between services → Consider service boundaries
+# - Shared libraries with high prominence → Consider extracting to service
+# - Services depending on infrastructure directly → Consider abstraction

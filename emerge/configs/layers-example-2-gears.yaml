@@ -1,0 +1,85 @@
+---
+# Example 2: Gear 1/2/3 Architecture Visualization
+# Demonstrates multi-level architecture with clear prominence hierarchy
+project_name: gear-architecture
+loglevel: info
+
+analyses:
+  - analysis_name: gear-layers
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # Gear-based architecture visualization
+    visualization_layers:
+      enabled: true
+      layers:
+        # Gear 1: Core Orchestration (Highest prominence)
+        - name: "Gear 1: Core Orchestration"
+          prominence: "high"
+          color: "#FF0000"  # Red
+          files:
+            - "orchestrator.py"
+            - "main.py"
+            - "app_controller.py"
+          directories:
+            - "core"
+
+        # Gear 2: Agent Execution Layer (Medium-high prominence)
+        - name: "Gear 2: Agent Execution"
+          prominence: "medium"
+          color: "#00AA00"  # Green
+          patterns:
+            - "*_agent.py"
+            - "*_executor.py"
+          directories:
+            - "agents"
+            - "executors"
+
+        # Gear 3: Support Services (Medium prominence)
+        - name: "Gear 3: Support Services"
+          prominence: "medium"
+          color: "#0066FF"  # Blue
+          patterns:
+            - "*_service.py"
+            - "*_manager.py"
+          directories:
+            - "services"
+            - "managers"
+
+        # Infrastructure/Utilities (Low prominence)
+        - name: "Infrastructure"
+          prominence: "low"
+          color: "#FFA500"  # Orange
+          patterns:
+            - "*_utils.py"
+            - "*_helper.py"
+            - "config*.py"
+          directories:
+            - "utils"
+            - "config"
+            - "infrastructure"
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+      - louvain_modularity
+
+    export:
+      - directory: /path/to/output/gears
+      - d3
+
+# Result: Clear visualization of architectural layers:
+# - Gear 1 (red): Largest nodes, full opacity - immediately visible as core
+# - Gear 2 (green): Normal size, 80% opacity - clearly important
+# - Gear 3 (blue): Normal size, 80% opacity - supporting components
+# - Infrastructure (orange): Smaller, 50% opacity - background support
+# - Unlayered files: Very small, 20% opacity - minimal visibility
+#
+# Toggle layers on/off to focus on specific architectural concerns:
+# - View only Gear 1 to see core orchestration
+# - View Gears 1+2 to see core + agents
+# - View all to see complete architecture

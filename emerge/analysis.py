@@ -121,6 +121,11 @@ class Analysis:
         self.entry_points: List = []
         self.entry_point_paths: Dict[str, Dict[str, Any]] = {}
 
+        # Visualization layers options
+        self.visualization_layers: Optional[Dict] = None
+        self.layer_definitions: List[Dict[str, Any]] = []
+        self.node_layer_assignments: Dict[str, List[str]] = {}  # Maps node_id to list of layer names
+
         self.results: Dict[str, AbstractResult] = {}
 
         self.absolute_scanned_file_names: Set[str] = set()

@@ -47,6 +47,9 @@
     <!-- emerge path analysis functionality -->
     <script type="text/javascript" src="resources/js/emerge_path.js"></script>
 
+    <!-- emerge layer visualization functionality -->
+    <script type="text/javascript" src="resources/js/emerge_layers.js"></script>
+
     <!-- emerge common functionality -->
     <script type="text/javascript" src="resources/js/emerge_common.js"></script>
 
@@ -213,6 +216,32 @@
                             <hr style="margin: 8px 0;">
                             <div id="pathCheckboxes">
                                 <!-- Path checkboxes will be injected here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization Layers Controls -->
+                <button id="buttonToggleLayerControls" type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" onclick="toggleLayerControls();" style="display: none;">
+                    <span aria-hidden="true">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 1l6.5 3.25v6.5L8 14 1.5 10.75v-6.5L8 1zm0 1.875L3.125 5.5 8 8.125 12.875 5.5 8 2.875zM2.5 6.625v4.75L8 13.875l5.5-2.5v-4.75L8 9.125l-5.5-2.5z"/>
+                        </svg>
+                    </span>
+                    Visualization Layers
+                </button>
+
+                <div id="layerControlsContainer" style="display: none; padding: 10px; max-height: 300px; overflow-y: auto;">
+                    <div class="card border-secondary" style="margin-bottom: 10px;">
+                        <div class="card-body" style="padding: 8px;">
+                            <h6 class="card-title" style="font-size: 12px; margin-bottom: 8px;">Toggle Visualization Layers</h6>
+                            <div class="form-check form-switch" style="margin-bottom: 5px;">
+                                <input type="checkbox" class="form-check-input" id="toggleAllLayers" checked onclick="toggleAllLayers(this.checked);">
+                                <label class="form-check-label" for="toggleAllLayers"><small>All Layers</small></label>
+                            </div>
+                            <hr style="margin: 8px 0;">
+                            <div id="layerCheckboxes">
+                                <!-- Layer checkboxes will be injected here by JavaScript -->
                             </div>
                         </div>
                     </div>

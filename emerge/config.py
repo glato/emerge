@@ -92,6 +92,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     METRIC_FILTERS = auto()
     APPLY_FILTER_PROFILE = auto()
     PATH_ANALYSIS = auto()
+    VISUALIZATION_LAYERS = auto()
 
 
 @unique
@@ -752,6 +753,11 @@ class Configuration:
             if ConfigKeyAnalysis.PATH_ANALYSIS.name.lower() in analysis_dict:
                 analysis.path_analysis = analysis_dict[ConfigKeyAnalysis.PATH_ANALYSIS.name.lower()]
                 LOGGER.debug(f'path analysis enabled for {analysis.analysis_name}')
+
+            # parse visualization_layers configuration
+            if ConfigKeyAnalysis.VISUALIZATION_LAYERS.name.lower() in analysis_dict:
+                analysis.visualization_layers = analysis_dict[ConfigKeyAnalysis.VISUALIZATION_LAYERS.name.lower()]
+                LOGGER.debug(f'visualization layers enabled for {analysis.analysis_name}')
 
             self.analyses.append(analysis)
 

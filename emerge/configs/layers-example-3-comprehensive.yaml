@@ -1,0 +1,132 @@
+---
+# Example 3: Comprehensive Layer Visualization with Advanced Filtering
+# Combines visualization layers with file filtering and path analysis
+project_name: comprehensive-layers
+loglevel: info
+
+analyses:
+  - analysis_name: full-stack-layers
+    source_directory: /path/to/webapp/src
+    only_permit_languages:
+      - py
+      - js
+    only_permit_file_extensions:
+      - .py
+      - .js
+      - .jsx
+
+    # Advanced file filtering to focus on specific subsystems
+    file_inclusions:
+      directories:
+        - "backend"
+        - "frontend"
+        - "shared"
+
+    file_exclusions:
+      patterns:
+        - "test_*.py"
+        - "*.test.js"
+        - "*_mock.py"
+      directories:
+        - "migrations"
+        - "node_modules"
+
+    # Visualization layers for full-stack architecture
+    visualization_layers:
+      enabled: true
+      layers:
+        # Frontend Core (High prominence)
+        - name: "Frontend: Core"
+          prominence: "high"
+          color: "#FF1744"  # Red
+          files:
+            - "frontend/src/App.jsx"
+            - "frontend/src/index.js"
+            - "frontend/src/Router.jsx"
+
+        # Frontend Components (Medium prominence)
+        - name: "Frontend: Components"
+          prominence: "medium"
+          color: "#E91E63"  # Pink
+          directories:
+            - "frontend/src/components"
+            - "frontend/src/pages"
+
+        # Backend API Layer (High prominence)
+        - name: "Backend: API"
+          prominence: "high"
+          color: "#2196F3"  # Blue
+          patterns:
+            - "backend/api/*.py"
+            - "backend/routes/*.py"
+
+        # Backend Business Logic (Medium prominence)
+        - name: "Backend: Business Logic"
+          prominence: "medium"
+          color: "#3F51B5"  # Indigo
+          directories:
+            - "backend/services"
+            - "backend/controllers"
+
+        # Backend Data Layer (Medium prominence)
+        - name: "Backend: Data"
+          prominence: "medium"
+          color: "#009688"  # Teal
+          directories:
+            - "backend/models"
+            - "backend/repositories"
+
+        # Shared Utilities (Low prominence)
+        - name: "Shared: Utilities"
+          prominence: "low"
+          color: "#FF9800"  # Orange
+          directories:
+            - "shared/utils"
+            - "shared/helpers"
+
+        # Configuration (Background)
+        - name: "Configuration"
+          prominence: "background"
+          color: "#9E9E9E"  # Gray
+          patterns:
+            - "config*.py"
+            - "settings*.py"
+            - "*.config.js"
+
+    # Path analysis to trace request flows
+    path_analysis:
+      enabled: true
+      detect_entry_points:
+        enabled: true
+
+    # Metric filters to focus on significant files
+    metric_filters:
+      min_sloc: 10  # Filter out very small files
+      min_fan_in: 1  # Files that are actually used
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+      - louvain_modularity
+
+    export:
+      - directory: /path/to/output/comprehensive
+      - d3
+      - json
+
+# Result: Multi-dimensional visualization showing:
+# 1. Layer prominence: Visual hierarchy showing architectural importance
+# 2. Path highlighting: Entry point traces (from path_analysis)
+# 3. Filtered scope: Only relevant files shown (from filtering)
+#
+# Interactive capabilities:
+# - Toggle layers individually to focus on frontend, backend, or specific concerns
+# - Toggle paths to trace request flows through layers
+# - Hover to see how components span multiple layers
+#
+# Use cases:
+# - Architecture review: Toggle layers to verify separation of concerns
+# - Onboarding: Show new developers which files are most important
+# - Refactoring: Identify files in wrong layers or with incorrect prominence
+# - Code review: Focus on changes in high-prominence layers
