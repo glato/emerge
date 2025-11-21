@@ -38,6 +38,9 @@ function initializeLayerVisualization() {
     createLayerCheckboxes();
 
     layersInitialized = true;
+
+    // Apply initial layer prominence to nodes
+    updateNodeProminence();
 }
 
 /**
@@ -175,14 +178,10 @@ function updateNodeProminence() {
         }
     });
 
-    // Restart the simulation to apply new styling
+    // For canvas-based rendering, the next tick will automatically apply the changes
+    // Just need to ensure the simulation is running
     if (typeof simulation !== 'undefined' && simulation) {
-        simulation.alpha(0.3).restart();
-    }
-
-    // Re-render the graph
-    if (typeof renderGraph === 'function') {
-        renderGraph();
+        simulation.alpha(0.1).restart();
     }
 }
 
@@ -204,15 +203,32 @@ function getNodeProminence(nodeId) {
         return null;
     }
 
-    // Find the highest prominence among active layers
-    let highestProminence = 'background';
-    let highestLevel = 3;
+    // Get colors from active layers
     let colors = [];
-
     for (const layerName of activeNodeLayers) {
         const layer = layers.find(l => l.name === layerName);
         if (layer) {
             colors.push(layer.color);
+        }
+    }
+
+    // Use pre-calculated prominence values if available
+    if (typeof node_prominence !== 'undefined' && node_prominence[nodeId]) {
+        return {
+            prominence: node_prominence[nodeId].prominence,
+            opacity: node_prominence[nodeId].opacity,
+            radius_multiplier: node_prominence[nodeId].radius_multiplier,
+            colors: colors
+        };
+    }
+
+    // Fallback: calculate prominence from active layers
+    let highestProminence = 'background';
+    let highestLevel = 3;
+
+    for (const layerName of activeNodeLayers) {
+        const layer = layers.find(l => l.name === layerName);
+        if (layer) {
             const level = prominenceToLevel(layer.prominence);
             if (level < highestLevel) {
                 highestLevel = level;
@@ -221,19 +237,10 @@ function getNodeProminence(nodeId) {
         }
     }
 
-    // Get prominence values from node_prominence if available
-    let opacity = getProminenceOpacity(highestProminence);
-    let radiusMultiplier = getProminenceRadiusMultiplier(highestProminence);
-
-    if (typeof node_prominence !== 'undefined' && node_prominence[nodeId]) {
-        opacity = node_prominence[nodeId].opacity;
-        radiusMultiplier = node_prominence[nodeId].radius_multiplier;
-    }
-
     return {
         prominence: highestProminence,
-        opacity: opacity,
-        radius_multiplier: radiusMultiplier,
+        opacity: getProminenceOpacity(highestProminence),
+        radius_multiplier: getProminenceRadiusMultiplier(highestProminence),
         colors: colors
     };
 }

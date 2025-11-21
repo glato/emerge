@@ -1,0 +1,83 @@
+---
+# Test configuration for DAF simulator with all new features
+# Tests: file filtering, path analysis, and visualization layers
+project_name: daf-simulator-test
+loglevel: info
+
+analyses:
+  - analysis_name: daf-with-layers
+    source_directory: /home/thh3/personal/NEURONBOX/green-pipe-controller/simulators/daf
+
+    only_permit_languages:
+      - py
+
+    only_permit_file_extensions:
+      - .py
+
+    # File filtering: Exclude test files and focus on production code
+    file_exclusions:
+      patterns:
+        - "test_*.py"
+        - "*_test.py"
+      files:
+        - "step_test.py"
+
+    # Visualization layers: Define architectural hierarchy
+    visualization_layers:
+      enabled: true
+      layers:
+        # High prominence: Main simulation entry point
+        - name: "Core: Simulation"
+          prominence: "high"
+          color: "#FF0000"  # Red
+          files:
+            - "sim.py"
+            - "demo_pi_controller.py"
+
+        # High prominence: Controller logic
+        - name: "Core: Controllers"
+          prominence: "high"
+          color: "#2196F3"  # Blue
+          files:
+            - "controller_factory.py"
+
+        # Medium prominence: Plant model and KPIs
+        - name: "Models & Metrics"
+          prominence: "medium"
+          color: "#4CAF50"  # Green
+          files:
+            - "daf_plant.py"
+            - "kpi_metrics.py"
+
+        # Medium prominence: Input simulation
+        - name: "Input Simulation"
+          prominence: "medium"
+          color: "#FF9800"  # Orange
+          patterns:
+            - "*input_simulator*.py"
+
+        # Low prominence: Configuration and utilities
+        - name: "Configuration"
+          prominence: "low"
+          color: "#9E9E9E"  # Gray
+          patterns:
+            - "config*.yaml"
+
+    # Path analysis: Detect entry points
+    path_analysis:
+      enabled: true
+      detect_entry_points:
+        enabled: true
+        patterns:
+          - python_main
+          - python_main_function
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /home/thh3/personal/emerge/emerge/export/daf-test
+      - d3
+      - json
