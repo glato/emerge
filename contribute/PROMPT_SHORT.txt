@@ -1,0 +1,41 @@
+=========================================================================
+SHORT PROMPT FOR CLAUDE CODE WEB
+=========================================================================
+
+You're working in a forked emerge repository to add advanced file filtering.
+
+**Goal:** Enable emerge to filter large codebases (66 files) to specific subsets (9 core files) for clean visualizations.
+
+**Your Tasks:**
+1. Add file_inclusions (whitelist files/patterns/directories)
+2. Fix file_exclusions (currently broken)
+3. Add metric_filters (filter by SLOC, fan-in, fan-out)
+4. Add filter_profiles (reusable named filters)
+
+**Start Here:**
+1. Read `contribute/README.md`
+2. Follow `contribute/CLAUDE_WEB_INSTRUCTIONS.md` (11-step guide)
+3. Reference `contribute/EMERGE_ENHANCEMENT_REQUIREMENTS.md` for specs
+
+**First Step:**
+```bash
+git checkout -b feature/advanced-filtering
+```
+
+**Timeline:** 2.5-3.5 days
+
+**Success:** Tests pass, backward compatible, this config works:
+```yaml
+filter_profiles:
+  - profile_name: "test"
+    file_inclusions:
+      exact_files: ["emerge/analysis.py", "emerge/config.py"]
+
+analyses:
+  - analysis_name: test
+    apply_filter_profile: "test"
+```
+
+All documentation is in `contribute/` directory. Begin!
+
+=========================================================================

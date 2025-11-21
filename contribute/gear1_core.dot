@@ -1,0 +1,49 @@
+digraph GearOne {
+  rankdir=TB;
+  node [shape=box, style=filled, fillcolor=lightblue, fontname="Arial"];
+  edge [color=gray40];
+
+  orchestrator [label="Orchestrator
+(Main Coordinator)"];
+  decomposer [label="Decomposer
+(Task Breakdown)"];
+  executor [label="Executor
+(Sequential)"];
+  statemanager [label="State Manager
+(Persistence)"];
+  gitmanager [label="Git Manager
+(Branches/PRs)"];
+  backend [label="Backend
+(Adapters)"];
+  models [label="Models
+(Data Layer)"];
+  logger [label="Logger
+(Structured)"];
+  main [label="Main
+(CLI)"];
+
+  // Dependencies
+  gitmanager -> models;
+  executor -> models;
+  executor -> backend;
+  executor -> gitmanager;
+  executor -> statemanager;
+  executor -> logger;
+  statemanager -> models;
+  logger -> models;
+  logger -> statemanager;
+  orchestrator -> models;
+  orchestrator -> decomposer;
+  orchestrator -> executor;
+  orchestrator -> backend;
+  orchestrator -> gitmanager;
+  orchestrator -> statemanager;
+  orchestrator -> logger;
+  decomposer -> models;
+
+  // Layer grouping
+  {rank=same; main;}
+  {rank=same; orchestrator;}
+  {rank=same; decomposer; executor; gitmanager; statemanager; backend; logger;}
+  {rank=same; models;}
+}

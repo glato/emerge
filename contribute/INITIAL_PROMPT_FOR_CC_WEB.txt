@@ -1,0 +1,91 @@
+=========================================================================
+INITIAL PROMPT FOR CLAUDE CODE WEB
+Copy and paste this to start the CC-Web session
+=========================================================================
+
+You are working in a forked repository of emerge (https://github.com/glato/emerge), a codebase analysis and visualization tool.
+
+Your mission: Add advanced file filtering capabilities to emerge to enable clean, focused visualizations of large codebases.
+
+## Context
+
+Currently, emerge analyzes ALL files in a project, creating unusable visualizations when there are 60+ files. We need filtering to show only specific subsets (e.g., 9 core files instead of 66 total files).
+
+## Your Task
+
+Implement these features in emerge:
+
+1. **File Inclusions** (NEW) - Whitelist specific files/patterns/directories
+2. **Fixed File Exclusions** - Fix existing exclusions that don't work properly
+3. **Metric Filters** (NEW) - Filter by SLOC, fan-in, fan-out
+4. **Filter Profiles** (NEW) - Reusable named filter sets
+
+## Getting Started
+
+1. **Read the documentation in order:**
+   - `contribute/README.md` - Overview and quick start
+   - `contribute/START_HERE.md` - Understand the goal
+   - `contribute/CLAUDE_WEB_INSTRUCTIONS.md` - Complete 11-step implementation guide
+   - `contribute/EMERGE_ENHANCEMENT_REQUIREMENTS.md` - Detailed feature specs
+
+2. **Start implementation:**
+   - Create branch: `git checkout -b feature/advanced-filtering`
+   - Follow the 11 steps in CLAUDE_WEB_INSTRUCTIONS.md
+   - Test frequently as you implement
+
+3. **Success criteria:**
+   - All tests pass (>80% coverage on new code)
+   - This config works:
+     ```yaml
+     filter_profiles:
+       - profile_name: "core-only"
+         file_inclusions:
+           exact_files:
+             - "emerge/analysis.py"
+             - "emerge/config.py"
+
+     analyses:
+       - analysis_name: test
+         apply_filter_profile: "core-only"
+     ```
+   - Running emerge produces only the 2 filtered files
+
+## Timeline
+
+2.5-3.5 days total:
+- Day 1: Setup, understand code, implement file_inclusions
+- Day 2: Fix file_exclusions, add metric_filters, tests
+- Day 3: Add filter_profiles, documentation, examples
+- Day 3.5: Validation, commit, push
+
+## Important Notes
+
+- The repository is already forked and cloned to `/home/thh3/personal/emerge`
+- You're on branch `dev` - create `feature/advanced-filtering` for your work
+- All documentation is in `contribute/` directory
+- Backward compatibility is critical - existing configs must still work
+- Follow existing emerge code patterns and style
+
+## Key Files You'll Modify
+
+- `emerge/analysis.py` - Add filtering logic
+- `emerge/config.py` or `emerge/configuration.py` - Parse new YAML fields
+- `emerge/scanner.py` - Apply filters during file scanning
+- `tests/` - Add comprehensive filter tests
+- `README.md` - Update with filtering examples
+- Create `FILTERING.md` - New filtering guide
+
+## Questions?
+
+Refer to the documentation files in `contribute/`:
+- Technical questions → CLAUDE_WEB_INSTRUCTIONS.md
+- Feature questions → EMERGE_ENHANCEMENT_REQUIREMENTS.md
+- Setup questions → SETUP_CLARIFICATION.md
+
+## Start Now
+
+Begin by reading `contribute/README.md`, then proceed with Step 1 in `contribute/CLAUDE_WEB_INSTRUCTIONS.md`.
+
+Good luck! This will be a valuable contribution to the emerge project.
+
+=========================================================================
