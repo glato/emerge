@@ -1,0 +1,44 @@
+---
+# Example: Manually specify entry points for path tracing
+project_name: path-analysis-manual
+loglevel: info
+
+analyses:
+  - analysis_name: multi-entry-point-paths
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # Manually specify entry points
+    path_analysis:
+      enabled: true
+      detect_entry_points:
+        enabled: false  # Disable auto-detection
+
+      # Define entry points manually
+      entry_points:
+        - file: "main.py"
+          function: "main"
+          label: "Main Application Entry"
+          color: "#FF0000"  # Red
+
+        - file: "cli.py"
+          function: "cli"
+          label: "CLI Tool Entry"
+          color: "#00FF00"  # Green
+
+        - file: "api/server.py"
+          function: "create_app"
+          label: "API Server Entry"
+          color: "#0000FF"  # Blue
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output
+      - d3  # Interactive visualization with path toggle controls

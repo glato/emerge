@@ -1,0 +1,34 @@
+---
+# Example: Auto-detect entry points and trace dependency paths
+project_name: path-analysis-auto-detect
+loglevel: info
+
+analyses:
+  - analysis_name: auto-detect-paths
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # Enable path analysis with auto-detection
+    path_analysis:
+      enabled: true
+      detect_entry_points:
+        enabled: true
+        # Automatically detects:
+        # - if __name__ == "__main__"
+        # - def main()
+        # - @app.route (Flask)
+        # - @click.command (CLI)
+        # - FastAPI routes
+        # - etc.
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output
+      - d3  # Visualize with interactive path controls

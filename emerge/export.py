@@ -415,6 +415,43 @@ class D3Exporter:
 
             d3_js_string += '\n\n'
 
+        # Export path analysis data if available
+        if hasattr(analysis, 'entry_point_paths') and analysis.entry_point_paths:
+            path_data = {}
+            for path_id, path_info in analysis.entry_point_paths.items():
+                path_data[path_id] = {
+                    'entry_point': path_info['entry_point'],
+                    'name': path_info['name'],
+                    'label': path_info['label'],
+                    'color': path_info['color'],
+                    'type': path_info['type'],
+                    'nodes': path_info['nodes'],
+                    'edges': path_info['edges'],
+                    'node_count': path_info['node_count'],
+                    'edge_count': path_info['edge_count']
+                }
+
+            d3_js_string += 'const entry_point_paths = '
+            d3_js_string += json.dumps(path_data)
+            d3_js_string += '\n\n'
+
+            # Export node colors (mapping nodes to path colors)
+            node_colors = {}
+            for path_id, path_info in analysis.entry_point_paths.items():
+                for node in path_info['nodes']:
+                    if node not in node_colors:
+                        node_colors[node] = []
+                    if path_info['color'] not in node_colors[node]:
+                        node_colors[node].append(path_info['color'])
+
+            d3_js_string += 'const node_path_colors = '
+            d3_js_string += json.dumps(node_colors)
+            d3_js_string += '\n\n'
+        else:
+            # Export empty path data if not available
+            d3_js_string += 'const entry_point_paths = {}\n'
+            d3_js_string += 'const node_path_colors = {}\n\n'
+
         d3_js_string += "const analysis_name = '" + analysis.analysis_name + "'"
         d3_js_string += '\n\n'
 

@@ -94,6 +94,10 @@ class Analyzer:
             self._calculate_graph_metric_results(analysis)
             analysis.add_local_metric_results_to_graphs()
 
+        # Perform path analysis if configured
+        if analysis.path_analysis:
+            self._perform_path_analysis(analysis)
+
         # Apply metric-based filters if configured
         if analysis.metric_filters:
             LOGGER.info('applying metric filters to results')
@@ -224,6 +228,33 @@ class Analyzer:
                     analysis.calculate_metric(metric)
 
         LOGGER.info_done('done calculating graph metric results')
+
+    @staticmethod
+    def _perform_path_analysis(analysis: Analysis):
+        """Performs entry point detection and path tracing for a given analysis.
+
+        Args:
+            analysis (Analysis): A given analysis.
+        """
+        from emerge.entrypoint import EntryPointDetector, PathTracer
+
+        LOGGER.info_start(f'starting path analysis for {analysis.analysis_name}')
+
+        # Detect entry points
+        detector = EntryPointDetector(analysis)
+        entry_points = detector.detect_all_entry_points()
+        analysis.entry_points = entry_points
+
+        if not entry_points:
+            LOGGER.warning('no entry points detected - path analysis will be skipped')
+            return
+
+        # Trace dependency paths from entry points
+        tracer = PathTracer(analysis)
+        paths = tracer.trace_all_paths(entry_points)
+        analysis.entry_point_paths = paths
+
+        LOGGER.info_done(f'path analysis complete - traced {len(paths)} paths from {len(entry_points)} entry points')
 
     def _collect_all_results(self):
         """Collects results from all configured analyses.

@@ -1,0 +1,64 @@
+---
+# Example: Moderator project - Gear 1/2/3 architecture visualization
+project_name: moderator-gear-architecture
+loglevel: info
+
+analyses:
+  - analysis_name: moderator-paths
+    source_directory: /path/to/moderator/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # Path analysis for Gear 1/2/3 architecture
+    path_analysis:
+      enabled: true
+      detect_entry_points:
+        enabled: false
+
+      entry_points:
+        # Gear 1: Core orchestration
+        - file: "orchestrator.py"
+          function: "main"
+          label: "Gear 1: Core Orchestration"
+          color: "#FF0000"  # Red
+
+        # Gear 2: Agent execution paths
+        - file: "agents/monitor_agent.py"
+          function: "run"
+          label: "Gear 2: Monitor Agent"
+          color: "#00FF00"  # Green
+
+        - file: "agents/pr_reviewer.py"
+          function: "review"
+          label: "Gear 2: PR Reviewer"
+          color: "#0000FF"  # Blue
+
+        - file: "agents/test_runner.py"
+          function: "run_tests"
+          label: "Gear 2: Test Runner"
+          color: "#FFA500"  # Orange
+
+        # Gear 3: Utility and support
+        - file: "utils/state_manager.py"
+          function: "load_state"
+          label: "Gear 3: State Management"
+          color: "#800080"  # Purple
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output/moderator
+      - d3
+
+# Result: Interactive D3 visualization showing:
+# - Red path: Files used by core orchestrator
+# - Green path: Files used by monitor agent
+# - Blue path: Files used by PR reviewer
+# - Orange path: Files used by test runner
+# - Purple path: Files used by state management
+# - Overlapping nodes show multiple colors (e.g., models.py used by multiple gears)

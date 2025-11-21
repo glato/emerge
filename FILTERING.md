@@ -508,3 +508,370 @@ file_exclusions:
 ---
 
 **Need help?** Check the example configurations or open an issue on GitHub!
+
+---
+
+## Path Analysis and Highlighting
+
+Path analysis is a powerful feature that lets you visualize dependency paths from different entry points in your codebase. This is especially useful for understanding code flow, identifying which files are used by different features, and visualizing multi-layered architectures.
+
+### What is Path Analysis?
+
+Path analysis:
+1. **Detects or specifies entry points** in your code (main functions, CLI commands, API routes, etc.)
+2. **Traces all dependencies** from each entry point through the codebase
+3. **Assigns colors** to each path for visual distinction
+4. **Highlights overlapping nodes** that are shared between multiple paths
+5. **Provides interactive controls** to toggle paths on/off in the visualization
+
+### Configuration
+
+```yaml
+analyses:
+  - analysis_name: my-analysis
+    source_directory: /path/to/project
+
+    path_analysis:
+      enabled: true
+
+      # Auto-detect entry points (optional)
+      detect_entry_points:
+        enabled: true
+        patterns:           # Custom patterns (optional)
+          - "if __name__ == '__main__'"
+          - "@app.route"
+
+      # Manual entry points (optional)
+      entry_points:
+        - file: "main.py"
+          function: "main"
+          label: "Main Application"
+          color: "#FF0000"
+
+        - file: "cli.py"
+          function: "cli"
+          label: "CLI Tool"
+          color: "#00FF00"
+```
+
+### Auto-Detection
+
+Path analysis can automatically detect entry points in various languages:
+
+#### Python:
+- `if __name__ == "__main__"` blocks
+- `def main()` functions
+- Flask routes: `@app.route()`
+- FastAPI routes: `@app.get()`, `@app.post()`
+- Click CLI: `@click.command()`, `@click.group()`
+- Argparse: `ArgumentParser` instances
+
+#### JavaScript/TypeScript:
+- Express routes: `app.get()`, `app.post()`
+- `export default function` declarations
+- `if (require.main === module)` blocks
+
+#### Java:
+- `public static void main()` methods
+- `@SpringBootApplication` classes
+- `@RestController` classes
+
+### Manual Entry Points
+
+For precise control, specify entry points manually:
+
+```yaml
+entry_points:
+  - file: "orchestrator.py"
+    function: "main"
+    label: "Core Orchestrator"
+    color: "#FF0000"
+
+  - file: "worker.py"
+    function: "process"
+    label: "Background Worker"
+    color: "#00FF00"
+```
+
+**Fields:**
+- `file`: Relative path to the file
+- `function`: Function/method name (or `"main"` for general entry)
+- `label`: Display label in the visualization
+- `color`: Hex color code for the path
+
+### Visualization
+
+When you export to D3, path analysis adds:
+
+1. **Path Toggle Controls**: Button to show/hide path controls
+2. **Individual Path Checkboxes**: Toggle each entry point path independently
+3. **"All Paths" Toggle**: Show/hide all paths at once
+4. **Color-Coded Nodes**:
+   - Nodes in a single path: Solid color
+   - Nodes in multiple paths: Multiple colors (gradient/border)
+   - Nodes not in any path: Dimmed/gray
+
+5. **Interactive Features**:
+   - Click checkboxes to toggle paths
+   - See node count for each path
+   - Identify shared dependencies by color mixing
+
+### Use Cases
+
+#### 1. Multi-Entry Application
+
+```yaml
+# Web app with both UI and API
+entry_points:
+  - file: "web/server.py"
+    function: "create_app"
+    label: "Web UI"
+    color: "#FF0000"
+
+  - file: "api/server.py"
+    function: "create_api"
+    label: "REST API"
+    color: "#0000FF"
+```
+
+**Result**: See which files are shared between UI and API, which are UI-specific, which are API-specific.
+
+#### 2. Microservices Architecture
+
+```yaml
+entry_points:
+  - file: "services/auth/main.py"
+    label: "Auth Service"
+    color: "#FF0000"
+
+  - file: "services/users/main.py"
+    label: "User Service"
+    color: "#00FF00"
+
+  - file: "services/orders/main.py"
+    label: "Order Service"
+    color: "#0000FF"
+```
+
+**Result**: Visualize dependencies for each microservice, identify shared libraries.
+
+#### 3. Layered Architecture (Gear 1/2/3)
+
+```yaml
+# Moderator project example
+entry_points:
+  - file: "orchestrator.py"
+    function: "main"
+    label: "Gear 1: Orchestration"
+    color: "#FF0000"
+
+  - file: "agents/monitor_agent.py"
+    function: "run"
+    label: "Gear 2: Monitor Agent"
+    color: "#00FF00"
+
+  - file: "agents/pr_reviewer.py"
+    function: "review"
+    label: "Gear 2: PR Reviewer"
+    color: "#0000FF"
+
+  - file: "utils/state_manager.py"
+    function: "load_state"
+    label: "Gear 3: Utilities"
+    color: "#FFA500"
+```
+
+**Result**: See which files belong to each architectural layer, identify cross-layer dependencies.
+
+#### 4. Feature Analysis
+
+```yaml
+# E-commerce platform
+entry_points:
+  - file: "features/checkout/flow.py"
+    label: "Checkout Feature"
+    color: "#FF0000"
+
+  - file: "features/search/engine.py"
+    label: "Search Feature"
+    color: "#00FF00"
+
+  - file: "features/recommendations/algorithm.py"
+    label: "Recommendations Feature"
+    color: "#0000FF"
+```
+
+**Result**: Understand which files each feature depends on, identify shared components.
+
+### Combining with Filters
+
+Path analysis works seamlessly with other filters:
+
+```yaml
+analyses:
+  - analysis_name: core-paths-only
+    source_directory: /path/to/project
+
+    # Filter to core files only
+    file_inclusions:
+      directories:
+        - "src/core/"
+
+    # Then trace paths from entry points
+    path_analysis:
+      enabled: true
+      entry_points:
+        - file: "src/core/main.py"
+          label: "Core Entry"
+          color: "#FF0000"
+
+    file_scan:
+      - dependency_graph
+
+    export:
+      - d3
+```
+
+### Overlapping Paths
+
+When a file is used by multiple entry points, it will show multiple colors:
+
+**Visual Indicators:**
+- **Border Color**: Shows secondary path color
+- **Thicker Border**: Indicates node is in multiple paths
+- **Opacity**: Active paths at 100%, inactive paths at 30%
+
+**Example:**
+- `models.py` used by both "Main App" (red) and "CLI Tool" (green)
+- Shows red fill with green border
+- Tooltip shows: "Part of 2 paths: Main App, CLI Tool"
+
+### Best Practices
+
+1. **Use Descriptive Labels**: Make path purposes clear
+   ```yaml
+   label: "User Authentication Flow"  # Good
+   label: "Path 1"                     # Bad
+   ```
+
+2. **Choose Distinct Colors**: Ensure paths are easily distinguishable
+   ```yaml
+   # Good color palette
+   colors: ["#FF0000", "#00FF00", "#0000FF", "#FFA500", "#800080"]
+   ```
+
+3. **Limit Number of Paths**: Too many paths (>10) can be confusing
+   - For large projects, create separate analyses for different subsystems
+
+4. **Combine with Filtering**: Use filters to focus on specific areas first
+   ```yaml
+   file_inclusions:
+     directories: ["src/"]  # Focus on source only
+   path_analysis:
+     entry_points: [...]     # Then trace from entry points
+   ```
+
+5. **Document Your Paths**: Add comments explaining each entry point
+   ```yaml
+   entry_points:
+     # Main web application entry - serves HTTP requests
+     - file: "main.py"
+       label: "Web App"
+       color: "#FF0000"
+   ```
+
+### Troubleshooting
+
+**No entry points detected:**
+- Check that auto-detection patterns match your code
+- Try manual entry point specification
+- Verify file paths are correct relative to `source_directory`
+
+**Paths not showing in visualization:**
+- Ensure `dependency_graph` is in `file_scan`
+- Check that D3 export is enabled
+- Verify entry point files exist in the analyzed codebase
+
+**All nodes showing same color:**
+- Check that multiple entry points are defined
+- Verify entry points lead to different files
+- Ensure path analysis is enabled
+
+**Too many overlapping paths:**
+- Reduce number of entry points
+- Use file_inclusions to focus on specific areas
+- Create separate analyses for different subsystems
+
+---
+
+## Complete Example: Path Analysis + Filtering
+
+Here's a complete example combining filtering and path analysis:
+
+```yaml
+project_name: advanced-analysis-example
+loglevel: info
+
+# Define reusable filters
+filter_profiles:
+  - profile_name: "production-code"
+    file_exclusions:
+      directories: ["tests/", "build/"]
+      patterns: ["test_*.py", "*.pyc"]
+
+# Analysis with both filtering and path tracing
+analyses:
+  - analysis_name: feature-paths
+    source_directory: /path/to/project
+
+    # Apply production code filter
+    apply_filter_profile: "production-code"
+
+    # Additional filters
+    file_inclusions:
+      directories:
+        - "src/features/"
+        - "src/core/"
+
+    metric_filters:
+      min_sloc: 50  # Exclude very small files
+
+    # Trace paths from feature entry points
+    path_analysis:
+      enabled: true
+      entry_points:
+        - file: "src/features/auth/login.py"
+          function: "handle_login"
+          label: "Authentication"
+          color: "#FF0000"
+
+        - file: "src/features/payments/processor.py"
+          function: "process_payment"
+          label: "Payment Processing"
+          color: "#00FF00"
+
+        - file: "src/features/notifications/sender.py"
+          function: "send_notification"
+          label: "Notifications"
+          color: "#0000FF"
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: ./output
+      - d3  # Interactive visualization with path controls
+      - json  # Data for further analysis
+```
+
+**This configuration:**
+1. Excludes tests and build artifacts (filter profile)
+2. Includes only src/features/ and src/core/ directories
+3. Filters out files smaller than 50 lines
+4. Traces 3 different paths from feature entry points
+5. Creates interactive D3 visualization with path toggle controls
+
+---
+

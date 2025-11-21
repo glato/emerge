@@ -91,6 +91,7 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     FILE_EXCLUSIONS = auto()
     METRIC_FILTERS = auto()
     APPLY_FILTER_PROFILE = auto()
+    PATH_ANALYSIS = auto()
 
 
 @unique
@@ -746,6 +747,11 @@ class Configuration:
             # parse metric_filters if specified directly in analysis (overrides profile)
             if ConfigKeyAnalysis.METRIC_FILTERS.name.lower() in analysis_dict:
                 analysis.metric_filters = analysis_dict[ConfigKeyAnalysis.METRIC_FILTERS.name.lower()]
+
+            # parse path_analysis configuration
+            if ConfigKeyAnalysis.PATH_ANALYSIS.name.lower() in analysis_dict:
+                analysis.path_analysis = analysis_dict[ConfigKeyAnalysis.PATH_ANALYSIS.name.lower()]
+                LOGGER.debug(f'path analysis enabled for {analysis.analysis_name}')
 
             self.analyses.append(analysis)
 

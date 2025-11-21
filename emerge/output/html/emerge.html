@@ -43,10 +43,13 @@
     
     <!-- emerge graph functionality -->
     <script type="text/javascript" src="resources/js/emerge_graph.js"></script>
-    
+
+    <!-- emerge path analysis functionality -->
+    <script type="text/javascript" src="resources/js/emerge_path.js"></script>
+
     <!-- emerge common functionality -->
     <script type="text/javascript" src="resources/js/emerge_common.js"></script>
-    
+
 </head>
 
 <body>
@@ -188,6 +191,33 @@
                         </svg>
                     </span>
                 </button>
+
+                <!-- Path Analysis Controls -->
+                <button id="buttonTogglePathControls" type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" onclick="togglePathControls();" style="display: none;">
+                    <span aria-hidden="true">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1.A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6h-1A1.5 1.5 0 0 1 6 4.5v-1zM7.5 3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm0 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm0 3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM2 10.5A1.5 1.5 0 0 1 3.5 9h1A1.5 1.5 0 0 1 6 10.5v1A1.5 1.5 0 0 1 4.5 13h-1A1.5 1.5 0 0 1 2 11.5v-1zM3.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm7 0a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm-7-7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm7 0a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"/>
+                        </svg>
+                    </span>
+                    Entry Point Paths
+                </button>
+
+                <div id="pathControlsContainer" style="display: none; padding: 10px; max-height: 300px; overflow-y: auto;">
+                    <div class="card border-secondary" style="margin-bottom: 10px;">
+                        <div class="card-body" style="padding: 8px;">
+                            <h6 class="card-title" style="font-size: 12px; margin-bottom: 8px;">Toggle Entry Point Paths</h6>
+                            <div class="form-check form-switch" style="margin-bottom: 5px;">
+                                <input type="checkbox" class="form-check-input" id="toggleAllPaths" checked onclick="toggleAllPaths(this.checked);">
+                                <label class="form-check-label" for="toggleAllPaths"><small>All Paths</small></label>
+                            </div>
+                            <hr style="margin: 8px 0;">
+                            <div id="pathCheckboxes">
+                                <!-- Path checkboxes will be injected here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button id="buttonShowOverallStatistics" type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" data-bs-toggle="modal" data-bs-target="#overallStatisticsModal">
                     <span aria-hidden="true">
                         <svg width="16px" height="16px" viewBox="0 0 18 18" class="bi bi-graph-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

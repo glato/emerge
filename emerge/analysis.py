@@ -116,6 +116,11 @@ class Analysis:
         self.metric_filters: Optional[Dict] = None
         self.apply_filter_profile: Optional[str] = None
 
+        # Path analysis options
+        self.path_analysis: Optional[Dict] = None
+        self.entry_points: List = []
+        self.entry_point_paths: Dict[str, Dict[str, Any]] = {}
+
         self.results: Dict[str, AbstractResult] = {}
 
         self.absolute_scanned_file_names: Set[str] = set()
