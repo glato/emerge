@@ -94,6 +94,12 @@ class Analyzer:
             self._calculate_graph_metric_results(analysis)
             analysis.add_local_metric_results_to_graphs()
 
+        # Apply metric-based filters if configured
+        if analysis.metric_filters:
+            LOGGER.info('applying metric filters to results')
+            analysis.apply_metric_filters()
+            LOGGER.info_done('metric filtering complete')
+
         self._collect_all_results()
 
         stop_time = datetime.now()

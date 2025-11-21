@@ -1,0 +1,34 @@
+---
+# Example: File inclusions - analyze only specific files
+project_name: file-inclusions-example
+loglevel: info
+
+analyses:
+  - analysis_name: core-files-only
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # NEW: File inclusions - only analyze these files
+    file_inclusions:
+      exact_files:
+        - "models.py"
+        - "orchestrator.py"
+        - "executor.py"
+      patterns:
+        - "*_manager.py"  # Matches state_manager.py, git_manager.py, etc.
+      directories:
+        - "core/"  # Include all files in core/ directory
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output
+      - graphml
+      - d3
+      - json

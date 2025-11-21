@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import coloredlogs
 import pyperclip
+import fnmatch
 
 from emerge.languages.abstractparser import AbstractResult, AbstractParser, LanguageType
 from emerge.metrics.abstractmetric import AbstractMetric, AbstractCodeMetric, AbstractGraphMetric, MetricResultFilter
@@ -108,6 +109,12 @@ class Analysis:
 
         self.override_resolve_dependencies: List[str] = []
         self.override_do_not_resolve_dependencies: List[str] = []
+
+        # Advanced filtering options
+        self.file_inclusions: Optional[Dict] = None
+        self.file_exclusions: Optional[Dict] = None
+        self.metric_filters: Optional[Dict] = None
+        self.apply_filter_profile: Optional[str] = None
 
         self.results: Dict[str, AbstractResult] = {}
 
@@ -453,8 +460,21 @@ class Analysis:
         for root, dirs, files in os.walk(self.source_directory):
             # exclude directories and scans
 
+            # Apply legacy ignore_directories_containing filter
             if self.ignore_directories_containing:
                 dirs[:] = [d for d in dirs if d not in self.ignore_directories_containing]
+
+            # Apply new file_exclusions filter for directories
+            if self.file_exclusions:
+                filtered_dirs = []
+                for d in dirs:
+                    dir_path = os.path.join(root, d)
+                    relative_dir_path = dir_path.replace(f'{Path(self.source_directory).parent}/', "")
+                    if not self.should_exclude_directory(relative_dir_path, d):
+                        filtered_dirs.append(d)
+                    else:
+                        LOGGER.debug(f'excluding directory: {relative_dir_path}')
+                dirs[:] = filtered_dirs
 
             for directory in dirs:
                 absolute_path_to_directory = os.path.join(root, directory)
@@ -478,13 +498,14 @@ class Analysis:
 
                 filesystem_graph.digraph.add_edge(relative_path_parent, relative_path_directoy_node)
 
+            # Apply legacy ignore_files_containing filter
             if self.ignore_files_containing:
                 files[:] = [f for f in files if not any(substring in f for substring in self.ignore_files_containing)]
 
             for file_name in files:
                 absolute_path_to_file = os.path.join(root, file_name)
 
-                # check if the scan should only allow specific files
+                # check if the scan should only allow specific files (legacy support)
                 if self.only_permit_files_matching_absolute_path_available:
                     if absolute_path_to_file not in self.only_permit_files_matching_absolute_path:
                         skipped_files += 1
@@ -510,6 +531,18 @@ class Analysis:
                 parent_analysis_source_path = f"{Path(absolute_path_to_file).parent}/"
                 relative_root = f'{Path(root)}'.replace(f'{ Path(self.source_directory).parent}/', "")
                 relative_file_path_to_analysis = absolute_path_to_file.replace(f'{Path(self.source_directory).parent}/', "")
+
+                # Apply file inclusion filter (if specified, only include matching files)
+                if not self.should_include_file(relative_file_path_to_analysis):
+                    skipped_files += 1
+                    LOGGER.debug(f'file not in inclusions filter: {relative_file_path_to_analysis}')
+                    continue
+
+                # Apply file exclusion filter
+                if self.should_exclude_file(relative_file_path_to_analysis, os.path.basename(absolute_path_to_file)):
+                    skipped_files += 1
+                    LOGGER.debug(f'excluding file: {relative_file_path_to_analysis}')
+                    continue
 
                 if not self.file_extension_allowed(file_extension):
                     if not file_extension.strip():
@@ -678,3 +711,182 @@ class Analysis:
         if file_extension in self.only_permit_file_extensions:
             return True
         return False
+
+    def should_include_file(self, file_path: str) -> bool:
+        """Checks if a file should be included based on file_inclusions filter.
+
+        Args:
+            file_path (str): The relative file path to check.
+
+        Returns:
+            bool: True if the file should be included, False otherwise.
+        """
+        # If no inclusions are specified, include all files (or rely on exclusions)
+        if not self.file_inclusions:
+            return True
+
+        # Check exact files
+        if 'exact_files' in self.file_inclusions:
+            for exact_file in self.file_inclusions['exact_files']:
+                # Match against relative path
+                if file_path.endswith(exact_file) or file_path == exact_file:
+                    return True
+
+        # Check patterns (glob matching)
+        if 'patterns' in self.file_inclusions:
+            for pattern in self.file_inclusions['patterns']:
+                if fnmatch.fnmatch(file_path, pattern):
+                    return True
+
+        # Check directories
+        if 'directories' in self.file_inclusions:
+            for directory in self.file_inclusions['directories']:
+                # Normalize directory path
+                norm_dir = directory.rstrip('/')
+                if file_path.startswith(norm_dir + '/') or norm_dir in file_path:
+                    return True
+
+        # If inclusions were specified but file didn't match any, exclude it
+        return False
+
+    def should_exclude_file(self, file_path: str, file_name: str) -> bool:
+        """Checks if a file should be excluded based on file_exclusions filter.
+
+        Args:
+            file_path (str): The relative file path.
+            file_name (str): The file name only.
+
+        Returns:
+            bool: True if the file should be excluded, False otherwise.
+        """
+        if not self.file_exclusions:
+            return False
+
+        # Check exact files
+        if 'exact_files' in self.file_exclusions:
+            for exact_file in self.file_exclusions['exact_files']:
+                if file_path.endswith(exact_file) or file_name == exact_file:
+                    return True
+
+        # Check patterns (glob matching)
+        if 'patterns' in self.file_exclusions:
+            for pattern in self.file_exclusions['patterns']:
+                if fnmatch.fnmatch(file_name, pattern) or fnmatch.fnmatch(file_path, pattern):
+                    return True
+
+        # Check directories
+        if 'directories' in self.file_exclusions:
+            for directory in self.file_exclusions['directories']:
+                norm_dir = directory.rstrip('/')
+                if file_path.startswith(norm_dir + '/') or norm_dir + '/' in file_path:
+                    return True
+
+        return False
+
+    def should_exclude_directory(self, directory_path: str, directory_name: str) -> bool:
+        """Checks if a directory should be excluded based on file_exclusions filter.
+
+        Args:
+            directory_path (str): The relative directory path.
+            directory_name (str): The directory name only.
+
+        Returns:
+            bool: True if the directory should be excluded, False otherwise.
+        """
+        if not self.file_exclusions:
+            return False
+
+        # Check patterns (glob matching)
+        if 'patterns' in self.file_exclusions:
+            for pattern in self.file_exclusions['patterns']:
+                if fnmatch.fnmatch(directory_name, pattern) or fnmatch.fnmatch(directory_path, pattern):
+                    return True
+
+        # Check directories
+        if 'directories' in self.file_exclusions:
+            for directory in self.file_exclusions['directories']:
+                norm_dir = directory.rstrip('/')
+                if directory_path.startswith(norm_dir) or directory_path == norm_dir or norm_dir in directory_path:
+                    return True
+
+        return False
+
+    def apply_metric_filters(self) -> None:
+        """Applies metric-based filters to remove results that don't meet metric thresholds.
+        This should be called after metrics have been calculated.
+        """
+        if not self.metric_filters:
+            return
+
+        results_to_remove = []
+
+        # Iterate through all results and check against metric filters
+        for result_name, result in self.results.items():
+            should_remove = False
+
+            # Check SLOC filters
+            if 'min_sloc' in self.metric_filters or 'max_sloc' in self.metric_filters:
+                if 'sloc' in self.local_metric_results and result_name in self.local_metric_results['sloc']:
+                    sloc_value = self.local_metric_results['sloc'][result_name]
+
+                    if 'min_sloc' in self.metric_filters:
+                        if sloc_value < self.metric_filters['min_sloc']:
+                            should_remove = True
+                            LOGGER.debug(f'filtering {result_name}: SLOC {sloc_value} < min {self.metric_filters["min_sloc"]}')
+
+                    if 'max_sloc' in self.metric_filters:
+                        if sloc_value > self.metric_filters['max_sloc']:
+                            should_remove = True
+                            LOGGER.debug(f'filtering {result_name}: SLOC {sloc_value} > max {self.metric_filters["max_sloc"]}')
+
+            # Check fan-in filters
+            if 'min_fan_in' in self.metric_filters or 'max_fan_in' in self.metric_filters:
+                if 'fan-in' in self.local_metric_results and result_name in self.local_metric_results['fan-in']:
+                    fan_in_value = self.local_metric_results['fan-in'][result_name]
+
+                    if 'min_fan_in' in self.metric_filters:
+                        if fan_in_value < self.metric_filters['min_fan_in']:
+                            should_remove = True
+                            LOGGER.debug(f'filtering {result_name}: fan-in {fan_in_value} < min {self.metric_filters["min_fan_in"]}')
+
+                    if 'max_fan_in' in self.metric_filters:
+                        if fan_in_value > self.metric_filters['max_fan_in']:
+                            should_remove = True
+                            LOGGER.debug(f'filtering {result_name}: fan-in {fan_in_value} > max {self.metric_filters["max_fan_in"]}')
+
+            # Check fan-out filters
+            if 'min_fan_out' in self.metric_filters or 'max_fan_out' in self.metric_filters:
+                if 'fan-out' in self.local_metric_results and result_name in self.local_metric_results['fan-out']:
+                    fan_out_value = self.local_metric_results['fan-out'][result_name]
+
+                    if 'min_fan_out' in self.metric_filters:
+                        if fan_out_value < self.metric_filters['min_fan_out']:
+                            should_remove = True
+                            LOGGER.debug(f'filtering {result_name}: fan-out {fan_out_value} < min {self.metric_filters["min_fan_out"]}')
+
+                    if 'max_fan_out' in self.metric_filters:
+                        if fan_out_value > self.metric_filters['max_fan_out']:
+                            should_remove = True
+                            LOGGER.debug(f'filtering {result_name}: fan-out {fan_out_value} > max {self.metric_filters["max_fan_out"]}')
+
+            if should_remove:
+                results_to_remove.append(result_name)
+
+        # Remove filtered results
+        for result_name in results_to_remove:
+            if result_name in self.results:
+                del self.results[result_name]
+                LOGGER.info(f'removed {result_name} due to metric filters')
+
+            # Also remove from local_metric_results
+            for metric_name in self.local_metric_results:
+                if result_name in self.local_metric_results[metric_name]:
+                    del self.local_metric_results[metric_name][result_name]
+
+        # Update graph representations to remove filtered nodes
+        for graph_name, graph_repr in self.existing_graph_representations.items():
+            if graph_repr and graph_repr.digraph:
+                nodes_to_remove = [node for node in graph_repr.digraph.nodes() if node in results_to_remove]
+                for node in nodes_to_remove:
+                    graph_repr.digraph.remove_node(node)
+                    LOGGER.debug(f'removed node {node} from graph {graph_name}')

@@ -1,0 +1,77 @@
+---
+# Example: Filter profiles - reusable filter definitions
+project_name: filter-profiles-example
+loglevel: info
+
+# NEW: Define reusable filter profiles
+filter_profiles:
+  - profile_name: "gear1-core"
+    description: "Gear 1 core implementation files"
+    file_inclusions:
+      exact_files:
+        - "orchestrator.py"
+        - "decomposer.py"
+        - "executor.py"
+        - "state_manager.py"
+        - "git_manager.py"
+        - "backend.py"
+        - "models.py"
+        - "logger.py"
+        - "main.py"
+
+  - profile_name: "high-complexity"
+    description: "Files with high coupling"
+    metric_filters:
+      min_fan_out: 10
+      min_sloc: 100
+
+  - profile_name: "no-tests"
+    description: "Exclude all test files"
+    file_exclusions:
+      patterns:
+        - "test_*.py"
+        - "*_test.py"
+      directories:
+        - "tests/"
+
+# Use filter profiles in analyses
+analyses:
+  - analysis_name: gear1-analysis
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # NEW: Apply a filter profile
+    apply_filter_profile: "gear1-core"
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output/gear1
+      - graphml
+      - d3
+
+  - analysis_name: complexity-hotspots
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # Apply different profile
+    apply_filter_profile: "high-complexity"
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output/hotspots
+      - graphml
+      - d3

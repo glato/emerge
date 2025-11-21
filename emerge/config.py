@@ -52,6 +52,7 @@ class ConfigKeyProject(EnumKeyValid, Enum):
     PROJECT_NAME = auto()
     LOGLEVEL = auto()
     ANALYSES = auto()
+    FILTER_PROFILES = auto()
 
 
 @unique
@@ -86,6 +87,10 @@ class ConfigKeyAnalysis(EnumKeyValid, Enum):
     ENTITY_SCAN = auto()
     EXPORT = auto()
     APPCONFIG = auto()
+    FILE_INCLUSIONS = auto()
+    FILE_EXCLUSIONS = auto()
+    METRIC_FILTERS = auto()
+    APPLY_FILTER_PROFILE = auto()
 
 
 @unique
@@ -154,6 +159,7 @@ class Configuration:
         self.version = version
         self.arg_parser: Any = None
         self.supported_languages: List[str] = []
+        self.filter_profiles: Dict[str, Dict] = {}
 
     def _get_own__dict__(self):
         return self.__dict__
@@ -397,6 +403,16 @@ class Configuration:
 
         self.project_name = yaml_config[ConfigKeyProject.PROJECT_NAME.name.lower()]
         yaml_analyses = yaml_config[ConfigKeyProject.ANALYSES.name.lower()]
+
+        # parse filter profiles if available
+        if ConfigKeyProject.FILTER_PROFILES.name.lower() in yaml_config:
+            for profile in yaml_config[ConfigKeyProject.FILTER_PROFILES.name.lower()]:
+                if 'profile_name' in profile:
+                    profile_name = profile['profile_name']
+                    self.filter_profiles[profile_name] = profile
+                    LOGGER.debug(f'loaded filter profile: {profile_name}')
+                else:
+                    LOGGER.warning('filter profile missing profile_name, skipping')
 
         # if the log level was not overridden from an command line argument
         if not LOGGER.override_level_from_command_line_arg:
@@ -695,6 +711,41 @@ class Configuration:
                 analysis.only_permit_languages = analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_LANGUAGES.name.lower()]
             if ConfigKeyAnalysis.ONLY_PERMIT_FILE_EXTENSIONS.name.lower() in analysis_dict:
                 analysis.only_permit_file_extensions = analysis_dict[ConfigKeyAnalysis.ONLY_PERMIT_FILE_EXTENSIONS.name.lower()]
+
+            # check if analysis should apply a filter profile
+            if ConfigKeyAnalysis.APPLY_FILTER_PROFILE.name.lower() in analysis_dict:
+                profile_name = analysis_dict[ConfigKeyAnalysis.APPLY_FILTER_PROFILE.name.lower()]
+                analysis.apply_filter_profile = profile_name
+
+                if profile_name in self.filter_profiles:
+                    profile = self.filter_profiles[profile_name]
+                    LOGGER.debug(f'applying filter profile "{profile_name}" to analysis "{analysis.analysis_name}"')
+
+                    # apply profile's file_inclusions if present
+                    if 'file_inclusions' in profile:
+                        analysis.file_inclusions = profile['file_inclusions']
+
+                    # apply profile's file_exclusions if present
+                    if 'file_exclusions' in profile:
+                        analysis.file_exclusions = profile['file_exclusions']
+
+                    # apply profile's metric_filters if present
+                    if 'metric_filters' in profile:
+                        analysis.metric_filters = profile['metric_filters']
+                else:
+                    LOGGER.error(f'filter profile "{profile_name}" not found, ignoring')
+
+            # parse file_inclusions if specified directly in analysis (overrides profile)
+            if ConfigKeyAnalysis.FILE_INCLUSIONS.name.lower() in analysis_dict:
+                analysis.file_inclusions = analysis_dict[ConfigKeyAnalysis.FILE_INCLUSIONS.name.lower()]
+
+            # parse file_exclusions if specified directly in analysis (overrides profile)
+            if ConfigKeyAnalysis.FILE_EXCLUSIONS.name.lower() in analysis_dict:
+                analysis.file_exclusions = analysis_dict[ConfigKeyAnalysis.FILE_EXCLUSIONS.name.lower()]
+
+            # parse metric_filters if specified directly in analysis (overrides profile)
+            if ConfigKeyAnalysis.METRIC_FILTERS.name.lower() in analysis_dict:
+                analysis.metric_filters = analysis_dict[ConfigKeyAnalysis.METRIC_FILTERS.name.lower()]
 
             self.analyses.append(analysis)
 

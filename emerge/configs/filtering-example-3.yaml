@@ -1,0 +1,30 @@
+---
+# Example: Metric filters - analyze only files meeting metric criteria
+project_name: metric-filters-example
+loglevel: info
+
+analyses:
+  - analysis_name: high-complexity-files
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # NEW: Metric filters - filter by code metrics
+    metric_filters:
+      min_sloc: 100          # Only files with at least 100 lines of code
+      max_sloc: 1000         # Only files with at most 1000 lines of code
+      min_fan_out: 5         # Only files with at least 5 dependencies
+      max_fan_in: 20         # Only files used by at most 20 other files
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output
+      - graphml
+      - d3
+      - tabular_console_overall

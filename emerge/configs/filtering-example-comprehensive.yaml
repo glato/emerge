@@ -1,0 +1,98 @@
+---
+# Example: Comprehensive filtering - combining all filter types
+project_name: comprehensive-filtering-example
+loglevel: info
+
+# Define filter profiles
+filter_profiles:
+  - profile_name: "core-modules"
+    description: "Core application modules excluding tests"
+    file_inclusions:
+      directories:
+        - "src/core/"
+        - "src/models/"
+    file_exclusions:
+      patterns:
+        - "test_*.py"
+        - "*_test.py"
+
+# Run multiple analyses with different filters
+analyses:
+  # Analysis 1: Core modules with moderate complexity
+  - analysis_name: core-analysis
+    source_directory: /path/to/project
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    apply_filter_profile: "core-modules"
+
+    # Additional inline metric filters (combined with profile)
+    metric_filters:
+      min_sloc: 50
+      max_sloc: 500
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+      - louvain_modularity
+
+    export:
+      - directory: /path/to/output/core
+      - graphml
+      - d3
+      - json
+
+  # Analysis 2: All production code (no tests, no generated files)
+  - analysis_name: production-complete
+    source_directory: /path/to/project
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    file_exclusions:
+      directories:
+        - "tests/"
+        - "build/"
+        - "dist/"
+        - "__pycache__/"
+      patterns:
+        - "test_*.py"
+        - "*_test.py"
+        - "*.pyc"
+        - "*_pb2.py"  # Exclude protocol buffer generated files
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output/production
+      - graphml
+      - d3
+
+  # Analysis 3: Complexity hotspots only
+  - analysis_name: hotspots
+    source_directory: /path/to/project
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    metric_filters:
+      min_sloc: 200      # Large files
+      min_fan_out: 15    # High coupling
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output/hotspots
+      - graphml
+      - tabular_console

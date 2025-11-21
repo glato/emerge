@@ -1,0 +1,36 @@
+---
+# Example: File exclusions - exclude tests and generated code
+project_name: file-exclusions-example
+loglevel: info
+
+analyses:
+  - analysis_name: production-code-only
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # NEW: File exclusions - exclude these files/patterns/directories
+    file_exclusions:
+      exact_files:
+        - "__init__.py"
+        - "setup.py"
+      patterns:
+        - "test_*.py"        # Exclude all test files
+        - "*_test.py"        # Exclude test files with _test suffix
+        - "*.pyc"            # Exclude compiled Python files
+      directories:
+        - "tests/"           # Exclude entire tests directory
+        - "__pycache__/"     # Exclude cache directories
+        - "build/"           # Exclude build artifacts
+
+    file_scan:
+      - dependency_graph
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: /path/to/output
+      - graphml
+      - d3
