@@ -3,14 +3,54 @@
 */
 function drawEdges(context) {
     currentGraph.links.forEach(function(d) {
-        
+
         context.beginPath();
         context.moveTo(d.source.x, d.source.y);
         context.lineTo(d.target.x, d.target.y);
-        
+
+        // Apply edge style based on type (dashed for imports, solid for others)
+        const edgeKey = `${d.source.id}→${d.target.id}`;
+        const edgeStyle = (typeof edge_styles !== 'undefined' && edge_styles[edgeKey])
+            ? edge_styles[edgeKey]
+            : {type: 'UNKNOWN', style: 'solid', description: ''};
+
+        // Skip this edge if its type is filtered out
+        if (typeof isEdgeTypeActive === 'function' && !isEdgeTypeActive(edgeStyle.type)) {
+            return; // Skip rendering this edge
+        }
+
+        // Set line dash pattern based on edge style
+        if (edgeStyle.style === 'dashed') {
+            context.setLineDash([5, 5]);
+        } else if (edgeStyle.style === 'dotted') {
+            context.setLineDash([2, 3]);
+        } else if (edgeStyle.style === 'solid-thick') {
+            context.setLineDash([]);
+            context.lineWidth = 2.0;
+        } else {
+            context.setLineDash([]);
+        }
+
+        // Check if edge is part of an active path (for path-based coloring)
+        let edgeInActivePath = false;
+        let pathColor = null;
+
+        if (typeof isPathAnalysisActive === 'function' && isPathAnalysisActive()) {
+            const pathInfo = getEdgePathColor(d.source.id, d.target.id);
+            if (pathInfo) {
+                edgeInActivePath = true;
+                pathColor = pathInfo.color;
+            }
+        }
+
         if (closeNode == null) { // not hovering over any node
-            if (isSearching == false) { // not searching                     
-                context.fillStyle = context.strokeStyle = nodeSourceColor = nodeColorByModularity(d.source, 0.7)
+            if (isSearching == false) { // not searching
+                // Use path color if edge is in active path, otherwise default
+                if (edgeInActivePath && pathColor) {
+                    context.fillStyle = context.strokeStyle = pathColor;
+                } else {
+                    context.fillStyle = context.strokeStyle = nodeSourceColor = nodeColorByModularity(d.source, 0.7);
+                }
                 
             } else { // node search is active
                 

@@ -1689,3 +1689,522 @@ The D3 visualization provides multiple exploration modes:
 ---
 
 This completes the comprehensive guide to emerge's advanced filtering and visualization features!
+
+---
+
+## 7. Edge Metadata and Visualization
+
+Edge metadata enhances your dependency visualizations by telling the **story** of how code relates and executes. Instead of generic arrows showing "there's a dependency," edges now carry semantic information about the type and nature of relationships.
+
+### Why Edge Metadata?
+
+**Problem:** All dependencies look the same - you can't tell imports from inheritance from method calls.
+
+**Solution:** Edges carry metadata (type, style, description) and are colored based on active execution paths.
+
+**Key Benefits:**
+- **Visual storytelling:** See HOW code flows, not just that it depends
+- **Type differentiation:** Imports vs inheritance vs calls are visually distinct
+- **Path-based coloring:** Edges inherit color from highlighted execution paths
+- **Interactive filtering:** Toggle edge types to focus on specific relationships
+- **Architectural validation:** Identify wrong dependency directions
+
+### 7.1 Edge Types
+
+Emerge automatically detects and classifies edge types:
+
+| Edge Type | Description | Visual Style | Example |
+|-----------|-------------|--------------|---------|
+| **IMPORT** | Static import/include dependency | Dashed line (- - -) | `import database_manager` |
+| **INHERITANCE** | Is-a relationship (class inheritance) | Thick solid line (━━━) | `class UserService(BaseService)` |
+| **ASSOCIATION** | Uses-a relationship (method calls, data flow) | Solid line (───) | `result = api.fetch_data()` |
+| **COMPOSITION** | Has-a relationship (object composition) | Solid line (───) | `self.db = DatabaseManager()` |
+| **AGGREGATION** | Weak has-a relationship | Solid line (───) | Collection relationships |
+| **UNKNOWN** | Type could not be determined | Solid line (───) | Unclassified dependencies |
+
+### 7.2 Edge Coloring with Paths
+
+**The Key Insight:** Edges inherit their color from active execution paths.
+
+When you enable path analysis and toggle paths:
+- **Path ON:** All edges in that path use the path's color
+- **Multiple paths:** Edges shared by multiple paths show mixed colors
+- **No active path:** Edges use default color (based on node modularity)
+
+**Example:**
+```yaml
+path_analysis:
+  enabled: true
+  entry_points:
+    - file: "api/routes.py"
+      function: "handle_request"
+      label: "API Flow"
+      color: "#FF0000"  # Red
+      
+    - file: "services/processor.py"
+      function: "process_data"
+      label: "Processing"
+      color: "#00FF00"  # Green
+```
+
+**Result:**
+- Toggle "API Flow" → Edges in that path turn **red**
+- Toggle "Processing" → Edges in that path turn **green**  
+- Toggle both → Shared edges show **mixed red/green**
+
+### 7.3 Interactive Edge Controls
+
+The D3 visualization provides edge type filtering:
+
+**Edge Type Filters:**
+```
+[x] All Edge Types
+[x] Import/Include     (- - -)
+[x] Inheritance        (━━━)
+[x] Association/Calls  (───)
+```
+
+**Use Cases:**
+
+**Hide imports, show execution:**
+```
+[ ] Import/Include
+[x] Inheritance
+[x] Association/Calls
+```
+Result: See only runtime dependencies (calls + inheritance)
+
+**Show only inheritance:**
+```
+[ ] Import/Include
+[x] Inheritance
+[ ] Association/Calls
+```
+Result: Focus on class hierarchy
+
+**Show everything:**
+```
+[x] All Edge Types
+```
+Result: Complete dependency picture
+
+### 7.4 Combining Edges with Layers and Paths
+
+The real power comes from combining all three features:
+
+**Workflow:**
+1. **Define layers** (architectural tiers)
+2. **Define paths** (execution flows)
+3. **Toggle interactively** (explore relationships)
+
+**Example Configuration:**
+```yaml
+visualization_layers:
+  enabled: true
+  layers:
+    - name: "API"
+      prominence: "high"
+      color: "#FF0000"
+      directories: ["api"]
+      
+    - name: "Services"
+      prominence: "medium"
+      color: "#00FF00"
+      directories: ["services"]
+      
+    - name: "Data"
+      prominence: "medium"
+      color: "#0000FF"
+      directories: ["data"]
+
+path_analysis:
+  enabled: true
+  entry_points:
+    - file: "api/routes.py"
+      label: "Request Flow"
+      color: "#FF00FF"  # Magenta edges
+```
+
+**Interactive Analysis:**
+
+**Scenario 1: Trace a request through layers**
+- Toggle path: "Request Flow" ON
+- Result: Magenta edges show exact route
+- Notice: Which layers are touched? API → Services → Data?
+- Edge types: Imports or calls between layers?
+
+**Scenario 2: Validate layer boundaries**
+- Toggle layers: Show only "Data" and "API"
+- Look for edges: Data → API (wrong direction!)
+- Edge type: If inheritance, even worse (tight coupling)
+
+**Scenario 3: Focus on execution without imports**
+- Toggle edge filter: Hide "Import/Include"
+- Toggle path: Show specific flow
+- Result: See runtime execution path clearly
+
+### 7.5 Edge Metadata in Exports
+
+Edge metadata is automatically exported in multiple formats:
+
+**1. D3 Visualization Data:**
+```javascript
+const edge_types = {
+  "file1.py→file2.py": "IMPORT",
+  "service.py→base.py": "INHERITANCE",
+  // ...
+}
+
+const edge_styles = {
+  "file1.py→file2.py": {
+    "type": "IMPORT",
+    "style": "dashed",
+    "description": "Import dependency"
+  },
+  // ...
+}
+```
+
+**2. Path Data (includes edges):**
+```javascript
+const entry_point_paths = {
+  "main.py:main": {
+    "label": "Main Flow",
+    "color": "#FF0000",
+    "nodes": ["main.py", "service.py", "db.py"],
+    "edges": [
+      {
+        "from": "main.py",
+        "to": "service.py",
+        "edge_type": "IMPORT",
+        "style": "dashed"
+      },
+      {
+        "from": "service.py",
+        "to": "db.py",
+        "edge_type": "ASSOCIATION",
+        "style": "solid"
+      }
+    ]
+  }
+}
+```
+
+### 7.6 Complete Example
+
+```yaml
+---
+project_name: edge-demo
+loglevel: info
+
+analyses:
+  - analysis_name: full-stack
+    source_directory: /path/to/src
+
+    # Architectural layers
+    visualization_layers:
+      enabled: true
+      layers:
+        - name: "Controllers"
+          prominence: "high"
+          color: "#FF0000"
+          directories: ["controllers"]
+          
+        - name: "Services"
+          prominence: "medium"
+          color: "#00AA00"
+          directories: ["services"]
+          
+        - name: "Models"
+          prominence: "medium"
+          color: "#0066FF"
+          directories: ["models"]
+
+    # Execution paths
+    path_analysis:
+      enabled: true
+      entry_points:
+        - file: "controllers/user_controller.py"
+          function: "create_user"
+          label: "User Creation"
+          color: "#FF00FF"  # Magenta
+          
+        - file: "controllers/auth_controller.py"
+          function: "login"
+          label: "Authentication"
+          color: "#00FFFF"  # Cyan
+
+    file_scan:
+      - dependency_graph  # Creates edges with types
+      - fan_in_out
+
+    export:
+      - directory: ./output
+      - d3
+```
+
+**Interactive Exploration:**
+
+1. **Open visualization**
+2. **Toggle "User Creation" path:**
+   - See magenta edges showing exact flow
+   - Notice Controller → Service → Model progression
+   - Edge types show imports vs method calls
+   
+3. **Toggle "Authentication" path:**
+   - See cyan edges for auth flow
+   - Notice overlap with user creation (shared services)
+   - Mixed color edges show shared dependencies
+   
+4. **Hide import edges:**
+   - Clearer view of runtime execution
+   - See only method calls and inheritance
+   
+5. **Toggle layers:**
+   - Focus on specific architectural tier
+   - Validate dependencies flow in right direction
+
+### 7.7 Analysis Patterns
+
+#### Pattern 1: Understanding Data Flow
+
+**Goal:** See how data flows from API to database
+
+**Steps:**
+1. Define entry point at API endpoint
+2. Toggle that path ON
+3. Hide import edges (show only calls)
+4. Follow colored edges through layers
+
+**Insight:** Exact sequence of method calls for data flow
+
+#### Pattern 2: Finding Circular Dependencies
+
+**Goal:** Identify circular dependencies
+
+**Steps:**
+1. Look for bidirectional edges (arrows both ways)
+2. Follow edge colors to see if same path
+3. Check edge types (inheritance cycles are worse)
+
+**Insight:** Circular imports vs circular calls
+
+#### Pattern 3: Architectural Validation
+
+**Goal:** Ensure lower layers don't depend on higher layers
+
+**Steps:**
+1. Toggle layers: Show "Data" and "API"
+2. Look for edges: Data → API
+3. Check edge type: Import, call, or inheritance?
+
+**Insight:** Architecture violations by severity
+
+#### Pattern 4: Shared Code Detection
+
+**Goal:** Find code shared by multiple features
+
+**Steps:**
+1. Toggle multiple paths ON
+2. Look for mixed-color edges
+3. Check which nodes receive multiple colors
+
+**Insight:** Coupling points, shared utilities, common dependencies
+
+#### Pattern 5: Refactoring Impact
+
+**Goal:** Understand what depends on a file you want to change
+
+**Steps:**
+1. Select the file node
+2. See all incoming edges (who imports/calls this)
+3. Check edge types (imports are safer to break than inheritance)
+4. Follow edges to see impact scope
+
+**Insight:** Risk assessment for refactoring
+
+### 7.8 Best Practices
+
+#### 1. Use Path Colors Meaningfully
+
+**Good:**
+- Red: Critical path (auth, payment)
+- Green: Normal flow
+- Blue: Background processing
+- Each path represents a user story or feature
+
+**Avoid:**
+- Random colors without meaning
+- Too many paths (> 5-6 becomes confusing)
+
+#### 2. Combine with Layer Filtering
+
+**Workflow:**
+1. Start with all layers visible
+2. Toggle specific path
+3. Gradually hide layers to focus
+4. Edge colors guide you through remaining layers
+
+#### 3. Use Edge Filtering Strategically
+
+**For understanding architecture:**
+- Show only inheritance (class hierarchy)
+- Show only associations (runtime flow)
+
+**For tracing execution:**
+- Hide imports (reduce noise)
+- Show calls + inheritance (execution path)
+
+#### 4. Validate Bidirectional Dependencies
+
+Look for edges with arrows both ways:
+- Import cycles (bad)
+- Mutual dependencies (problematic)
+- Check edge types to assess severity
+
+### 7.9 Troubleshooting
+
+#### Problem: All edges look the same
+
+**Cause:** Edge metadata not being exported
+
+**Check:**
+1. Verify `edge_types` and `edge_styles` variables exist in exported JS
+2. Check browser console for JavaScript errors
+3. Ensure emerge version includes edge metadata feature
+
+#### Problem: Edges don't change color with paths
+
+**Cause:** Path/edge matching issue
+
+**Debug:**
+1. Check that path edges are exported with correct node IDs
+2. Verify node IDs match between paths and graph
+3. Look for path initialization errors in console
+
+#### Problem: Edge filtering doesn't work
+
+**Cause:** Edge controls not initialized
+
+**Check:**
+1. Verify `edge_types` data is available
+2. Check that emerge_edges.js is loaded
+3. Look for "Edge Types" button (hidden if no edge data)
+
+### 7.10 Advanced: Custom Edge Analysis
+
+You can access edge data programmatically:
+
+```javascript
+// Get edge type
+const edgeKey = "file1.py→file2.py";
+const edgeType = edge_types[edgeKey];  // "IMPORT"
+
+// Get edge style info
+const edgeStyle = edge_styles[edgeKey];
+// {type: "IMPORT", style: "dashed", description: "Import dependency"}
+
+// Check if edge is in path
+const pathInfo = getEdgePathColor("file1.py", "file2.py");
+if (pathInfo) {
+  console.log(`Edge is in path: ${pathInfo.pathLabel}`);
+  console.log(`Path color: ${pathInfo.color}`);
+  console.log(`Edge type: ${pathInfo.edgeType}`);
+}
+
+// Get all paths containing an edge
+const paths = getEdgeActivePaths("file1.py", "file2.py");
+paths.forEach(path => {
+  console.log(`Path: ${path.label}, Color: ${path.color}`);
+});
+```
+
+---
+
+## 8. Putting It All Together
+
+You now have a complete toolkit for codebase visualization:
+
+1. **File Filtering** (Chapter 1-4): What code to analyze
+2. **Visualization Layers** (Chapter 5-6): Architectural hierarchy
+3. **Path Analysis** (covered in earlier docs): Execution flow
+4. **Edge Metadata** (Chapter 7): Relationship semantics
+
+**The Power of Combination:**
+
+Each feature provides value alone, but combining them creates a powerful analysis platform:
+
+```yaml
+analyses:
+  - analysis_name: complete-analysis
+    
+    # Filter to relevant code
+    file_inclusions:
+      directories: ["src"]
+    
+    file_exclusions:
+      patterns: ["test_*.py"]
+    
+    # Define architectural layers
+    visualization_layers:
+      enabled: true
+      layers:
+        - name: "Core"
+          prominence: "high"
+          directories: ["core"]
+        - name: "Features"
+          prominence: "medium"
+          directories: ["features"]
+    
+    # Trace execution paths
+    path_analysis:
+      enabled: true
+      detect_entry_points:
+        enabled: true
+    
+    # Edges automatically carry type metadata
+    file_scan:
+      - dependency_graph  # Edge types detected here
+      - fan_in_out
+    
+    export:
+      - d3  # Interactive with all controls
+```
+
+**Interactive Exploration:**
+
+1. **Load visualization** → See complete codebase
+2. **Toggle layers** → Focus on specific tiers
+3. **Toggle paths** → Trace execution flows
+4. **Toggle edge types** → Filter relationship types
+5. **Combine all three** → Multi-dimensional understanding
+
+**Example Analysis Session:**
+
+```
+Question: "How does the authentication feature work?"
+
+Step 1: Toggle "Authentication" path
+→ See colored edges showing exact flow
+
+Step 2: Hide import edges
+→ Clear view of runtime execution
+
+Step 3: Toggle layers one by one
+→ See which architectural tiers are involved
+
+Step 4: Notice thick solid edges
+→ Inheritance relationships in auth flow
+
+Step 5: See mixed-color edges
+→ Code shared with other features
+
+Insight: Complete understanding of authentication
+         architecture, dependencies, and shared code
+```
+
+This comprehensive approach transforms static dependency graphs into interactive storytelling tools that reveal the true structure and behavior of your codebase.
+
+---
+
+**End of Filtering and Visualization Guide**

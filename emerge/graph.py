@@ -22,7 +22,7 @@ coloredlogs.install(level='E', logger=LOGGER.logger(), fmt=Logger.log_format)
 
 @unique
 class GraphType(Enum):
-    """Small enum class to represent a type of a GraphRepresentation. 
+    """Small enum class to represent a type of a GraphRepresentation.
     """
     FILE_RESULT_DEPENDENCY_GRAPH = auto()
     ENTITY_RESULT_DEPENDENCY_GRAPH = auto()
@@ -38,6 +38,40 @@ class GraphFilter(Enum):
     DEPENDENCY = auto()
     INHERITANCE = auto()
     COMPLETE = auto()
+
+@unique
+class EdgeType(Enum):
+    """Enum class to represent different types of edges/dependencies in the graph.
+
+    These edge types help tell the story of how code relates and executes:
+    - IMPORT: Static import/include dependency
+    - INHERITANCE: Is-a relationship (class inheritance)
+    - COMPOSITION: Has-a relationship (object composition)
+    - ASSOCIATION: Uses-a relationship (method calls, data flow)
+    - AGGREGATION: Weak has-a relationship
+    - UNKNOWN: Edge type could not be determined
+    """
+    IMPORT = auto()
+    INHERITANCE = auto()
+    COMPOSITION = auto()
+    ASSOCIATION = auto()
+    AGGREGATION = auto()
+    UNKNOWN = auto()
+
+    @staticmethod
+    def from_string(edge_type_str: str) -> 'EdgeType':
+        """Convert string to EdgeType enum.
+
+        Args:
+            edge_type_str: String representation of edge type
+
+        Returns:
+            Corresponding EdgeType enum value
+        """
+        try:
+            return EdgeType[edge_type_str.upper()]
+        except KeyError:
+            return EdgeType.UNKNOWN
 
 class GraphRepresentation:
     """GraphRepresentation contains a networkx directed graph instance, a graph type and methods to construct the corresponding graph.
@@ -76,7 +110,14 @@ class GraphRepresentation:
             dependencies = result.scanned_import_dependencies
             for dependency in dependencies:
                 self._digraph.add_node(dependency, display_name=dependency)
-                self._digraph.add_edge(node_name, dependency)
+                # Add edge with type metadata (import dependencies are IMPORT type)
+                self._digraph.add_edge(
+                    node_name,
+                    dependency,
+                    edge_type=EdgeType.IMPORT.name,
+                    style='dashed',
+                    description='Import dependency'
+                )
 
     def calculate_inheritance_graph_from_results(self, results: Dict[str, Any]) -> None:
         """Constructs an inheritance graph from a list of abstract entity results.
@@ -92,7 +133,14 @@ class GraphRepresentation:
             inheritance_dependencies = result.scanned_inheritance_dependencies
             for inheritance_dependency in inheritance_dependencies:
                 self._digraph.add_node(inheritance_dependency)
-                self._digraph.add_edge(node_name, inheritance_dependency)
+                # Add edge with type metadata (inheritance dependencies are INHERITANCE type)
+                self._digraph.add_edge(
+                    node_name,
+                    inheritance_dependency,
+                    edge_type=EdgeType.INHERITANCE.name,
+                    style='solid-thick',
+                    description='Inheritance relationship'
+                )
 
     def calculate_complete_graph(self, *, dependency_graph_repr: 'GraphRepresentation', inheritance_graph_repr: 'GraphRepresentation') -> None:
         """Constructs a *complete graph*, which is defined as the composition/union of both dependency and inheritance graph.

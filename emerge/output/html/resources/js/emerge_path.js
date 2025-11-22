@@ -254,6 +254,79 @@ function getCurrentGraph() {
     return null;
 }
 
+/**
+ * Check if path analysis is active
+ */
+function isPathAnalysisActive() {
+    return pathsInitialized;
+}
+
+/**
+ * Get the color for an edge based on active paths
+ * Returns the path color if the edge belongs to an active path
+ */
+function getEdgePathColor(sourceId, targetId) {
+    if (!pathsInitialized || typeof entry_point_paths === 'undefined') {
+        return null;
+    }
+
+    // Check each active path to see if this edge is part of it
+    for (const pathId in entry_point_paths) {
+        if (!activePaths[pathId]) continue; // Skip inactive paths
+
+        const pathData = entry_point_paths[pathId];
+        const edges = pathData.edges || [];
+
+        // Check if this edge is in the path
+        const edgeInPath = edges.some(edge =>
+            edge.from === sourceId && edge.to === targetId
+        );
+
+        if (edgeInPath) {
+            return {
+                color: pathData.color,
+                pathId: pathId,
+                pathLabel: pathData.label,
+                edgeType: edges.find(e => e.from === sourceId && e.to === targetId)?.edge_type || 'UNKNOWN'
+            };
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Get all active paths that contain a specific edge
+ */
+function getEdgeActivePaths(sourceId, targetId) {
+    const paths = [];
+
+    if (!pathsInitialized || typeof entry_point_paths === 'undefined') {
+        return paths;
+    }
+
+    for (const pathId in entry_point_paths) {
+        if (!activePaths[pathId]) continue;
+
+        const pathData = entry_point_paths[pathId];
+        const edges = pathData.edges || [];
+
+        const edgeInPath = edges.some(edge =>
+            edge.from === sourceId && edge.to === targetId
+        );
+
+        if (edgeInPath) {
+            paths.push({
+                pathId: pathId,
+                label: pathData.label,
+                color: pathData.color
+            });
+        }
+    }
+
+    return paths;
+}
+
 // Initialize path analysis when document is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializePathAnalysis);

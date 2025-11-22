@@ -502,6 +502,30 @@ class D3Exporter:
             d3_js_string += 'const node_layer_assignments = {}\n'
             d3_js_string += 'const node_prominence = {}\n\n'
 
+        # Export edge type metadata for easier visualization access
+        edge_types_map = {}
+        edge_styles_map = {}
+
+        # Get the file dependency graph (most relevant for visualization)
+        file_dep_graph = graph_representations.get('file_result_dependency_graph')
+        if file_dep_graph and file_dep_graph.digraph:
+            for source, target, edge_data in file_dep_graph.digraph.edges(data=True):
+                edge_key = f"{source}→{target}"
+                edge_types_map[edge_key] = edge_data.get('edge_type', 'UNKNOWN')
+                edge_styles_map[edge_key] = {
+                    'type': edge_data.get('edge_type', 'UNKNOWN'),
+                    'style': edge_data.get('style', 'solid'),
+                    'description': edge_data.get('description', '')
+                }
+
+        d3_js_string += 'const edge_types = '
+        d3_js_string += json.dumps(edge_types_map)
+        d3_js_string += '\n\n'
+
+        d3_js_string += 'const edge_styles = '
+        d3_js_string += json.dumps(edge_styles_map)
+        d3_js_string += '\n\n'
+
         d3_js_string += "const analysis_name = '" + analysis.analysis_name + "'"
         d3_js_string += '\n\n'
 

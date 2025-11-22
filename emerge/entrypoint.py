@@ -266,12 +266,20 @@ class PathTracer:
                 reachable_nodes = nx.descendants(graph, entry_node)
                 reachable_nodes.add(entry_node)  # Include the entry point itself
 
-                # Get all edges in the subgraph
+                # Get all edges in the subgraph with metadata
                 edges = []
                 for node in reachable_nodes:
                     for successor in graph.successors(node):
                         if successor in reachable_nodes:
-                            edges.append({'from': node, 'to': successor})
+                            # Get edge data including type and style
+                            edge_data = graph.get_edge_data(node, successor) or {}
+                            edges.append({
+                                'from': node,
+                                'to': successor,
+                                'edge_type': edge_data.get('edge_type', 'UNKNOWN'),
+                                'style': edge_data.get('style', 'solid'),
+                                'description': edge_data.get('description', '')
+                            })
 
                 self.entry_point_paths[path_id] = {
                     'entry_point': entry_point.file_path,

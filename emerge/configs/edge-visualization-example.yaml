@@ -1,0 +1,169 @@
+---
+# Edge Visualization Example: Tracing Execution Flow with Colored Edges
+# This configuration demonstrates how edge metadata tells the story of code execution
+
+project_name: edge-visualization-demo
+loglevel: info
+
+analyses:
+  - analysis_name: execution-flow-analysis
+    source_directory: /path/to/project/src
+    only_permit_languages:
+      - py
+    only_permit_file_extensions:
+      - .py
+
+    # Define visualization layers to show architectural tiers
+    visualization_layers:
+      enabled: true
+      layers:
+        # API Layer (entry points)
+        - name: "API Layer"
+          prominence: "high"
+          color: "#FF0000"
+          directories:
+            - "api"
+            - "routes"
+
+        # Service Layer (business logic)
+        - name: "Service Layer"
+          prominence: "medium"
+          color: "#00AA00"
+          directories:
+            - "services"
+
+        # Data Layer (persistence)
+        - name: "Data Layer"
+          prominence: "medium"
+          color: "#0066FF"
+          directories:
+            - "models"
+            - "repositories"
+
+        # Utilities (low prominence)
+        - name: "Utilities"
+          prominence: "low"
+          color: "#FFA500"
+          patterns:
+            - "*_utils.py"
+            - "*_helper.py"
+
+    # Define entry points for path tracing
+    # Edges in these paths will be colored by the path color
+    path_analysis:
+      enabled: true
+      entry_points:
+        # User authentication flow
+        - file: "api/auth_routes.py"
+          function: "login"
+          label: "Authentication Flow"
+          color: "#FF0000"  # Red edges for auth path
+
+        # Order processing flow
+        - file: "api/order_routes.py"
+          function: "create_order"
+          label: "Order Processing"
+          color: "#00FF00"  # Green edges for order path
+
+        # Payment flow
+        - file: "api/payment_routes.py"
+          function: "process_payment"
+          label: "Payment Flow"
+          color: "#0000FF"  # Blue edges for payment path
+
+    # File exclusions to focus on production code
+    file_exclusions:
+      patterns:
+        - "test_*.py"
+        - "*_test.py"
+      directories:
+        - "tests"
+        - "__pycache__"
+
+    # Focus on significant files
+    metric_filters:
+      min_sloc: 10  # Skip trivial files
+
+    file_scan:
+      - dependency_graph  # Creates edges with type metadata
+      - source_lines_of_code
+      - fan_in_out
+
+    export:
+      - directory: ./output/edge-visualization
+      - d3  # Interactive visualization with edge controls
+
+# How Edge Visualization Works:
+#
+# 1. **Edge Types** (shown with different line styles):
+#    - Dashed lines (- - -): Import/Include dependencies
+#    - Solid thick lines (━━━): Inheritance relationships
+#    - Solid lines (───): Association/Method calls
+#
+# 2. **Edge Colors** (inherited from active paths):
+#    - When you toggle "Authentication Flow" ON:
+#      * All edges in that path turn RED
+#      * Shows exactly how login() flows through the code
+#
+#    - When you toggle "Order Processing" ON:
+#      * All edges in that path turn GREEN
+#      * Shows how create_order() propagates
+#
+#    - When you toggle BOTH paths ON:
+#      * Edges used by both paths show MIXED colors
+#      * Immediately see shared dependencies
+#
+# 3. **Edge Filtering** (toggle by type):
+#    - Hide "Import" edges: See only execution flow (calls/inheritance)
+#    - Hide "Inheritance" edges: See only runtime dependencies
+#    - Show all: See complete dependency picture
+#
+# 4. **Combined with Layers**:
+#    - Toggle "API Layer" ON, others OFF: See only API-level edges
+#    - Toggle paths + layers: Trace flow through specific architectural tiers
+#    - See if high-prominence nodes have appropriate edge types
+#
+# Usage Workflow:
+# 1. Run: emerge -c edge-visualization-example.yaml
+# 2. Open: output/edge-visualization/emerge-file-result-dependency-graph.html
+# 3. Interactive exploration:
+#    a. Click "Entry Point Paths" → Toggle individual flows
+#    b. Click "Edge Types" → Filter by dependency type
+#    c. Click "Visualization Layers" → Focus on architectural tiers
+#    d. Combine all three for powerful analysis
+#
+# Example Analysis Scenarios:
+#
+# Scenario 1: "How does authentication flow through the system?"
+# - Toggle ON: "Authentication Flow" path
+# - Result: Red edges show exact execution path
+# - Notice: Which layers are touched? (API → Service → Data)
+# - Edge types: Imports vs calls vs inheritance
+#
+# Scenario 2: "What's shared between order and payment flows?"
+# - Toggle ON: Both "Order Processing" and "Payment Flow"
+# - Result: Edges used by both show mixed colors
+# - Insight: Shared services, common utilities, coupling points
+#
+# Scenario 3: "Focus on runtime execution, hide static imports"
+# - Toggle OFF: "Import/Include" edge type
+# - Result: Only see method calls and inheritance
+# - Insight: Actual execution flow without import clutter
+#
+# Scenario 4: "Validate architecture: Does Data Layer depend on API?"
+# - Toggle layers to show Data and API only
+# - Look for edges from Data → API
+# - If present: Architecture violation (wrong dependency direction)
+#
+# Scenario 5: "Understand a specific feature end-to-end"
+# - Toggle ONE path (e.g., "Payment Flow")
+# - Toggle layers one by one
+# - See exactly which files in each layer are involved
+# - Edge styles show HOW they're connected (import vs call)
+#
+# Edge Metadata Benefits:
+# - **Visual storytelling**: Colors show execution paths
+# - **Type differentiation**: Line styles show relationship types
+# - **Interactive filtering**: Focus on what matters
+# - **Multi-perspective**: Same data, different insights
+# - **Architectural validation**: See violations immediately

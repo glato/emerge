@@ -50,6 +50,9 @@
     <!-- emerge layer visualization functionality -->
     <script type="text/javascript" src="resources/js/emerge_layers.js"></script>
 
+    <!-- emerge edge filtering functionality -->
+    <script type="text/javascript" src="resources/js/emerge_edges.js"></script>
+
     <!-- emerge common functionality -->
     <script type="text/javascript" src="resources/js/emerge_common.js"></script>
 
@@ -242,6 +245,47 @@
                             <hr style="margin: 8px 0;">
                             <div id="layerCheckboxes">
                                 <!-- Layer checkboxes will be injected here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edge Type Controls -->
+                <button id="buttonToggleEdgeControls" type="button" class="btn-left-aligned btn btn-primary btn-sm btn-with-spacing shadow-none" onclick="toggleEdgeControls();" style="display: none;">
+                    <span aria-hidden="true">
+                        <svg width="16px" height="16px" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 3h14M2 9h14M2 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    Edge Types
+                </button>
+
+                <div id="edgeControlsContainer" style="display: none; padding: 10px; max-height: 200px; overflow-y: auto;">
+                    <div class="card border-secondary" style="margin-bottom: 10px;">
+                        <div class="card-body" style="padding: 8px;">
+                            <h6 class="card-title" style="font-size: 12px; margin-bottom: 8px;">Filter Edge Types</h6>
+                            <div class="form-check form-switch" style="margin-bottom: 5px;">
+                                <input type="checkbox" class="form-check-input" id="toggleAllEdgeTypes" checked onclick="toggleAllEdgeTypes(this.checked);">
+                                <label class="form-check-label" for="toggleAllEdgeTypes"><small>All Edge Types</small></label>
+                            </div>
+                            <hr style="margin: 8px 0;">
+                            <div style="margin-bottom: 5px;">
+                                <input type="checkbox" class="form-check-input edge-type-filter" id="edgeTypeImport" data-edge-type="IMPORT" checked onchange="updateEdgeFilters();">
+                                <label class="form-check-label" for="edgeTypeImport">
+                                    <small><span style="display:inline-block; width:20px; height:2px; border-top:2px dashed #666; margin-right:5px;"></span>Import/Include</small>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 5px;">
+                                <input type="checkbox" class="form-check-input edge-type-filter" id="edgeTypeInheritance" data-edge-type="INHERITANCE" checked onchange="updateEdgeFilters();">
+                                <label class="form-check-label" for="edgeTypeInheritance">
+                                    <small><span style="display:inline-block; width:20px; height:2px; border-top:3px solid #666; margin-right:5px;"></span>Inheritance</small>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 5px;">
+                                <input type="checkbox" class="form-check-input edge-type-filter" id="edgeTypeAssociation" data-edge-type="ASSOCIATION" checked onchange="updateEdgeFilters();">
+                                <label class="form-check-label" for="edgeTypeAssociation">
+                                    <small><span style="display:inline-block; width:20px; height:2px; border-top:2px solid #666; margin-right:5px;"></span>Association/Calls</small>
+                                </label>
                             </div>
                         </div>
                     </div>
