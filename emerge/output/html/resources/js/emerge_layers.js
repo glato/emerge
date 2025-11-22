@@ -342,8 +342,11 @@ function isLayerVisualizationActive() {
  * Get current graph based on selected graph type
  */
 function getCurrentGraph() {
-    // This should be implemented based on the current graph selection
-    // For now, return file_result_dependency_graph as default
+    // Return the actual currentGraph that's being rendered
+    if (typeof currentGraph !== 'undefined' && currentGraph) {
+        return currentGraph;
+    }
+    // Fallback to file_result_dependency_graph
     if (typeof file_result_dependency_graph !== 'undefined') {
         return file_result_dependency_graph;
     }
