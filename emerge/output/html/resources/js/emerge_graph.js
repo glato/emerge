@@ -86,6 +86,25 @@ function drawEdges(context) {
     });
 }
 
+function getNodeColor(d, opacity) {
+    // Check if path highlighting is active and this node is highlighted
+    if (typeof pathsInitialized !== 'undefined' && pathsInitialized && d.pathHighlighted && d.pathColor) {
+        if (Array.isArray(d.pathColor)) {
+            // Multiple paths - use first color
+            return hexToRGB(d.pathColor[0], opacity || 1.0);
+        }
+        return hexToRGB(d.pathColor, opacity || 1.0);
+    }
+
+    // If path highlighting is active but node is not highlighted, dim it
+    if (typeof pathsInitialized !== 'undefined' && pathsInitialized && !d.pathHighlighted) {
+        return nodeColorByModularity(d, (opacity || 1.0) * 0.3);
+    }
+
+    // Default to modularity-based coloring
+    return nodeColorByModularity(d, opacity);
+}
+
 function drawNodes(context) {
     currentGraph.nodes.forEach(function(d, i) {
 
@@ -135,28 +154,28 @@ function drawNodes(context) {
             if (closeNode == null) { // not hovering over any node
                 if (isSearching == false) {
 
-                    context.fillStyle = nodeColorByModularity(d, nodeOpacity)
+                    context.fillStyle = getNodeColor(d, nodeOpacity)
                     context.strokeStyle = nodeStrokeStyle;
                     context.stroke();
-                    
+
                     if (nodeLabelsEnabled) {
                         context.fillStyle = currentActiveNodeLabelColor;
                         drawNodeLabel(d.id, d.x + 14, d.y - 7)
-                        context.fillStyle = nodeColorByModularity(d)
+                        context.fillStyle = getNodeColor(d)
                     }
                     
                 } else { // searching for nodes
                     
                     // normal (non-semantic) search
                     if ( addSemanticSearch == false && normalSearch(d)) {
-                        
-                        context.fillStyle = nodeColorByModularity(d)
+
+                        context.fillStyle = getNodeColor(d)
                         context.strokeStyle = nodeStrokeStyle;
                         context.stroke();
-                        
+
                         context.fillStyle = currentActiveNodeLabelColor;
                         drawNodeLabel(d.id, d.x + 14, d.y - 7)
-                        context.fillStyle = nodeColorByModularity(d)
+                        context.fillStyle = getNodeColor(d)
                         
                         searchResults += 1
                         
@@ -225,14 +244,14 @@ function drawNodes(context) {
                 
             } else { // hovering over a node
                 if (isConnected(d, closeNode)) { // node is connected to hovered node
-                    context.fillStyle = nodeColorByModularity(d)
+                    context.fillStyle = getNodeColor(d)
                     context.strokeStyle = nodeStrokeStyle;
                     context.stroke();
-                    
+
                     // show/highlight node label of every connected node from the hovered node
                     context.fillStyle = currentActiveNodeLabelColor;
                     drawNodeLabel(d.id, d.x + 14, d.y - 7)
-                    context.fillStyle = nodeColorByModularity(d)
+                    context.fillStyle = getNodeColor(d)
                     
                 } else if ( hoverCoupling == true && nodeNamesHaveChangeCoupling(d.id, closeNode.id) ) {
 
