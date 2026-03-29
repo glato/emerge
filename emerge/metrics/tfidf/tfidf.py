@@ -45,7 +45,8 @@ class TFIDFMetric(CodeMetric):
             "C":          {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsigned', 'extern', 'char', 'float', 'sizeof', 'unsinged', 'undef', 'define'},
             "CPP":        {'return', 'int', 'static', 'void', 'case', 'break', 'const', 'struct', 'printf', 'fprintf', 'unsigned', 'extern', 'char', 'float', 'sizeof', 'string', 'bool', 'virtual', 'override', 'nullptr', 'final', 'inline', 'template'},
             "PY":         {'return', 'self', 'import', 'enum', 'true', 'false', 'none', 'class', 'cls', 'super', 'not'},
-            "GO":         {'return', 'nil', 'defer', 'func', 'default'}
+            "GO":         {'return', 'nil', 'defer', 'func', 'default'},
+            "RUST":       {'fn', 'let', 'mut', 'pub', 'use', 'mod', 'crate', 'self', 'super', 'return', 'impl', 'struct', 'enum', 'trait', 'type', 'const', 'static', 'unsafe', 'async', 'move', 'where', 'match', 'if', 'else', 'for', 'while', 'loop', 'break', 'continue', 'true', 'false', 'none', 'some', 'ok', 'err', 'ref', 'dyn', 'as', 'in', 'box', 'default'},
         }
 
         """The following natural language stopwords should be excluded from the TF-IDF calculation."""

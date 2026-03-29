@@ -15,3 +15,6 @@ PyYAML
 tabulate
 PyDriller
 pyperclip
+tree-sitter
+tree-sitter-rust
+tree-sitter-javascript

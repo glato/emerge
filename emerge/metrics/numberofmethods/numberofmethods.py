@@ -51,6 +51,8 @@ class NumberOfMethodsMetric(CodeMetric):
             "CPP":        r"\b(?!if|for|while|switch)\b[a-zA-Z\d\_\:\<\>\*\&]+?\s*?\([\(a-zA-Z\d\s_,\*&:]*?\)\s*?\w+\s*?\{",
             "PY":         r"(def)\s.+(.+):",
             "GO":         r"func\s*?[a-zA-Z\d_\(\)\:\*\s\-\<\>\?\,\[\]\.]+?\s*?\{",
+            # fn foo( / pub(crate) fn / async fn / const fn — opening brace may be on the next line
+            "RUST":       r"\b(?:pub\s*(?:\([^)]*\)\s*)?)?(?:extern\s+\"[^\"]+\"\s+)?(?:unsafe\s+)?(?:async\s+)?(?:const\s+)?fn\s+[a-zA-Z_][a-zA-Z0-9_]*\s*\(",
         }
 
         self.compiled_re: Dict[str, Pattern] = {}

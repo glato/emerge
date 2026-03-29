@@ -11,10 +11,10 @@ import logging
 from pathlib import Path
 import os
 
-import pyparsing as pp
 import coloredlogs
 
 from emerge.languages.abstractparser import AbstractParser, ParsingMixin, Parser, CoreParsingKeyword, LanguageType
+from emerge.languages.javascript_treesitter import extract_javascript_module_specifiers
 from emerge.results import FileResult
 from emerge.abstractresult import AbstractResult, AbstractFileResult, AbstractEntityResult
 from emerge.stats import Statistics
@@ -41,23 +41,6 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
 
     def __init__(self):
         self._results: Dict[str, AbstractResult] = {}
-        self._token_mappings: Dict[str, str] = {
-            ':': ' : ',
-            ';': ' ; ',
-            '{': ' { ',
-            '}': ' } ',
-            '(': ' ( ',
-            ')': ' ) ',
-            '[': ' [ ',
-            ']': ' ] ',
-            '?': ' ? ',
-            '!': ' ! ',
-            ',': ' , ',
-            '<': ' < ',
-            '>': ' > ',
-            '"': ' " ',
-            "'": " ' "
-        }
 
     @classmethod
     def parser_name(cls) -> str:
@@ -112,56 +95,17 @@ class JavaScriptParser(AbstractParser, ParsingMixin):
     def _add_imports_to_file_result(self, result: AbstractFileResult, analysis):
         LOGGER.debug(f'extracting imports from base result {result.scanned_file_name}...')
 
-        # prepare list of tokens
-        list_of_words_with_newline_strings = result.scanned_tokens
-        
-        source_string_no_comments = self._filter_source_tokens_without_comments(
-            list_of_words_with_newline_strings,
-            JavaScriptParsingKeyword.INLINE_COMMENT.value,
-            JavaScriptParsingKeyword.START_BLOCK_COMMENT.value,
-            JavaScriptParsingKeyword.STOP_BLOCK_COMMENT.value
-        )
+        try:
+            specifiers = extract_javascript_module_specifiers(result.source)
+        except Exception as ex:  # pylint: disable=broad-except
+            result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
+            LOGGER.warning(f'tree-sitter extraction failed for {result.scanned_file_name}: {ex}')
+            return
 
-        filtered_list_no_comments = self.preprocess_file_content_and_generate_token_list_by_mapping(source_string_no_comments, self._token_mappings)
-
-        for _, obj, following in self._gen_word_read_ahead(filtered_list_no_comments):
-            if obj != JavaScriptParsingKeyword.IMPORT.value and obj != JavaScriptParsingKeyword.REQUIRE.value:
-                continue
-
-            read_ahead_string = self.create_read_ahead_string(obj, following)
-
-            # create parsing expression
-            valid_name = pp.Word(pp.alphanums + CoreParsingKeyword.AT.value + CoreParsingKeyword.DOT.value + CoreParsingKeyword.ASTERISK.value +
-                                 CoreParsingKeyword.UNDERSCORE.value + CoreParsingKeyword.DASH.value + CoreParsingKeyword.SLASH.value)
-
-            if obj == JavaScriptParsingKeyword.IMPORT.value:
-                expression_to_match = pp.SkipTo(pp.Literal(JavaScriptParsingKeyword.FROM.value)) + pp.Literal(JavaScriptParsingKeyword.FROM.value) + \
-                    pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | \
-                         pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
-                    pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
-            elif obj == JavaScriptParsingKeyword.REQUIRE.value:
-                expression_to_match = pp.SkipTo(pp.Literal(CoreParsingKeyword.OPENING_ROUND_BRACKET.value)) + \
-                    pp.Literal(CoreParsingKeyword.OPENING_ROUND_BRACKET.value) + \
-                    pp.OneOrMore(pp.Suppress(pp.Literal(CoreParsingKeyword.SINGLE_QUOTE.value)) | \
-                         pp.Suppress(pp.Literal(CoreParsingKeyword.DOUBLE_QUOTE.value))) + \
-                    pp.FollowedBy(pp.OneOrMore(valid_name.setResultsName(CoreParsingKeyword.IMPORT_ENTITY_NAME.value)))
-
-            try:
-                # parse the dependency based on the expression
-                parsing_result = expression_to_match.parseString(read_ahead_string)
-            except pp.ParseException as exception:
-                result.analysis.statistics.increment(Statistics.Key.PARSING_MISSES)
-                LOGGER.warning(f'warning: could not parse result {result=}\n{exception}')
-                LOGGER.warning(f'next tokens: {[obj] + following[:ParsingMixin.Constants.MAX_DEBUG_TOKENS_READAHEAD.value]}')
-                continue
-
+        for dependency in specifiers:
             analysis.statistics.increment(Statistics.Key.PARSING_HITS)
-
-            # now try to resolve/adjust the dependency to have a unique path
-            dependency = getattr(parsing_result, CoreParsingKeyword.IMPORT_ENTITY_NAME.value)
             resolved_dependency = self.try_resolve_dependency(dependency, result, analysis)
 
-            # ignore any dependency substring from the config ignore list
             if self._is_dependency_in_ignore_list(resolved_dependency, analysis):
                 LOGGER.debug(f'ignoring dependency from {result.unique_name} to {resolved_dependency}')
             else:

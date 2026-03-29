@@ -1,0 +1,24 @@
+---
+project_name: rust-example-project
+loglevel: info
+analyses:
+- analysis_name: rust check
+  source_directory: /Users/user1/emerge/project/source
+  only_permit_languages:
+  - rust
+  only_permit_file_extensions:
+  - .rs
+  file_scan:
+  - number_of_methods
+  - source_lines_of_code
+  - dependency_graph
+  - louvain_modularity
+  - fan_in_out
+  - tfidf
+  export:
+  - directory: /Users/user1/emerge/project/export
+  - graphml
+  - json
+  - tabular_file
+  - tabular_console_overall
+  - d3

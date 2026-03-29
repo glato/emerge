@@ -46,6 +46,7 @@ class SLOCCommentType(Enum):
     CPP = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
     PY = {CommentKeyword.LINE_COMMENT.name: "#", CommentKeyword.START_BLOCK_COMMENT.name: '"""', CommentKeyword.STOP_BLOCK_COMMENT.name: '"""'}
     GO = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
+    RUST = {CommentKeyword.LINE_COMMENT.name: "//", CommentKeyword.START_BLOCK_COMMENT.name: "/*", CommentKeyword.STOP_BLOCK_COMMENT.name: "*/"}
 
 
 class SourceLinesOfCodeMetric(CodeMetric):
@@ -162,3 +163,5 @@ class SourceLinesOfCodeMetric(CodeMetric):
             return SLOCCommentType.PY.value
         if result.scanned_language == LanguageType.GO:
             return SLOCCommentType.GO.value
+        if result.scanned_language == LanguageType.RUST:
+            return SLOCCommentType.RUST.value

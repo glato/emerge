@@ -23,6 +23,7 @@ from emerge.languages.objcparser import ObjCParser
 from emerge.languages.rubyparser import RubyParser
 from emerge.languages.pyparser import PythonParser
 from emerge.languages.goparser import GoParser
+from emerge.languages.rustparser import RustParser
 
 from emerge.config import Configuration
 from emerge.analyzer import Analyzer
@@ -56,7 +57,8 @@ class Emerge:
             ObjCParser.parser_name(): ObjCParser(),
             RubyParser.parser_name(): RubyParser(),
             PythonParser.parser_name(): PythonParser(),
-            GoParser.parser_name(): GoParser()
+            GoParser.parser_name(): GoParser(),
+            RustParser.parser_name(): RustParser(),
         }
 
         self.config.supported_languages = [x.language_type() for x in self._parsers.values()]
