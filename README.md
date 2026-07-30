@@ -34,7 +34,7 @@ The main goal of this project is to create a free/ open source tool, that can ea
 ## The following features are currently supported by emerge
 
 - File scan support for the following languages: `C`, `C++`, `Groovy`, `Java`, `JavaScript`, `TypeScript`, `Kotlin`, `ObjC`, `Ruby`, `Swift`, `Python`
-- Basic entity scan/extraction (e.g. classes) for the following languages: `Groovy`, `Java`, `Kotlin`, `Swift`
+- Basic entity scan/extraction (e.g. classes) for the following languages: `Groovy`, `Java`, `TypeScript`, `Kotlin`, `Swift`
 - Implementation of the following software metrics: SLOC, Whitespace Complexity (impl. by A. Tornhill), Number of Methods, Fan-In/Fan-Out, Modularity (Louvain)
 - Experimental implementation of additional `git-based` metrics (SLOC, Whitespace Complexity, Change Coupling)
 - Infer meaning by feature/semantic keyword extraction based on [term frequency-inverse document frequency](https://en.wikipedia.org/wiki/Tf–idf)
