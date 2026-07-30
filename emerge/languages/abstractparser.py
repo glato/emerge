@@ -9,7 +9,9 @@ import re
 import logging
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from enum import Enum, unique, auto
+from itertools import islice
 from typing import Dict, List, Generator, Optional, Tuple
 from pathlib import Path
 import coloredlogs
@@ -84,6 +86,50 @@ class CoreParsingKeyword(Enum):
     NEWLINE = "\n"
 
 
+class ReadAheadWordList(Sequence):
+    """A lightweight, read-only view over the tail of a token list.
+
+    Emerge's parsers repeatedly ask for "all tokens following the current one" while scanning a file.
+    Materializing that tail with a slice (e.g. ``list_of_words[index + 1:]``) for every single token
+    copies the remainder of the list on each step, which is quadratic in the number of tokens and
+    dominates parsing time (and memory churn) on large files.
+
+    This view exposes exactly the read-only sequence behavior the parsers rely on - iteration,
+    indexing, slicing and ``[current_token] + following`` concatenation - without copying anything
+    until a caller actually materializes the tokens, which only happens on the rare keyword hits and
+    not for every token. Construction is O(1).
+    """
+
+    __slots__ = ("_data", "_start")
+
+    def __init__(self, data: List[str], start: int):
+        self._data = data
+        self._start = min(start, len(data))
+
+    def __len__(self) -> int:
+        return len(self._data) - self._start
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            start, stop, step = index.indices(len(self))
+            return [self._data[self._start + i] for i in range(start, stop, step)]
+        if index < 0:
+            index += len(self)
+        if index < 0 or index >= len(self):
+            raise IndexError('read-ahead index out of range')
+        return self._data[self._start + index]
+
+    def __iter__(self):
+        return islice(self._data, self._start, None)
+
+    def __radd__(self, other):
+        # supports the common ``[current_token] + following`` concatenation used across the parsers
+        return list(other) + list(self)
+
+    def __add__(self, other):
+        return list(self) + list(other)
+
+
 class ParsingMixin(ABC):
 
     class Constants(Enum):
@@ -151,12 +197,10 @@ class ParsingMixin(ABC):
 
     @staticmethod
     def _gen_word_read_ahead(list_of_words) -> Generator:
-        following = None
-        length = len(list_of_words)
+        # yield a read-only view over the remaining tokens instead of copying the tail on every
+        # iteration - copying was quadratic (and allocation-heavy) on large files (see ReadAheadWordList)
         for index, obj in enumerate(list_of_words):
-            if index < (length - 1):
-                following = list_of_words[index + 1:]
-            yield index, obj, following
+            yield index, obj, ReadAheadWordList(list_of_words, index + 1)
 
     @staticmethod
     def _gen_word_before_and_read_ahead(list_of_words) -> Generator:

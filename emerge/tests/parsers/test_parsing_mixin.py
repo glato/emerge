@@ -9,7 +9,7 @@ import unittest
 
 from emerge.results import FileResult
 from emerge.analysis import Analysis
-from emerge.languages.abstractparser import LanguageType, ParsingMixin
+from emerge.languages.abstractparser import LanguageType, ParsingMixin, ReadAheadWordList
 
 
 class ParsingMixinTestCase(unittest.TestCase):
@@ -82,3 +82,46 @@ class ParsingMixinTestCase(unittest.TestCase):
         )
         
         self.assertTrue(resolved_dependency2 == expected_resolved_dependency2_path)
+
+    def test_gen_word_read_ahead_yields_correct_tail(self):
+        """Each read-ahead should expose exactly the tokens that follow the current one."""
+
+        list_of_words = ["import", "foo", "from", "'bar'", ";", "class", "Baz", "{", "}"]
+
+        for index, obj, following in ParsingMixin._gen_word_read_ahead(list_of_words):
+            self.assertTrue(obj == list_of_words[index])
+            # the read-ahead must equal the classic slice of the remaining tokens
+            self.assertTrue(list(following) == list_of_words[index + 1:])
+
+        # the last token has no successors, so its read-ahead must be empty
+        *_, (last_index, _, last_following) = ParsingMixin._gen_word_read_ahead(list_of_words)
+        self.assertTrue(last_index == len(list_of_words) - 1)
+        self.assertTrue(len(last_following) == 0)
+
+    def test_gen_word_read_ahead_supports_slicing_and_concatenation(self):
+        """The read-ahead view must behave like a list for the operations the parsers rely on."""
+
+        list_of_words = ["class", "Foo", "extends", "Bar", "{", "}"]
+
+        _, obj, following = next(ParsingMixin._gen_word_read_ahead(list_of_words))
+
+        # slicing (used e.g. for the debug read-ahead) returns a plain list
+        self.assertTrue(following[:2] == ["Foo", "extends"])
+        # 'list + following' concatenation is used across the parsers
+        self.assertTrue([obj] + following[:2] == ["class", "Foo", "extends"])
+        self.assertTrue([obj] + following == list_of_words)
+        # indexing and length
+        self.assertTrue(following[0] == "Foo")
+        self.assertTrue(len(following) == len(list_of_words) - 1)
+        # create_read_ahead_string joins the current token with all following tokens
+        self.assertTrue(ParsingMixin.create_read_ahead_string(obj, following) == " ".join(list_of_words))
+
+    def test_gen_word_read_ahead_is_a_lazy_view(self):
+        """The read-ahead must be a lightweight view over the original list, not a per-token copy."""
+
+        list_of_words = ["a", "b", "c", "d"]
+
+        views = [following for _, _, following in ParsingMixin._gen_word_read_ahead(list_of_words)]
+        self.assertTrue(all(isinstance(view, ReadAheadWordList) for view in views))
+        # a view holds a reference to the original list instead of copying its tail
+        self.assertTrue(all(view._data is list_of_words for view in views))
