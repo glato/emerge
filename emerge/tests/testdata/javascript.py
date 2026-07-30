@@ -381,3 +381,34 @@ module.exports = {
   purchaseSearch: Reflux.createAction()
 }
 """}
+
+
+# ES6 class definitions used to test JavaScript entity (class) extraction and inheritance.
+JAVASCRIPT_ENTITY_TEST_FILES = {"animal.js": """
+import {EventEmitter} from './events';
+
+export default class Animal extends EventEmitter {
+  constructor(name) {
+    super();
+    this.name = name;
+  }
+
+  speak() {
+    return `${this.name} makes a sound.`;
+  }
+}
+""", "pets.js": """
+import Animal from './animal';
+
+class Dog extends Animal {
+  speak() {
+    return `${this.name} barks.`;
+  }
+}
+
+class Cat extends Animal {
+  speak() {
+    return `${this.name} meows.`;
+  }
+}
+"""}
