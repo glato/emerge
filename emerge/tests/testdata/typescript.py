@@ -133,3 +133,36 @@ interface Info {
 
 export const purchaseSearch = Reflux.createAction();
 """}
+
+
+# TypeScript class definitions used to test entity (class) extraction and inheritance.
+TYPESCRIPT_ENTITY_TEST_FILES = {"animal.ts": """
+import {EventEmitter} from './events';
+
+export default class Animal extends EventEmitter {
+  protected name: string;
+
+  constructor(name: string) {
+    super();
+    this.name = name;
+  }
+
+  speak(): string {
+    return `${this.name} makes a sound.`;
+  }
+}
+""", "pets.ts": """
+import Animal from './animal';
+
+class Dog extends Animal {
+  speak(): string {
+    return `${this.name} barks.`;
+  }
+}
+
+class Cat extends Animal {
+  speak(): string {
+    return `${this.name} meows.`;
+  }
+}
+"""}
